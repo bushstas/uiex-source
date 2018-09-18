@@ -1,0 +1,24 @@
+.uiex-section {
+	position: relative;
+	border: 1px solid #e1e1e1;
+	background-color: #f4f4f4;
+	border-radius: 2px;
+	padding: 16px;
+	display: block;
+
+	.uiex-section-caption {
+		padding-bottom: 25px;
+		font-size: 20px;
+	    line-height: 15px;
+	    font-weight: bold;
+	}
+	.uiex-section-note {
+		position: absolute;
+		right: 15px;
+		top: 18px;
+		font-size: 14px;
+		color: #777;
+		cursor: pointer;
+		font-weight: normal;
+	}
+}

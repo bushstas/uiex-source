@@ -1,0 +1,88 @@
+.uiex-side-panel-outer {
+	position: fixed;
+	overflow: hidden;
+	z-index: 900;
+
+    &.uiex-animated {
+        &.uiex-animation-fade {
+            transition-property: opacity;
+        }
+        &.uiex-animation-roll {
+            transition-property: width, height;
+        }
+        &.uiex-animation-fade-roll {
+            transition-property: width, height, opacity;
+        }
+    }
+
+    .uiex-side-panel {
+    	position: absolute;    	
+    	background-color: #f1f1f1;
+    	box-sizing: border-box;
+    	box-shadow: 0 0 30px #a1a1a1;
+        padding: 15px;
+    }
+
+    &.uiex-side-left {    	
+    	left: 0;
+        top: 0;
+        bottom: 0;
+        height: auto !important;
+
+    	.uiex-side-panel {
+            height: auto !important;
+    		right: 0;
+            top: 0;
+            bottom: 0;
+            width: 300px;
+    		border-right: 1px solid #777;
+    	}
+    }
+
+    &.uiex-side-right {
+        right: 0;
+        top: 0;
+        bottom: 0;
+        height: auto !important;
+
+        .uiex-side-panel {
+            height: auto !important;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 300px;
+            border-left: 1px solid #777;
+        }
+    }
+
+
+    &.uiex-side-top {
+    	top: 0;
+    	left: 0;
+    	right: 0;
+        width: auto !important;
+
+    	.uiex-side-panel {
+            width: auto !important;
+    		left: 0;
+    		right: 0;
+    		height: 300px;
+    		border-bottom: 1px solid #777;
+    	}
+    }
+
+    &.uiex-side-bottom {
+    	bottom: 0;
+    	left: 0;
+    	right: 0;
+        width: auto !important;
+
+    	.uiex-side-panel {
+    		width: auto !important;
+    		left: 0;
+    		right: 0;
+    		height: 300px;
+    		border-top: 1px solid #777;
+    	}
+    }
+}

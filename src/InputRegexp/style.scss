@@ -1,0 +1,50 @@
+.uiex-input.uiex-regexp-input {
+	.uiex-input-inner {	
+		&:before {
+			content: '/';
+			display: flex;
+			align-items: center;
+			position: absolute;
+			top: 0;
+			bottom: 3px;
+			left: 8px;
+			color: #aaa;
+			font-size: 18px;
+			z-index: 2;
+		}
+		&:after {
+			content: '/';
+			display: flex;
+			align-items: center;
+			position: absolute;
+			top: 0;
+			bottom: 3px;
+			right: 8px;
+			color: #aaa;
+			font-size: 18px;
+			z-index: 2;
+		}
+	}
+	input {
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+	&.uiex-clearable {
+		input {
+			padding-right: 42px;
+		}
+		.uiex-input-inner {	
+			&:after {
+				right: 32px;
+			}
+		}
+	}
+	&.uiex-focused {
+		.uiex-input-inner {	
+			&:before,
+			&:after {
+				color: #333;
+			}
+		}
+	}
+}

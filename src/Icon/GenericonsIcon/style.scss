@@ -1,0 +1,538 @@
+@font-face {
+  font-family: 'Genericons-Neue';
+  font-style: normal;
+  font-weight: 400;
+  src: url(./fonts/Genericons-Neue.eot);
+  src: local('Genericons-Neue'),
+    url(./fonts/Genericons-Neue.woff2) format('woff2'),
+    url(./fonts/Genericons-Neue.ttf) format('truetype');
+}
+
+.uiex-gnr {	
+	font-family:"Genericons-Neue";	
+	display:inline-block;
+	vertical-align:middle;
+	line-height:1;
+	font-weight:normal;
+	font-style:normal;
+	speak:none;
+	text-decoration:inherit;
+	text-transform:none;
+	text-rendering:auto;
+	-webkit-font-smoothing:antialiased;
+	-moz-osx-font-smoothing:grayscale;
+}
+
+.uiex-gnr-activity:before {
+	content:"\f508";
+}
+
+
+.uiex-gnr-anchor:before {
+	content:"\f509";
+}
+
+
+.uiex-gnr-aside:before {
+	content:"\f101";
+}
+
+
+.uiex-gnr-attachment:before {
+	content:"\f416";
+}
+
+
+.uiex-gnr-audio-mute:before {
+	content:"\f174";
+}
+
+
+.uiex-gnr-audio:before {
+	content:"\f109";
+}
+
+
+.uiex-gnr-bold:before {
+	content:"\f471";
+}
+
+
+.uiex-gnr-book:before {
+	content:"\f444";
+}
+
+
+.uiex-gnr-bug:before {
+	content:"\f50a";
+}
+
+
+.uiex-gnr-cart:before {
+	content:"\f447";
+}
+
+
+.uiex-gnr-category:before {
+	content:"\f301";
+}
+
+
+.uiex-gnr-chat:before {
+	content:"\f108";
+}
+
+
+.uiex-gnr-checkmark:before {
+	content:"\f418";
+}
+
+
+.uiex-gnr-close-alt:before {
+	content:"\f406";
+}
+
+
+.uiex-gnr-close:before {
+	content:"\f405";
+}
+
+
+.uiex-gnr-cloud-download:before {
+	content:"\f440";
+}
+
+
+.uiex-gnr-cloud-upload:before {
+	content:"\f441";
+}
+
+
+.uiex-gnr-cloud:before {
+	content:"\f426";
+}
+
+
+.uiex-gnr-code:before {
+	content:"\f462";
+}
+
+
+.uiex-gnr-cog:before {
+	content:"\f445";
+}
+
+
+.uiex-gnr-collapse:before {
+	content:"\f432";
+}
+
+
+.uiex-gnr-comment:before {
+	content:"\f300";
+}
+
+
+.uiex-gnr-day:before {
+	content:"\f305";
+}
+
+
+.uiex-gnr-document:before {
+	content:"\f443";
+}
+
+
+.uiex-gnr-download:before {
+	content:"\f50b";
+}
+
+
+.uiex-gnr-edit:before {
+	content:"\f411";
+}
+
+
+.uiex-gnr-ellipsis:before {
+	content:"\f476";
+}
+
+
+.uiex-gnr-expand:before {
+	content:"\f431";
+}
+
+
+.uiex-gnr-external:before {
+	content:"\f442";
+}
+
+
+.uiex-gnr-fastforward:before {
+	content:"\f458";
+}
+
+
+.uiex-gnr-feed:before {
+	content:"\f413";
+}
+
+
+.uiex-gnr-flag:before {
+	content:"\f468";
+}
+
+
+.uiex-gnr-fullscreen:before {
+	content:"\f474";
+}
+
+
+.uiex-gnr-gallery:before {
+	content:"\f103";
+}
+
+
+.uiex-gnr-heart:before {
+	content:"\f461";
+}
+
+
+.uiex-gnr-help:before {
+	content:"\f457";
+}
+
+
+.uiex-gnr-hide:before {
+	content:"\f404";
+}
+
+
+.uiex-gnr-hierarchy:before {
+	content:"\f505";
+}
+
+
+.uiex-gnr-home:before {
+	content:"\f409";
+}
+
+
+.uiex-gnr-image:before {
+	content:"\f102";
+}
+
+
+.uiex-gnr-info:before {
+	content:"\f455";
+}
+
+
+.uiex-gnr-italic:before {
+	content:"\f472";
+}
+
+
+.uiex-gnr-key:before {
+	content:"\f427";
+}
+
+
+.uiex-gnr-link:before {
+	content:"\f107";
+}
+
+
+.uiex-gnr-location:before {
+	content:"\f417";
+}
+
+
+.uiex-gnr-lock:before {
+	content:"\f470";
+}
+
+
+.uiex-gnr-mail:before {
+	content:"\f410";
+}
+
+
+.uiex-gnr-menu:before {
+	content:"\f419";
+}
+
+
+.uiex-gnr-microphone:before {
+	content:"\f50d";
+}
+
+
+.uiex-gnr-minus:before {
+	content:"\f50e";
+}
+
+
+.uiex-gnr-month:before {
+	content:"\f307";
+}
+
+
+.uiex-gnr-move:before {
+	content:"\f50f";
+}
+
+
+.uiex-gnr-next:before {
+	content:"\f429";
+}
+
+
+.uiex-gnr-notice:before {
+	content:"\f456";
+}
+
+
+.uiex-gnr-paintbrush:before {
+	content:"\f506";
+}
+
+
+.uiex-gnr-pause:before {
+	content:"\f448";
+}
+
+
+.uiex-gnr-phone:before {
+	content:"\f437";
+}
+
+
+.uiex-gnr-picture:before {
+	content:"\f473";
+}
+
+
+.uiex-gnr-pinned:before {
+	content:"\f308";
+}
+
+
+.uiex-gnr-play:before {
+	content:"\f452";
+}
+
+
+.uiex-gnr-plugin:before {
+	content:"\f439";
+}
+
+
+.uiex-gnr-plus:before {
+	content:"\f510";
+}
+
+
+.uiex-gnr-previous:before {
+	content:"\f430";
+}
+
+
+.uiex-gnr-print:before {
+	content:"\f469";
+}
+
+
+.uiex-gnr-quote:before {
+	content:"\f106";
+}
+
+
+.uiex-gnr-refresh:before {
+	content:"\f420";
+}
+
+
+.uiex-gnr-reply:before {
+	content:"\f466";
+}
+
+
+.uiex-gnr-rewind:before {
+	content:"\f459";
+}
+
+
+.uiex-gnr-search:before {
+	content:"\f400";
+}
+
+
+.uiex-gnr-send-to-phone:before {
+	content:"\f438";
+}
+
+
+.uiex-gnr-send-to-tablet:before {
+	content:"\f454";
+}
+
+
+.uiex-gnr-share:before {
+	content:"\f415";
+}
+
+
+.uiex-gnr-show:before {
+	content:"\f403";
+}
+
+
+.uiex-gnr-shuffle:before {
+	content:"\f514";
+}
+
+
+.uiex-gnr-sitemap:before {
+	content:"\f507";
+}
+
+
+.uiex-gnr-skip-ahead:before {
+	content:"\f451";
+}
+
+
+.uiex-gnr-skip-back:before {
+	content:"\f450";
+}
+
+
+.uiex-gnr-spam:before {
+	content:"\f424";
+}
+
+
+.uiex-gnr-standard:before {
+	content:"\f100";
+}
+
+
+.uiex-gnr-star-empty:before {
+	content:"\f511";
+}
+
+
+.uiex-gnr-star-half:before {
+	content:"\f513";
+}
+
+
+.uiex-gnr-star:before {
+	content:"\f408";
+}
+
+
+.uiex-gnr-status:before {
+	content:"\f105";
+}
+
+
+.uiex-gnr-stop:before {
+	content:"\f449";
+}
+
+
+.uiex-gnr-subscribe:before {
+	content:"\f463";
+}
+
+
+.uiex-gnr-subscribed:before {
+	content:"\f465";
+}
+
+
+.uiex-gnr-summary:before {
+	content:"\f425";
+}
+
+
+.uiex-gnr-tablet:before {
+	content:"\f453";
+}
+
+
+.uiex-gnr-tag:before {
+	content:"\f302";
+}
+
+
+.uiex-gnr-time:before {
+	content:"\f303";
+}
+
+
+.uiex-gnr-top:before {
+	content:"\f435";
+}
+
+
+.uiex-gnr-trash:before {
+	content:"\f407";
+}
+
+
+.uiex-gnr-unapprove:before {
+	content:"\f446";
+}
+
+
+.uiex-gnr-unsubscribe:before {
+	content:"\f464";
+}
+
+
+.uiex-gnr-unzoom:before {
+	content:"\f401";
+}
+
+
+.uiex-gnr-user:before {
+	content:"\f304";
+}
+
+
+.uiex-gnr-video:before {
+	content:"\f104";
+}
+
+
+.uiex-gnr-videocamera:before {
+	content:"\f517";
+}
+
+
+.uiex-gnr-warning:before {
+	content:"\f414";
+}
+
+
+.uiex-gnr-website:before {
+	content:"\f475";
+}
+
+
+.uiex-gnr-week:before {
+	content:"\f306";
+}
+
+
+.uiex-gnr-xpost:before {
+	content:"\f504";
+}
+
+
+.uiex-gnr-zoom:before {
+	content:"\f402";
+}

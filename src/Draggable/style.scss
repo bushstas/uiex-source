@@ -1,0 +1,29 @@
+.uiex-draggable {
+	&:not(.uiex-with-own-position) {
+		position: absolute !important;
+		left: 0;
+		top: 0;
+		&:active {
+			z-index: 9999 !important;
+		}
+		&.uiex-drag-limits-window {
+			position: fixed !important;
+		}
+	}
+	&.uiex-fixed {
+		position: fixed !important;
+	}
+}
+
+.uiex-draggable-handle-area {
+	user-select: none;
+	-moz-user-select: none;
+	cursor: grab;
+	cursor: -webkit-grab;
+	cursor: -moz-grab;
+	&:active {
+		cursor: grabbing;
+		cursor: -webkit-grabbing;
+		cursor: -moz-grabbing;
+	}
+}

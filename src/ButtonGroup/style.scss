@@ -1,0 +1,162 @@
+.uiex-button-group {
+	display: flex;
+	align-items: flex-start;
+	justify-content: flex-start;
+
+	.uiex-button-group-inner {
+		display: block;
+		width: 100%;
+	}
+	
+	.uiex-button {
+		margin-right: 6px;
+
+		&:last-child {
+			margin-right: 0;
+		}
+
+		&.uiex-float-right {
+			margin-right: 0 !important;
+			margin-left: 6px;
+		}
+		&.uiex-block {
+			margin-right: 0 !important;
+			margin-left: 0 !important;
+			margin-bottom: 4px;
+			
+			&:last-child {
+				margin-bottom: 0;
+			}
+		}
+	}
+
+	&.uiex-button-group-vertical {
+		.uiex-button {
+			width: 100%;
+			margin-bottom: 6px;
+
+			&:last-child {
+				margin-bottom: 0;
+			}
+		}
+	}
+	&.uiex-align-right {
+		.uiex-button {
+			margin-left: 6px;
+			margin-right: 0;
+
+			&:first-child {
+				margin-left: 0;
+			}
+
+			&.uiex-float-left {
+				margin-left: 0 !important;
+				margin-right: 6px;
+			}
+		}
+	}
+
+	&.uiex-align-center {
+		.uiex-button {
+			margin-left: 3px;
+			margin-right: 3px;
+		}
+	}
+
+	&.uiex-button-group-united {
+		.uiex-button {
+			margin-left: 0;
+			margin-right: 0;
+			border-radius: 0;
+			border-right-width: 0;
+			&.uiex-active {
+				border-right-width: 1px;
+			}
+			&.uiex-after-active {
+				border-left-width: 0;
+			}
+			&:first-child {
+				border-radius: 10px 0 0 10px;
+			}
+			&:last-child {
+				border-radius: 0 10px 10px 0;
+				border-right-width: 1px;
+			}
+			&:only-child {
+				border-radius: 10px;
+			}	
+		}
+	}
+
+	&.uiex-button-group-simple {
+		.uiex-button {
+			border-radius: 0;
+			border-left-width: 0;
+			border-top-width: 0;
+			border-bottom-width: 0;
+			border-right-width: 0;
+		}
+		.uiex-button:not(.uiex-colored) {
+			background-color: transparent;
+			&:hover {
+				background-color: #f1f1f1;
+			}
+			&.uiex-active {
+				background-color: #e8e8e8;
+			}
+		}
+	}
+	&.uiex-button-group-underlined {
+		.uiex-button {
+			border-radius: 0;
+			border-left-width: 0;
+			border-top-width: 0;
+			border-right-width: 0;
+			margin-left: 0;
+			margin-right: 0;
+		}
+		.uiex-button:not(.uiex-colored) {
+			background-color: transparent;
+			&:hover {
+				background-color: #f1f1f1;
+			}
+			&.uiex-active {
+				background-color: #e8e8e8;
+			}
+		}
+	}
+	&.uiex-button-group-bordered {
+		.uiex-button {
+			border-radius: 0;
+			border-right-width: 0;
+			border-top-width: 0;
+			border-bottom-width: 0;
+			margin-left: 0;
+			margin-right: 0;
+
+			&.uiex-active {
+				border-left-width: 1px;
+				border-right-width: 1px;
+				&:last-child {
+					border-right-width: 0;
+				}
+			}
+			&.uiex-after-active {
+				border-left-width: 0;
+			}
+
+			&:first-child {
+				border-left-width: 0;
+			}
+		}
+		.uiex-button:not(.uiex-colored) {
+			background-color: transparent;
+			&:hover {
+				background-color: #f1f1f1;
+			}
+			&.uiex-active {
+				background-color: #e8e8e8;
+			}
+		}
+	}
+}

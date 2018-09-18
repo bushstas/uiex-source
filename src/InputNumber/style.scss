@@ -1,0 +1,41 @@
+.uiex-input.uiex-with-measure {
+	input,
+	textarea {
+		padding-right: 40px;
+	}
+	
+	&.uiex-clearable {
+		input,
+		textarea {
+			padding-right: 70px;
+		}
+		.uiex-input-measure {
+			right: 40px;
+		}
+	}
+	&.uiex-disabled {
+		.uiex-input-measure {
+			cursor: not-allowed;
+			color: #bbb;
+		}
+	}
+	
+	.uiex-input-measure {
+		position: absolute;
+		right: 12px;
+		color: #777;
+		font-size: 14px;
+		top: 0;
+		bottom: 0;
+		display: flex;
+		align-items: center;
+		user-select: none;
+
+		&.uiex-multi-measure {
+			cursor: pointer;
+			&:hover {
+				color: #000;
+			}
+		}
+	}
+}

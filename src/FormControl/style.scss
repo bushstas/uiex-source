@@ -1,0 +1,29 @@
+.uiex-form-control {
+	display: inline-block;
+	vertical-align: top;
+	box-sizing: border-box;
+	position: relative;
+
+	.uiex-form-control-caption {
+		margin-bottom: 7px;
+		color: #777;
+		font-size: 14px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.uiex-form-control-content {
+		& > .uiex-control {
+			width: 100% !important;
+			display: block !important;
+		}
+	}
+}
+.uiex-control {
+	display: inline-block;
+	min-width: 60px;
+	box-sizing: border-box;
+    position: relative;
+    white-space: normal;
+    word-break: break-all;
+}

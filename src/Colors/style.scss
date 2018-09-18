@@ -1,0 +1,95 @@
+.uiex-colors {
+    min-width: 100px;
+    &.uiex-disabled {
+        filter: grayscale(100%);
+        opacity: 0.7;
+        .uiex-color {
+            cursor: not-allowed;
+        }
+	}
+	&.uiex-round {
+		.uiex-color {
+			.uiex-color-bg {
+				border-radius: 50%;
+				&:before {
+					border-radius: 50% !important;
+				}
+				&:after {
+					border-radius: 50%;
+				}
+			}
+		}
+	}
+	&.uiex-square {
+		.uiex-color {
+			.uiex-color-bg {
+				border-radius: 0;
+				&:before {
+					border-radius: 0 !important;
+				}
+				&:after {
+					border-radius: 0;
+				}
+			}
+		}
+	}
+	&.uiex-without-border {
+		.uiex-color:not(.uiex-active) {
+			.uiex-color-bg {
+				&:after {
+					border-color: transparent;
+				}
+			}
+		}
+	}
+    .uiex-color {
+    	cursor: pointer;
+        height: 100%;
+        min-height: 20px;
+
+    	&:hover {
+    		.uiex-color-bg {
+    			&:after {
+    				opacity: 0.5;
+    			}
+    		}
+		}
+		
+		&.uiex-active {
+			.uiex-color-bg {
+				&:after {
+					opacity: 0.5;
+					border-width: 2px;
+				}
+				&:before {
+					content: '';
+					position: absolute;
+					left: 2px;
+					right: 2px;
+					top: 2px;
+					bottom: 2px;
+					border-radius: 2px;
+					border: 1px solid #fff;
+					opacity: 0.6;
+				}
+			}
+		}
+
+    	.uiex-color-bg {
+    		position: relative;
+    		height: 100%;
+    		border-radius: 2px;
+    		&:after {
+    			content: '';
+    			position: absolute;
+    			left: 0;
+    			right: 0;
+    			top: 0;
+    			bottom: 0;
+    			border-radius: 2px;
+    			border: 1px solid #000;
+    			opacity: 0.2;
+    		}
+    	}
+    }
+}

@@ -1,0 +1,29 @@
+.uiex-input.uiex-phone-input {
+	&.uiex-with-code input,
+	&.uiex-with-code textarea {
+		padding-left: 44px;
+	}
+	.uiex-phone-code {
+		position: absolute;
+		top: 1px;
+		left: 0;
+		bottom: 1px;
+		width: 36px;
+		display: flex;
+		font-size: 14px;
+		align-items: center;
+		justify-content: center;
+		border-right: 1px solid #aaa;
+		color: #777;
+	}
+	&.uiex-valid {
+		.uiex-phone-code {
+			border-right-color: #78bb00;
+		}
+	}
+	&.uiex-invalid {
+		.uiex-phone-code {
+			border-right-color: #fb3239;
+		}
+	}
+}

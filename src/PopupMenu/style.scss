@@ -1,0 +1,102 @@
+.uiex-popup-menu {	
+	overflow: auto;
+	max-height: 350px;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 100%;
+	margin-top: 1px;
+	background-color: #fff;
+	border: 1px solid #888;
+	border-radius: 2px;
+	z-index: 100;
+	visibility: hidden;
+	height: 0;
+	display: block;
+
+	&.uiex-options-on-top {
+		top: auto;
+		margin-top: 0;
+		bottom: 100%;
+		margin-bottom: 1px;
+	}
+	&.uiex-shown {
+		visibility: visible;
+		height: auto;
+	}
+	&.uiex-multiple {
+		.uiex-popup-menu-item {
+			&.uiex-checked {
+				background-color: #e8f3d8;
+				color: #1e3300;
+				&:hover {
+					background-color: #daecbf;
+				}
+				&.uiex-selected {
+					background-color: #bfde9b;
+				}
+				.uiex-icon {
+					color: green;
+				}
+			}
+		}
+	}
+	.uiex-box {
+		margin-bottom: 0;
+	}
+	&.uiex-disabled {
+		border-color: #bbb !important;
+		.uiex-popup-menu-item {
+			background-color: #f1f1f1 !important;
+			color: #c1c1c1 !important;
+		}
+	}
+}
+.uiex-popup-menu-item {
+	padding: 0 12px;
+	color: #555;
+	height: 38px;
+	font-size: 15px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	display: flex;
+	align-items: center;
+
+	&.uiex-empty-item {
+		color: #aaa;
+	}
+	&.uiex-selected {
+		background-color: #d1d1d1;
+		color: #000;
+	}
+	&:hover:not(.uiex-selected) {
+		background-color: #f1f1f1;
+		color: #000;
+	}
+	&.uiex-with-icon {		
+		padding-left: 8px;
+		.uiex-icon {
+			margin-right: 5px;
+			font-size: 20px;
+		}
+	}
+	&.uiex-with-top-delimiter {
+		border-top: 1px solid #c1c1c1;
+		&.uiex-selected {
+			border-color: #a1a1a1;
+		}
+		&:first-child {
+			border-top: 0 !important;
+		}
+	}
+	&.uiex-with-bottom-delimiter {
+		border-bottom: 1px solid #c1c1c1;
+		&.uiex-selected {
+			border-color: #a1a1a1;
+		}
+		&:last-child {
+			border-top: 0 !important;
+		}
+	}
+}

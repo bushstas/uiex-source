@@ -1,0 +1,25 @@
+.uiex-tabs {
+	display: block;
+	
+	&.uiex-dynamic-tabs {
+		.uiex-button:not(.uiex-add-tab-button) {
+			position: relative;
+			padding-right: 25px;
+		}
+		.uiex-add-tab-button {
+			padding: 0 10px;
+		}
+	}
+	.uiex-tab-close {
+		display: block;
+		box-sizing: border-box;
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 22px;
+		bottom: 0;
+		padding-top: 2px;
+		padding-left: 4px;
+		z-index: 2;
+	}
+}

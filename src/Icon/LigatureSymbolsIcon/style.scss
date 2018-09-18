@@ -1,0 +1,31 @@
+@charset 'UTF-8';
+
+@font-face {
+    font-family: 'LigatureSymbols';
+    src: url('./fonts/LigatureSymbols.eot');
+    src: url('./fonts/LigatureSymbols.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/LigatureSymbols.woff') format('woff'),
+         url('./fonts/LigatureSymbols.ttf') format('truetype'),
+         url('./fonts/LigatureSymbols.svg#LigatureSymbols') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.uiex-lsf {
+  font-family: 'LigatureSymbols';
+  -webkit-text-rendering: optimizeLegibility;
+  -moz-text-rendering: optimizeLegibility;
+  -ms-text-rendering: optimizeLegibility;
+  -o-text-rendering: optimizeLegibility;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-font-smoothing: antialiased;
+  -ms-font-smoothing: antialiased;
+  -o-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+  -webkit-font-feature-settings: "liga" 1, "dlig" 1;
+  -moz-font-feature-settings: "liga=1, dlig=1";
+  -ms-font-feature-settings: "liga" 1, "dlig" 1;
+  -o-font-feature-settings: "liga" 1, "dlig" 1;
+  font-feature-settings: "liga" 1, "dlig" 1;
+}

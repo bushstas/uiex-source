@@ -1,0 +1,1 @@
+export const INPUT_ARRAY_PLACEHOLDER = 'Input new value and press Enter';

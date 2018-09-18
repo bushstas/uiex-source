@@ -1,0 +1,76 @@
+.uiex-rate-form {
+	display: block;
+	
+	.uiex-rate-form-stars {
+		white-space: nowrap;
+	}
+
+	.uiex-icon {
+		margin-right: 5px;
+		font-size: 32px;
+		cursor: pointer;
+		color: #555;
+		transition: color 0.3s;
+
+		&.uiex-active {
+			color: #000;
+		}
+		&.uiex-hovered {
+			color: #ceb600;
+		}
+	}
+
+	&.uiex-form-button-standart,
+	&.uiex-form-button-united {
+		&.uiex-with-buttons {
+			.uiex-rate-form-stars {
+				display: flex;
+				align-items: center;
+				.uiex-button-group {
+					margin-left: 10px;
+				}
+			}
+		}
+	}
+	&.uiex-form-button-under-left {
+		.uiex-button-group {
+			margin-top: 10px;
+			text-align: left;
+		}
+	}
+	&.uiex-form-button-under-right {
+		.uiex-button-group {
+			margin-top: 10px;
+			text-align: right;
+		}
+	}
+	&.uiex-form-button-under-center {
+		.uiex-button-group {
+			margin-top: 10px;
+			text-align: center;
+		}
+	}
+	&.uiex-form-button-under-stretch {
+		.uiex-button-group-inner {
+			display: flex;
+			margin-top: 10px;
+			justify-content: space-between;
+			.uiex-button {
+				flex-grow: 1;
+			}
+		}
+	}
+
+	&.uiex-disabled {
+		.uiex-icon {
+			cursor: not-allowed !important;
+			color: #aaa !important;
+			&.uiex-active {
+				color: #888 !important;
+			}
+			&.uiex-hovered {
+				color: #aaa !important;
+			}
+		}
+	}
+}

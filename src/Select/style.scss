@@ -1,0 +1,104 @@
+.uiex-select {
+	cursor: pointer;
+	display: inline-block;
+
+	.uiex-input {
+		width: 100%;
+		input {
+			cursor: pointer !important;
+			padding-right: 30px !important;
+		}
+	}
+	&.uiex-multi-valued {
+		.uiex-input {
+			input {
+				padding-right: 58px !important;
+			}
+		}
+		&.uiex-without-icon {
+			.uiex-input {
+				input {
+					padding-right: 40px !important;
+				}
+			}
+		}
+	}
+	.uiex-select-arrow-icon {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		display: flex;
+		align-items: center;
+		right: 3px;		
+		
+		.uiex-icon {
+			font-size: 28px;
+			color: #555;
+			transform: rotate(0deg);
+			transition: transform 0.1s;
+		}
+	}
+	&.uiex-without-icon {
+		.uiex-input {
+			input {
+				padding-right: 12px !important;
+			}
+		}
+	} 
+	&.uiex-disabled {
+		cursor: not-allowed;
+		.uiex-input {
+			input {
+				cursor: not-allowed !important;
+			}
+		}
+		.uiex-select-arrow-icon {
+			.uiex-icon {
+				cursor: not-allowed !important;
+			}
+		}
+		.uiex-quantity-label {
+			opacity: 0.5;
+		}
+	}
+	.uiex-quantity-label {
+		display: block;
+	    padding: 0px 3px 2px 3px;
+	    border-radius: 5px;
+	    background-color: #757575;
+	    color: #fff;
+	    position: absolute;
+	    top: 50%;
+	    margin-top: -11px;
+	    right: 30px;
+	    font-size: 14px;
+	}
+
+	.uiex-popup-menu-item {
+		&.uiex-empty-option {
+			color: #aaa;
+		}
+	}
+
+	&.uiex-select-focused {
+		.uiex-select-arrow-icon {
+			.uiex-icon:not(.uiex-disabled) {
+				color: #000;
+				transform: rotate(180deg);
+			}
+		}
+		.uiex-input {
+			input {
+				outline: 0;
+				border-color: #888;
+				box-shadow: inset 3px 3px 7px #e4e4e4;
+				color: #000;
+			}
+		}
+		&.uiex-without-options {
+			.uiex-popup-menu {
+				display: none !important;
+			}
+		}
+	}
+}

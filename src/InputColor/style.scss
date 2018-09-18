@@ -1,0 +1,105 @@
+.uiex-input.uiex-color-input {
+	.uiex-color-input-left-side {
+		position: absolute;
+		top: 1px;
+		left: 0;
+		bottom: 1px;
+		width: 37px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-right: 1px solid #aaa;
+		text-align: left;
+
+		.uiex-color-input-color {
+			position: relative;
+			width: 22px;
+			height: 22px;
+			box-sizing: border-box;
+			border-radius: 50%;
+			cursor: pointer;
+
+			&:after {
+				content: '';
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				border: 1px solid #000;
+				opacity: 0.4;
+				box-sizing: border-box;
+				border-radius: 50%;
+			}
+			&:hover {
+				&:after {
+					opacity: 0.6;
+				}
+			}
+		}
+		.uiex-color-input-hash {
+			position: absolute;
+			left: 100%;
+			margin-left: 10px;
+			top: 0;
+			bottom: 0;
+			display: flex;
+			align-items: center;
+			font-size: 18px;
+			color: #888;
+			user-select: none;
+		}
+		.uiex-icon {
+			font-size: 24px;
+			color: #ddd;
+		}
+	}
+	& > .uiex-input-inner {
+		& > input {
+			padding-left: 60px !important;
+		}
+	}
+	.uiex-popup {
+		position: absolute;
+		top: 100%;
+		margin-top: 2px;
+		left: 0;
+		z-index: 100;
+		.uiex-color-picker {
+			border-color: #888;
+		}
+	}
+	&.uiex-full-with-picker {
+		.uiex-popup {
+			width: auto !important;
+			right: 0;
+			.uiex-color-picker {
+				width: 100% !important;
+			}
+		}
+	}
+	&.uiex-disabled {
+		.uiex-color-input-left-side {
+			border-color: #ccc;
+			.uiex-color-input-color {
+				filter: grayscale(100%);
+				cursor: not-allowed;
+				opacity: 0.7;
+				&:after {
+					opacity: 0.2 !important;
+				}
+			}
+		}
+		.uiex-color-input-hash {
+			color: #ccc;
+		}
+	}
+	&.uiex-valid {
+		.uiex-color-input-left-side {
+			border-color: #78bb00;
+		}
+	}
+	&.uiex-invalid {
+		.uiex-color-input-left-side {
+			border-color: #ff8387;
+		}
+	}
+}

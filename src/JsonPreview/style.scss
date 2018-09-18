@@ -1,0 +1,57 @@
+.uiex-json-preview {
+    color: #555;
+    display: block;
+	
+	pre {
+        margin: 0;
+        font-size: 15px;
+        tab-size: 2;
+        -moz-tab-size: 2;
+	}
+
+	.uiex-json-preview-sign {
+    	color: #888;
+    }
+    .uiex-json-preview-string {
+    	color: #4aaf33;
+    }
+    .uiex-json-preview-symbol {
+    	color: #ff6844;
+    }
+    .uiex-json-preview-promise {
+        color: #344dd2;
+        font-style: italic;
+    }
+    .uiex-json-preview-key {
+    	color: #bf8f00;
+    }
+    .uiex-json-preview-regexp {
+    	color: #4aaf33;
+    	font-style: italic;
+    }
+    .uiex-json-preview-number {
+    	color: #344dd2;
+    }
+    .uiex-json-preview-boolean {
+    	color: #344dd2;
+    }
+    .uiex-json-preview-null {
+    	color: #a1a1a1;
+    }
+    .uiex-json-preview-undefined {
+    	color: #a1a1a1;
+    }
+    .uiex-json-preview-function {
+    	color: #344dd2;
+    	font-style: italic;
+    }
+    .uiex-json-preview-element {
+    	color: #344dd2;
+    	font-style: italic;
+    }
+    .uiex-json-preview-info {
+        margin-top: 10px;
+        color: #777;
+        font-size: 13px;
+    }
+}

@@ -1,0 +1,221 @@
+.uiex-modal {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 0;
+    cursor: default;
+
+    &.uiex-without-portal {
+        z-index: 1000;
+    }
+
+    &.uiex-shown {
+    	display: block;
+    	&.uiex-animation-fade {
+            .uiex-modal-mask,
+            .uiex-modal-container {
+                transition: opacity 0.2s ease-out;
+            }
+        }
+        &.uiex-animation-float,
+        &.uiex-animation-fall {
+            .uiex-modal-mask {
+                transition: opacity 0.2s ease-out;   
+            }
+            .uiex-modal-container {
+                transition: margin-top 0.2s, opacity 0.2s ease-out;
+            }
+        }
+        &.uiex-animation-perspective-top,
+        &.uiex-animation-perspective-bottom,
+        &.uiex-animation-scale-down,
+        &.uiex-animation-scale-up {
+            .uiex-modal-mask {
+                transition: opacity 0.2s ease-out;   
+            }
+            .uiex-modal-container {
+                transition: transform 0.2s, opacity 0.2s ease-out;
+            }
+        }
+    }
+
+    &.uiex-expanded {
+    	 align-items: stretch;
+    	.uiex-modal-container {
+            position: fixed;
+            left: 0 !important;
+            right: 0 !important;
+            top: 0 !important;
+            bottom: 0 !important;
+    		border-radius: 0;
+    		border: 0;
+            margin: 0 !important;
+            width: auto !important;
+            height: auto !important;
+
+            .uiex-modal-header {
+                border-radius: 0;
+            }
+    		.uiex-modal-body {
+    			height: auto;
+    			max-height: none;
+    		}
+    	}
+    }
+    .uiex-modal-mask {
+	 	position: fixed;
+	    left: 0;
+	    top: 0;
+	    right: 0;
+	    bottom: 0;
+	    z-index: 1;
+	    background-color: #000;
+	    opacity: 0.6;
+    }
+    .uiex-modal-outer-content {
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2;
+    }
+    &.uiex-opacity-0 {
+        .uiex-modal-mask {
+            opacity: 0;
+        }
+    }
+    &.uiex-opacity-1 {
+        .uiex-modal-mask {
+            opacity: 0.1;
+        }
+    }
+    &.uiex-opacity-2 {
+        .uiex-modal-mask {
+            opacity: 0.2;
+        }
+    }
+    &.uiex-opacity-3 {
+        .uiex-modal-mask {
+            opacity: 0.3;
+        }
+    }
+    &.uiex-opacity-4 {
+        .uiex-modal-mask {
+            opacity: 0.4;
+        }
+    }
+    &.uiex-opacity-5 {
+        .uiex-modal-mask {
+            opacity: 0.5;
+        }
+    }
+    &.uiex-opacity-6 {
+        .uiex-modal-mask {
+            opacity: 0.6;
+        }
+    }
+    &.uiex-opacity-7 {
+        .uiex-modal-mask {
+            opacity: 0.7;
+        }
+    }
+    &.uiex-opacity-8 {
+        .uiex-modal-mask {
+            opacity: 0.8;
+        }
+    }
+    &.uiex-opacity-9 {
+        .uiex-modal-mask {
+            opacity: 0.9;
+        }
+    }
+    &.uiex-opacity-10 {
+        .uiex-modal-mask {
+            opacity: 1;
+        }
+    }
+    .uiex-modal-outer-container {
+        position: relative;
+    	z-index: 3;
+    }
+
+    .uiex-modal-container {
+    	position: absolute;
+    	min-width: 300px;
+    	background-color: #fff;
+    	border-radius: 3px;
+    	box-shadow: 0 0 10px #444;
+        display: flex;
+        flex-direction: column;
+        left: 50%;
+        top: 50%;
+    }
+
+    .uiex-modal-controls {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        font-size: 20px;
+        z-index: 2;
+        color: #333;
+        display: flex;
+        align-items: center;
+        .uiex-icon {
+            opacity: 0.7;
+            margin-left: 5px;
+            cursor: pointer;
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+    &.uiex-without-header {
+        .uiex-modal-controls {
+            right: 5px;
+            top: 5px;
+            .uiex-draggable-handle-area {
+                line-height: 0;
+                .uiex-icon {
+                    cursor: inherit;
+                }
+            }
+        }
+        .uiex-modal-body {
+            padding-top: 32px;
+        }
+    }
+
+    .uiex-modal-header {
+        position: relative;
+        z-index: 1;
+    	font-size: 17px;
+    	font-weight: bold;
+    	line-height: 20px;
+    	min-height: 40px;
+    	background-color: #d7d7d7;
+    	color: #555;
+    	padding: 0 10px 0 15px;
+    	display: flex;
+    	align-items: center;
+    	border-radius: 3px 3px 0 0;
+
+        &:empty {
+            display: none;
+        }
+    }
+    .uiex-modal-body {
+    	padding: 20px;
+    	overflow: auto;
+        flex-grow: 1;
+    }
+    .uiex-modal-footer {
+    	min-height: 40px;
+    	border-top: 1px solid #ccc;
+    	padding: 0 20px;
+    	display: flex;
+    	align-items: center;    	
+    }
+}

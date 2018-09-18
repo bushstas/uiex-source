@@ -1,0 +1,470 @@
+import React from 'react';
+import {withStateMaster, registerContext, unregisterContext} from './state-master';
+import {BoxCommonPropTypes} from './Box/proptypes';
+import {
+	showImproperChildError,
+	showProperChildMaxCountError,
+	getComponentClassName,
+	addStyleProperty,
+	addObject,
+	mapChildren
+} from './utils';
+import {FORM_BUTTON_DISPLAY} from './consts';
+
+const PROPS_LIST = ['width', 'height', 'fontSize', 'style'];
+
+class UIEXComponentClass extends React.PureComponent {
+	constructor(props) {
+		super(props);
+		this.stylesChanged = {};
+		this.styles = {};
+		this.state = {};
+		registerContext(this);		
+	}
+
+	static getDerivedStateFromProps({nextProps, add, isChangedAny, isInitial}) {
+		if (isChangedAny()) {
+			add('mainStyle', this.getMainStyle(nextProps));
+		}
+	}
+	
+	componentWillReceiveProps_(nextProps) {
+		// const {width, height, fontSize, style} = nextProps;
+		// this.stylesChanged.main = (
+		// 	width != this.props.width ||
+		// 	height != this.props.height || 
+		// 	fontSize != this.props.fontSize || 
+		// 	style != this.props.style
+		// );
+		// const {styleNames} = this.constructor;
+		// if (styleNames) {
+		// 	if (typeof styleNames == 'string') {
+		// 		this.initStyleChange(styleNames, nextProps);
+		// 	} else if (styleNames instanceof Array) {
+		// 		for (let i = 0; i < styleNames.length; i++) {
+		// 			this.initStyleChange(styleNames[i], nextProps);
+		// 		}
+		// 	}
+		// }
+	}
+
+	initStyleChange(name, props) {
+		const key = name + 'Style';
+		this.stylesChanged[name] = this.props[key] != props[key];
+	}
+
+	setStyleChanged(isChanged) {
+		this.stylesChanged.main = isChanged;
+	}
+
+	getStyle(name) {
+		if (this.styles[name] === undefined || this.stylesChanged[name]) {
+			const defaultStyle = this.getDefaultStyle(name);
+			const key = name + 'Style';
+			if (this.props[key] || defaultStyle) {
+				this.styles[name] = {
+					...defaultStyle,
+					...this.props[key]
+				};
+			} else {
+				this.styles[name] = null;
+			}
+		}
+		return this.styles[name];
+	}
+
+	getMainStyle(props, styleProps = null) {
+		let style = null;		
+		style = addObject(this.getDefaultStyle(), style);
+		style = addObject(this.getCustomStyle(styleProps || props), style);		
+		if (this.isWithPropStyle()) {
+			style = addObject(props.style, style);
+		}
+		
+		const width = this.getWidthProp(props);
+		style = addStyleProperty(width, 'width', style);
+		
+		const height = this.getHeightProp(props);
+		style = addStyleProperty(height, 'height', style);
+		
+		style = addStyleProperty(props.fontSize, 'fontSize', style);
+		return style;
+	}
+
+	componentWillUnmount() {
+		unregisterContext(this);
+		this.isUnmounted = true;
+	}
+
+	renderChildren() {
+		this.properChildrenCount = 0;
+		this.currentProperChildIdx = -1;
+		return this.prepareChildren(
+			this.doRenderChildren(this.props.children)
+		);
+	}
+	
+	doRenderChildren(children) {
+		if (children) {
+			if (children instanceof Array) {
+				return mapChildren(children, this.renderChild);
+			}
+			return this.renderChild(children);
+		}
+		return null;
+	}
+
+	renderChild = (child, idx = 0, arr = null) => {
+		if (child) {
+			if (child instanceof Array) {
+				return this.doRenderChildren(child);
+			}
+			const isValidElement = React.isValidElement(child);
+			const isProperChild = this.isProperChild(child.type);
+			if (!isProperChild && this.canHaveOnlyProperChildren()) {
+				showImproperChildError(child, this);
+				return null;
+			}
+			if (isValidElement) {
+				if (child.props.hidden) {
+					return null;
+				}
+				const props = {
+					key: child.key || idx
+				};
+				if (isProperChild) {
+					if (!this.filterChild(child)) {
+						return null;
+					}
+					const maxCount = this.getProperChildMaxCount();
+					if (maxCount && maxCount == this.properChildrenCount) {
+						showProperChildMaxCountError(child, this);
+						return null;
+					}
+					this.currentProperChildIdx++;
+					this.properChildrenCount++;
+					const {
+						disabled,
+						vertical,
+					} = this.props;
+
+					if (disabled) {
+						props.disabled = true;
+					}
+					if (vertical) {
+						props.block = true;
+					}
+					props.nativeChildIdx = this.currentProperChildIdx;
+					let isLast = false;
+					if (arr instanceof Array) {
+						isLast = idx == arr.length - 1;
+					}
+					this.addChildProps(child, props, this.currentProperChildIdx, isLast);
+				}
+				const children = isProperChild ? child.props.children : this.doRenderChildren(child.props.children);
+				child = React.cloneElement(child, props, children);
+			}
+			return child;
+		}
+		return null;
+	}
+
+	getProps(props, withStyle = true) {
+		const {title} = this.props;
+		const componentProps = {
+			ref: 'main',
+			className: getComponentClassName(this)
+		};
+		if (typeof title == 'string') {
+			componentProps.title = title;
+		}
+		if (withStyle && this.state instanceof Object) {
+			const style = this.state.mainStyle;
+			if (style) {
+				componentProps.style = style;
+			}
+		}
+		if (props instanceof Object) {
+			for (let k in props) {
+				componentProps[k] = props[k];
+			}
+		}
+		const customProps = this.getCustomProps();
+		if (customProps instanceof Object) {
+			for (let k in customProps) {
+				componentProps[k] = customProps[k];
+			}
+		}
+		return componentProps;
+	}
+
+	render() {
+		this.initRendering();
+		return this.renderInternal();
+	}
+
+	getNativeClassName() {
+		let {className, additionalClassName, displayName, name} = this.constructor;
+		if (displayName) {
+			name = displayName;
+		}
+		className = 'uiex-' + (className || name.toLowerCase());
+		if (additionalClassName) {
+			className += ' uiex-' + additionalClassName;
+		}
+		return className;
+	}
+
+	getCustomProps() {
+		return null;
+	}
+
+	getCustomStyle() {
+		return null;
+	}
+
+	renderInternal() {
+		const content = this.renderChildren();
+		const TagName = this.getTagName();
+		return (
+			<TagName {...this.getProps()}>
+				{content}
+			</TagName>
+		)
+	}
+
+	getTagName() {
+		let {tagName} = this.props; 
+		if (!tagName || typeof tagName != 'string' || !(/^[a-z]/i).test(tagName.charAt(0))) {
+			tagName = 'div';
+		}
+		return tagName;
+	}
+
+	getDefaultStyle(name = 'main') {
+		if (this.constructor.defaultStyles instanceof Object) {
+			return this.constructor.defaultStyles[name];
+		}
+	}
+
+	isProperChild(child) {
+		if (child instanceof Object && typeof child.type == 'function') {
+			child = child.type;
+		}
+		if (typeof child == 'function') {
+			const {properChildren, properChildrenSign} = this.constructor;
+			if (properChildren) {
+				if (typeof properChildren == 'string') {
+					return child.displayName == properChildren;
+				} else if (properChildren instanceof Array) {
+					return properChildren.indexOf(child.displayName) > -1;
+				}
+			}
+			if (typeof properChildrenSign == 'string') {
+				return !!child[properChildrenSign];
+			}
+		}
+		return false;
+	}
+
+	getExpectedChildren() {
+		const {properChildren} = this.constructor;
+		if (properChildren) {
+			if (typeof properChildren == 'string') {
+				return properChildren;
+			} else if (properChildren instanceof Array) {
+				return properChildren.join(', ');
+			}
+		}
+		return '';
+	}
+
+	canHaveOnlyProperChildren() {
+		return this.constructor.onlyProperChildren;
+	}
+
+	getProperChildMaxCount() {
+		return this.constructor.properChildrenMaxCount;
+	}
+
+	isOwnChild(element) {
+		const {isInnerChild} = this.props;
+		const {main} = this.refs;
+		if (main instanceof Element) {
+			const parent = main.parentNode;
+			while (element instanceof Element) {
+				if (element == main || (isInnerChild && element == parent)) {
+					return true;
+				}
+				element = element.parentNode;
+			}
+		}
+		return false;
+	}
+
+	filterChild() {
+		return true;
+	}
+
+	getClassName(cn, add = null) {
+		return this.getNativeClassName() + '-' + cn + (add && typeof add == 'string' ? ' ' + add : '');
+	}
+
+	isAlignable() {
+		return true;
+	}
+
+	prepareChildren(children) {
+		return children;
+	}
+
+	getWidthProp(props) {
+		return props.width;
+	}
+
+	getHeightProp(props) {
+		return props.height;
+	}
+
+	isWithPropStyle() {
+		return true;
+	}
+
+	initRendering() {}
+	addChildProps() {}
+	getStyleNames() {}
+	addClassNames() {}
+}
+
+export const UIEXComponent = withStateMaster(UIEXComponentClass, PROPS_LIST);
+
+
+export class UIEXButtons extends UIEXComponent {
+	addClassNames(add) {
+		const {vertical, view} = this.props;
+		add('button-group-vertical', vertical);
+		add('button-group-' + view, view);
+	}
+
+	addCommonButtonsProps(child, props) {
+		const {
+			buttonColor,
+			buttonWidth,
+			buttonHeight,
+			buttonStyle,
+			iconSize,
+			iconType,
+			iconAtRight,
+			view,
+			gradient
+		} = this.props;
+
+		
+		if (view == 'simple') {
+			props.width = 'auto';
+		}
+		if (gradient && typeof child.props.gradient == 'undefined') {
+			props.gradient = true;
+		}
+		if (buttonColor && !child.props.color) {
+			props.color = buttonColor;
+		}
+		if (buttonWidth && !child.props.width) {
+			props.width = buttonWidth;
+		}
+		if (buttonHeight && !child.props.height) {
+			props.height = buttonHeight;
+		}
+		if (buttonStyle instanceof Object) {
+			if (child.props.style instanceof Object) {
+				props.style = {
+					...buttonStyle,
+					...child.props.style
+				};
+			} else {
+				props.style = buttonStyle;
+			}
+		}
+		if (iconSize && !child.props.iconSize) {
+			props.iconSize = iconSize;
+		}
+		if (iconType && !child.props.iconType) {
+			props.iconType = iconType;
+		}
+		if (iconAtRight && !child.props.iconAtRight) {
+			props.iconAtRight = iconAtRight;
+		}
+	}
+}
+
+export class UIEXIcon extends UIEXComponent {
+	getCustomProps() {
+		let {disabled, onClick} = this.props;
+		return {
+			onClick: disabled ? null : onClick
+		}
+	}
+}
+
+export class UIEXBoxContainer extends UIEXComponent {
+	getBoxProps() {
+		const keys = Object.keys(BoxCommonPropTypes);
+		const boxProps = {};
+		for (let k of keys) {
+			boxProps[k] = this.props[k];
+		}
+		return boxProps;
+	}
+}
+
+
+export class UIEXForm extends UIEXComponent {
+	addClassNames(add) {
+		const {width, noBorder, buttonDisplay} = this.props;
+		if (buttonDisplay && FORM_BUTTON_DISPLAY.indexOf(buttonDisplay) > -1) {
+			add('form-button-' + buttonDisplay);
+		} else {
+			add('form-button-standart');
+		}		
+		add('simple-form');
+		add('form-with-given-width', width);
+		add('without-border', noBorder);
+	}
+
+	renderInternal() {		
+		const {caption, contentBefore, children, captionInside} = this.props;
+		return (
+			<div {...this.getProps()}>
+				{caption && !captionInside && 
+					<div className={this.getClassName('caption')}>
+						{caption}
+					</div>
+				}
+				<div className={this.getClassName('inner')}>
+					{caption && captionInside && 
+						<div className={this.getClassName('caption')}>
+							{caption}
+						</div>
+					}
+					{contentBefore && 
+						<div className={this.getClassName('content') + ' uiex-content-before'}>
+							{contentBefore}
+						</div>
+					}
+					{this.renderContent()}
+					{children && 
+						<div className={this.getClassName('content')}>
+							{children}
+						</div>
+					}
+				</div>
+			</div>
+		)
+	}
+
+	getClassName(cn) {
+		return super.getClassName(cn) + ' uiex-simple-form-' + cn;
+	}
+
+	renderContent() {}
+}

@@ -1,0 +1,284 @@
+@import "./variables";
+
+#uiex-modal-root {
+	position: relative;
+	z-index: 1000;
+}
+
+.uiex-scrollable {
+	&::-webkit-scrollbar {
+		width: 7px;
+		height: 7px;
+		background-color: #ccc;
+		left: -10px;
+	}
+	&::-webkit-scrollbar-thumb {
+		background: #888; 
+	}
+}
+.bggreen {
+	background-color: #53bb44;
+}
+*.uiex-hidden {
+	display: none !important;
+}
+*.uiex-block:not(.uiex-hidden) {
+	display: block !important;
+}
+*.uiex-float-left {
+	float: left !important;
+}
+*.uiex-float-right {
+	float: right !important;
+}
+*.uiex-align-left {
+	text-align: left !important;
+}
+*.uiex-align-center {
+	text-align: center !important;
+}
+*.uiex-align-right {
+	text-align: right !important;
+}
+*.uiex-valign-top {
+	align-items: flex-start !important;
+}
+*.uiex-valign-center {
+	align-items: center !important;
+}
+*.uiex-valign-bottom {
+	align-items: flex-end !important;
+}
+
+
+
+*.uiex-color-black {
+	background-color: $black !important;
+	color: #f1f1f1 !important;
+	border-color: $darkblack !important;
+
+	&.uiex-color-hover {
+		&:hover {
+			background-color: $black_hover !important;
+			border-color: $darkblack_hover !important;
+		}
+		&.uiex-with-gradient:hover {
+
+		}
+	}
+	&.uiex-with-gradient {
+		background: linear-gradient($black, $darkblack_hover);
+	}
+}
+*.uiex-color-gray {
+	background-color: $gray !important;
+	border-color: $darkgray !important;
+	color: #000 !important;
+
+	&.uiex-color-hover {
+		&:hover {
+			background-color: $gray_hover !important;
+			border-color: $darkgray_hover !important;
+		}
+		&.uiex-with-gradient:hover {
+
+		}
+	}
+	&.uiex-with-gradient {
+		background: linear-gradient($gray_hover, #b7b7b7);
+	}
+}
+*.uiex-color-white {
+	background-color: $white !important;
+	border-color: $darkwhite !important;
+
+	&.uiex-color-hover {
+		&:hover {
+			background-color: $white_hover !important;
+			border-color: $darkwhite_hover !important;
+		}
+		&.uiex-with-gradient:hover {
+
+		}
+	}
+	&.uiex-with-gradient {
+		background: linear-gradient($white, #e0e0e0);
+	}
+}
+*.uiex-color-red {
+	background-color: $red !important;
+	color: #fff !important;
+	border-color: $darkred !important;
+
+	&.uiex-color-hover {
+		&:hover {
+			background-color: $red_hover !important;
+			border-color: $darkred_hover !important;
+		}
+		&.uiex-with-gradient:hover {
+
+		}
+	}
+	&.uiex-with-gradient {
+		background: linear-gradient($red, $darkred);
+	}
+}
+*.uiex-color-blue {
+	background-color: $blue !important;
+	color: #fff !important;
+	border-color: $darkblue !important;
+
+	&.uiex-color-hover {
+		&:hover {
+			background-color: $blue_hover !important;
+			border-color: $darkblue_hover !important;
+		}
+		&.uiex-with-gradient:hover {
+
+		}
+	}
+	&.uiex-with-gradient {
+		background: linear-gradient($blue, $darkblue);
+	}
+}
+*.uiex-color-green {
+	background-color: $green !important;
+	color: #fff !important;
+	border-color: $darkgreen !important;
+
+	&.uiex-color-hover {
+		&:hover {
+			background-color: $green_hover !important;
+			border-color: $darkgreen_hover !important;
+		}
+		&.uiex-with-gradient:hover {
+
+		}
+	}
+	&.uiex-with-gradient {
+		background: linear-gradient($green, $darkgreen);
+	}
+}
+*.uiex-color-yellow {
+	background-color: $yellow !important;
+	border-color: $darkyellow !important;
+	color: #3d3e00 !important;
+
+	&.uiex-color-hover {
+		&:hover {
+			background-color: $yellow_hover !important;
+			border-color: $darkyellow_hover !important;
+		}
+		&.uiex-with-gradient:hover {
+
+		}
+	}
+	&.uiex-with-gradient {
+		background: linear-gradient($yellow, #b5a500);
+		color: #000;
+	}
+}
+*.uiex-color-orange {
+	background-color: $orange !important;
+	border-color: $darkorange !important;
+	color: #4a2600 !important;
+
+	&.uiex-color-hover {
+		&:hover {
+			background-color: $orange_hover !important;
+			border-color: $darkorange_hover !important;
+		}
+		&.uiex-with-gradient:hover {
+
+		}
+	}
+	&.uiex-with-gradient {
+		background: linear-gradient($orange, #c17300);
+		color: #000;
+	}
+}
+
+.uiex-simple-form {
+	display: inline-block;
+	min-width: 200px;
+
+	&.uiex-form-with-given-width {
+		min-width: 0;
+	}
+
+	&:not(.uiex-without-border) {
+		.uiex-simple-form-inner {
+			padding: 15px 20px;
+			border: 1px solid #c7c7c7;
+		}
+	}
+	&.uiex-without-border {
+		.uiex-simple-form-caption {
+			margin-bottom: 12px;	
+		}
+	}
+
+	.uiex-simple-form-caption {
+		margin-bottom: 7px;
+	    color: #777;
+	    font-size: 14px;
+	    display: inline-block;
+	}
+
+	.uiex-simple-form-content {
+		&:empty {
+			display: none;
+		}
+		margin-top: 10px;
+		&.uiex-content-before {
+			margin-top: 0;
+			margin-bottom: 12px;
+		}
+	}
+}
+
+.uiex-animated {
+	&.uiex-effect-ease {
+		transition-timing-function: ease;
+	}
+	&.uiex-effect-ease-out {
+		transition-timing-function: ease-out;
+	}
+	&.uiex-effect-ease-in {
+		transition-timing-function: ease-in;
+	}
+	&.uiex-effect-ease-in-out {
+		transition-timing-function: ease-in-out;
+	}
+}
+
+.uiex-blured-1 {
+	filter: blur(1px);
+}
+.uiex-blured-2 {
+	filter: blur(2px);
+}
+.uiex-blured-3 {
+	filter: blur(3px);
+}
+.uiex-blured-4 {
+	filter: blur(4px);
+}
+.uiex-blured-5 {
+	filter: blur(5px);
+}
+.uiex-blured-6 {
+	filter: blur(6px);
+}
+.uiex-blured-7 {
+	filter: blur(7px);
+}
+.uiex-blured-8 {
+	filter: blur(8px);
+}
+.uiex-blured-9 {
+	filter: blur(9px);
+}
+.uiex-blured-10 {
+	filter: blur(10px);
+}

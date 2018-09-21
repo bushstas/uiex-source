@@ -9,6 +9,7 @@ export const InputNumberPropTypes = {
 	decimal: PropTypes.bool,
 	correctionOnBlur: PropTypes.bool,
 	valueWithMeasure: PropTypes.bool,
+	withoutControls: PropTypes.bool,
 	toFixed: PROPTYPE.STRNUM,
 	addStep: PROPTYPE.STRNUM,
 	minValue: PROPTYPE.STRNUM,

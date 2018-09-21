@@ -252,13 +252,12 @@ class ModalComponent extends UIEXComponent {
 		if (!isOpen && !this.state.isOpen) {
 			return null;
 		}
-		const {mainStyle, root, x: sx, y: sy} = this.state;
+		const {root, x: sx, y: sy} = this.state;
 		const TagName = this.getTagName();
 		const canDrag = draggable && !expanded;
 
 		x = getNumberOrNull(x, sx);
 		y = getNumberOrNull(y, sy);
-
 		const content = (
 			<TagName {...this.getProps(null, false)} onClick={this.handleClick}>
 				{!withoutMask && 
@@ -278,7 +277,7 @@ class ModalComponent extends UIEXComponent {
 					<Draggable 
 						ref="drag"
 						className={this.getClassName('container')}
-						style={mainStyle}
+						style={this.getMainStyle()}
 						x={x}
 						y={y}
 						fixed

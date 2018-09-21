@@ -1,19 +1,29 @@
-.uiex-input.uiex-phone-input {
-	&.uiex-with-code input,
-	&.uiex-with-code textarea {
-		padding-left: 44px;
+.uiex-input.uiex-date-input {
+	&:not(.uiex-without-icon) {
+		input {
+			padding-left: 40px;
+		}
 	}
-	.uiex-phone-code {
+	.uiex-input-date-icon {
 		position: absolute;
-		top: 0;
 		left: 0;
+		top: 0;
 		bottom: 0;
-		width: 36px;
+		width: 38px;
 		display: flex;
-		font-size: 14px;
-		align-items: center;
 		justify-content: center;
-		border-right: 1px solid #aaa;
-		color: #777;
+		align-items: center;
+
+		.uiex-icon {
+			font-size: 24px;
+			color: #888;
+		}
+	}
+	&.uiex-focused {
+		.uiex-input-date-icon {
+			.uiex-icon {
+				color: #555;
+			}
+		}
 	}
 }

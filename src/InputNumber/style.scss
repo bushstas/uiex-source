@@ -1,40 +1,88 @@
-.uiex-input.uiex-with-measure {
+.uiex-input.uiex-number-input {
 	input,
 	textarea {
-		padding-right: 40px;
+		padding-right: 35px;
 	}
-	
-	&.uiex-clearable {
+	.uiex-input-clear {
+		right: 30px;
+	}
+	&.uiex-without-controls {
+		.uiex-input-clear {
+			right: 8px;
+		}
+		&.uiex-with-measure {
+			.uiex-input-measure {
+				right: 12px;
+			}
+			&.uiex-clearable {
+				.uiex-input-measure {
+					right: 35px;
+				}
+			}
+		}
+	}
+	&.uiex-with-measure {
 		input,
 		textarea {
-			padding-right: 70px;
+			padding-right: 60px;
 		}
+		
+		&.uiex-clearable {
+			input,
+			textarea {
+				padding-right: 85px;
+			}
+			.uiex-input-measure {
+				right: 60px;
+			}
+		}
+		&.uiex-disabled {
+			.uiex-input-measure {
+				cursor: not-allowed;
+				color: #bbb;
+			}
+		}
+		
 		.uiex-input-measure {
-			right: 40px;
+			position: absolute;
+			right: 35px;
+			color: #777;
+			font-size: 14px;
+			top: 0;
+			bottom: 0;
+			display: flex;
+			align-items: center;
+			user-select: none;
+
+			&.uiex-multi-measure {
+				cursor: pointer;
+				&:hover {
+					color: #000;
+				}
+			}
 		}
 	}
-	&.uiex-disabled {
-		.uiex-input-measure {
-			cursor: not-allowed;
-			color: #bbb;
-		}
-	}
-	
-	.uiex-input-measure {
+	.uiex-input-controls {
 		position: absolute;
-		right: 12px;
-		color: #777;
-		font-size: 14px;
+		right: 0;
 		top: 0;
 		bottom: 0;
+		width: 30px;
 		display: flex;
 		align-items: center;
-		user-select: none;
-
-		&.uiex-multi-measure {
-			cursor: pointer;
-			&:hover {
-				color: #000;
+		justify-content: center;
+		flex-direction: column;
+		
+		.uiex-arrow {
+			background-color: #555;
+			&.uiex-disabled {
+				background-color: #c5c5c5;
+			}
+			&:hover:not(.uiex-disabled) {
+				background-color: #333;
+			}
+			&.uiex-direction-down {
+				margin-top: 8px;
 			}
 		}
 	}

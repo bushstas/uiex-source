@@ -187,6 +187,7 @@ class ColorPickerComponent extends UIEXComponent {
 							positive
 							disabled={disabled}
 							className={this.getClassName('rgb-input')}
+							withoutControls
 							onChange={this.handleRInputChange}
 							onBlur={this.handleRInputBlur}
 						/>
@@ -197,6 +198,7 @@ class ColorPickerComponent extends UIEXComponent {
 							positive
 							disabled={disabled}
 							className={this.getClassName('rgb-input')}
+							withoutControls
 							onChange={this.handleGInputChange}
 							onBlur={this.handleGInputBlur}
 						/>
@@ -206,6 +208,7 @@ class ColorPickerComponent extends UIEXComponent {
 							maxValue="255"
 							positive
 							disabled={disabled}
+							withoutControls
 							className={this.getClassName('rgb-input')}
 							onChange={this.handleBInputChange}
 							onBlur={this.handleBInputBlur}

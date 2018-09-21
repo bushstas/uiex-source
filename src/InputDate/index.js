@@ -1,6 +1,7 @@
 import React from 'react';
 import {withStateMaster} from '../state-master';
 import {Input} from '../Input';
+import {Icon} from '../Icon';
 import {getNumberOrNull, replace, propsChanged} from '../utils';
 import {InputDatePropTypes} from './proptypes';
 
@@ -19,6 +20,8 @@ class InputDateComponent extends Input {
 	addClassNames(add) {
 		super.addClassNames(add);
 		add('date-input');
+		const {withoutIcon} = this.props;
+		add('without-icon', withoutIcon);
 	}
 
 	componentDidUpdate(prevProps) {
@@ -30,6 +33,17 @@ class InputDateComponent extends Input {
 					onChange(newValue, name);
 				}
 			}
+		}
+	}
+
+	renderAdditionalInnerContent() {
+		const {withoutIcon} = this.props;
+		if (!withoutIcon) {
+			return (
+				<div className={this.getClassName('date-icon')}>
+					<Icon name="date_range"/>
+				</div>
+			)
 		}
 	}
 

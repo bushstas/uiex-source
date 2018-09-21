@@ -1,5 +1,4 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
 import {UIEXComponent} from '../UIEXComponent';
 import {getNumber, addToClassName, isValidAndNotEmptyNumericStyle} from '../utils';
 import {CellGroupPropTypes, CellGroupRowPropTypes, CellPropTypes} from './proptypes';
@@ -7,9 +6,7 @@ import {CellGroupPropTypes, CellGroupRowPropTypes, CellPropTypes} from './propty
 import '../style.scss';
 import './style.scss';
 
-const PROPS_LIST = ['rowMargin', 'height'];
-
-class CellGroupComponent extends UIEXComponent {
+export class CellGroup extends UIEXComponent {
 	static className = 'cell-group';
 	static propTypes = CellGroupPropTypes;
 	static properChildren = 'Cell';
@@ -18,22 +15,6 @@ class CellGroupComponent extends UIEXComponent {
 	static defaultCellMargin = 0;
 	static defaultCellSize = 1;
 	static displayName = 'CellGroup';
-
-	static getDerivedStateFromProps({nextProps, changed}) {
-		if (changed) {
-			let {rowMargin, height} = nextProps;
-			let rowStyle = null;
-			rowMargin = getNumber(rowMargin);
-			if (rowMargin) {
-				if (isValidAndNotEmptyNumericStyle(height)) {
-					rowStyle = {paddingTop: rowMargin};
-				} else {
-					rowStyle = {marginTop: rowMargin};
-				}
-			}
-			return {rowStyle};
-		}
-	}
 
 	componentDidMount() {
 		window.addEventListener('resize', this.handleWindowResize, false);
@@ -49,6 +30,24 @@ class CellGroupComponent extends UIEXComponent {
 		add('align-' + cellAlign, cellAlign);
 		add('side-shrinked', sideShrink);
 		add('cell-auto-height', cellAutoHeight);
+	}
+
+	getRowStyle() {
+		const rowMargin = getNumber(this.props.rowMargin);
+		const {height} = this.props;
+		if (rowMargin != this.rm || height != this.ht) {
+			this.cachedRowStyle = null;
+			if (rowMargin) {
+				if (isValidAndNotEmptyNumericStyle(height)) {
+					this.cachedRowStyle = {paddingTop: rowMargin};
+				} else {
+					this.cachedRowStyle = {marginTop: rowMargin};
+				}
+			}			
+			this.rm = rowMargin;
+			this.ht = height;
+		}
+		return this.cachedRowStyle;
 	}
 
 	initRendering() {
@@ -104,14 +103,13 @@ class CellGroupComponent extends UIEXComponent {
 				<CellGroupRow
 					className={this.rowSizes[idx] == this.columns ? 'uiex-complete-row' : 'uiex-incomplete-row'}
 					key={idx} 
-					style={idx > 0 ? this.state.rowStyle : null}
-					height={100 / rows + '%'}
+					style={idx > 0 ? this.getRowStyle() : null}
+					height={(100 / rows).toFixed(2) + '%'}
 				>
 					{row}
 				</CellGroupRow>
 			)
 		});
-		return null;
 	}
 	
 	addChildProps(child, props, idx) {
@@ -330,26 +328,21 @@ class CellGroupComponent extends UIEXComponent {
 	}
 }
 
-export const CellGroup = withStateMaster(CellGroupComponent, PROPS_LIST, null, UIEXComponent);
-
-const CELL_PROPS_LIST = ['leftPadding', 'rightPadding', 'leftMargin', 'minHeight', 'width', 'height', 'fontSize', 'style'];
-
-class CellComponent extends UIEXComponent {
+export class Cell extends UIEXComponent {
 	static propTypes = CellPropTypes;
 	static displayName = 'Cell';
-
-	static getDerivedStateFromProps({nextProps, add, changed}) {
-		if (changed) {
-			add('mainStyle', this.getMainStyle(nextProps));
-		}
-	}
 
 	addClassNames(add) {
 		add('align-self-' + this.props.alignSelf, this.props.alignSelf);
 	}
 
-	getCustomStyle(props) {
-		let {leftPadding: l, rightPadding: r, leftMargin: m, minHeight: mh} = props;
+	isCustomStyleChanged() {
+		const {leftPadding: l, rightPadding: r, leftMargin: m, minHeight: mh} = this.props;
+		return this.lp != l || this.rp != r || this.lm != m || this.mh != mh;
+	}
+
+	getCustomStyle() {
+		let {leftPadding: l, rightPadding: r, leftMargin: m, minHeight: mh} = this.props;
 		let style;
 		if (l) {
 			style = {paddingLeft: l};
@@ -369,6 +362,10 @@ class CellComponent extends UIEXComponent {
 				style.minHeight = mh;
 			}
 		}
+		this.lp = l;
+		this.rp = r;
+		this.lm = m;
+		this.mh = mh;
 		return style;
 	}
 
@@ -405,35 +402,24 @@ class CellComponent extends UIEXComponent {
 	}
 }
 
-export const Cell = withStateMaster(CellComponent, CELL_PROPS_LIST);
-
 class CellGroupRow extends UIEXComponent {
 	static propTypes = CellGroupRowPropTypes;
 	static className = 'cell-group-row';
 	static displayName = 'CellGroupRow';
 }
 
-const CELL_CONTENT_PROPS_LIST = ['minHeight', 'style'];
-
-class CellContentComponent extends UIEXComponent {
+class CellContent extends UIEXComponent {
 	static className = 'cell-content';
 	static displayName = 'CellContent';
 
-	static getDerivedStateFromProps({nextProps, add, changed}) {
-		if (changed) {
-			add('mainStyle', this.getMainStyle(nextProps));
-		}
+	isCustomStyleChanged() {
+		return this.props.minHeight != this.mh;
 	}
 
-	getCustomStyle(props) {
-		let {minHeight: mh} = props;
-		
-		if (mh) {
-			mh = getNumber(mh);
-			if (mh) {
-				return {minHeight: mh};
-			}
-		}
+	getCustomStyle() {
+		const minHeight = getNumber(this.props.minHeight);
+		this.mh = minHeight;
+		return {minHeight};
 	}
 
 	renderInternal() {
@@ -446,5 +432,3 @@ class CellContentComponent extends UIEXComponent {
 		)
 	}
 }
-
-const CellContent = withStateMaster(CellContentComponent, CELL_CONTENT_PROPS_LIST);

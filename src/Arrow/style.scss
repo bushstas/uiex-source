@@ -1,0 +1,24 @@
+.uiex-arrow-outer {
+	display: inline-block;
+	vertical-align: top;
+
+	&.uiex-direction-up-left,
+	&.uiex-direction-down-right {
+		transform: rotate(45deg);
+	}
+	&.uiex-direction-up-right,
+	&.uiex-direction-down-left {
+		transform: rotate(-45deg);
+	}
+}
+.uiex-arrow {
+	background-color: #555;
+
+	&.uiex-pointer:not(.uiex-disabled) {
+		cursor: pointer;
+	}
+  	
+	&.uiex-disabled {
+		background-color: #bbb;
+	}
+}

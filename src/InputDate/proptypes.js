@@ -11,6 +11,7 @@ export const InputDatePropTypes = {
 	maxYear: PROPTYPE.STRNUM,
 	past: PropTypes.bool,
 	future: PropTypes.bool,
+	withoutIcon: PropTypes.bool,
 	periodFrom: PropTypes.string,
 	periodTo: PropTypes.string
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import {withStateMaster} from '../state-master';
 import {Input} from '../Input';
+import {Arrow} from '../Arrow';
 import {getNumberOrNull, replace, propsChanged} from '../utils';
 import {InputNumberPropTypes} from './proptypes';
 
@@ -29,27 +30,58 @@ class InputNumberComponent extends Input {
 	}
 
 	addClassNames(add) {
-		const {measure} = this.props;
+		const {measure, withoutControls} = this.props;
 		super.addClassNames(add);
 		add('number-input');
 		add('with-measure', measure && typeof measure == 'string');
+		add('without-controls', withoutControls);
 	}
 
 	renderAdditionalInnerContent() {
+		let {disabled, withoutControls, value, positive, negative, readOnly} = this.props;
+		const content = [];
 		const data = this.getMeasure();
 		if (data) {
 			const [measure, isMultiple] = data;
 			let className = 'uiex-input-measure';
 			className += isMultiple ? ' uiex-multi-measure' : '';
-			return (
+			content.push(
 				<div 
+					key="measure"
 					className={className}
 					onClick={isMultiple ? this.handleMeasureClick : null}
 				>
 					{measure}
 				</div>
-			)
+			);
 		}
+		if (!withoutControls && !readOnly) {
+			if (value == '0') {
+				value = '';
+			}
+			const upDisabled = disabled || (negative && !value);
+			const downDisabled = disabled || (positive && !value);
+			content.push(
+				<div 
+					key="controls"
+					className={this.getClassName('controls')}
+				>
+					<Arrow 
+						size="14"
+						direction="up" 
+						disabled={upDisabled}
+						onClick={this.handleUpClick}
+					/>
+					<Arrow 
+						size="14"
+						direction="down" 
+						disabled={downDisabled}
+						onClick={this.handleDownClick}
+					/>
+				</div>
+			);
+		}
+		return content.length > 0 ? content : null;
 	}
 
 	getMeasure() {
@@ -64,96 +96,17 @@ class InputNumberComponent extends Input {
 	}
 
 	getValue() {
-		const {decimal, positive} = this.props;
-		let value = super.getValue();
-		if (value && typeof value == 'string') {
-			if (value === '-0') {
-				value = '-';
-			} else {
-				let withMinus = false;
-				if (!positive && value.charAt(0) == '-') {
-					withMinus = true;
-					value = replace(/^-/, '', value);
-				}
-				if (decimal) {
-					const parts = value.split('.');
-					if (typeof parts[1] == 'string') {
-						value = Number(replace(/[^\d]/g, '', parts[0]));
-						let dec = '';
-						if (parts[1]) {
-							dec = replace(/[^\d]/g, '', parts[1]);
-						}						
-						value += '.' + dec;
-					} else {
-						value = Number(replace(/[^\d]/g, '', value));
-					}
-					if (withMinus) {
-						value = '-' + value;
-					}
-				}
-			}
-		}
-		return value;
+		return this.getProperValue(super.getValue(), true);
 	}
 
 	filterValue(value, props) {
 		value = super.filterValue(value, props);
 		if (value) {
-			let {maxValue, minValue, positive, negative, decimal, toFixed, valueWithMeasure, measure, correctionOnBlur} = props;
-			if (negative && positive) {
-				positive = false;
-			}
-			if (toFixed === 0 || toFixed === '0') {
-				toFixed = 1;
-			} else if (typeof toFixed == 'string') {
-				toFixed = getNumberOrNull(toFixed);
-			}
-			let isNegative = false;
-			if (!positive) {
-				isNegative = (/^-/).test(value);
-			}
-			if (decimal && value == '.') {
-				value = '0' + value;
-			}
-			value = replace(/,/, '.', value);
-			const parts = value.split('.');
-			value = parts[0];
-			value = replace(/[^\d]/g, '', value);
-			if (value !== '') {
-				value = Number(value);
-			}
-			if ((isNegative || negative) && value) {
-				value *= -1;
-			}
-			if (!correctionOnBlur) {
+			let {valueWithMeasure, measure, correctionOnBlur} = props;
+			value = this.getProperValue(value, true);
+			if (!correctionOnBlur || this.useAutoCorrection) {
 				value = this.correctValue(value);
-				if (typeof maxValue == 'number' && value == maxValue) {
-					decimal = false;
-				} else if (typeof minValue == 'number' && value == minValue) {
-					decimal = false;
-				}
-			}
-			if (decimal && typeof parts[1] == 'string') {
-				if (parts[1]) {
-					parts[1] = replace(/[^\d]/g, '', parts[1]);
-				}
-				if (typeof toFixed == 'number' && parts[1].length > toFixed) {
-					parts[1] = parts[1].substring(0, toFixed);
-				}
-				value += '.' + parts[1];
-				if (parts[1] && !/0+$/.test(parts[1])) {
-					value = Number(value);
-				}
-				if (value > 0 && (negative || isNegative)) {
-					if (typeof value == 'number') {
-						value *= -1;
-					} else {
-						value = '-' + value;
-					}
-				}
-			}
-			if (!value && isNegative) {
-				return '-0';
+				this.useAutoCorrection = false;
 			}
 			if (valueWithMeasure && measure && typeof measure == 'string') {
 				value += measure;
@@ -163,8 +116,8 @@ class InputNumberComponent extends Input {
 	}
 
 	correctValue(value) {
-		if (value === '') {
-			return '';
+		if (typeof value != 'number') {
+			return value;
 		}
 		let {maxValue, minValue} = this.props;
 		if (typeof maxValue == 'string') {
@@ -207,56 +160,44 @@ class InputNumberComponent extends Input {
 
 	keyUpHandler(e) {
 		super.keyUpHandler(e);
-		const {negative} = this.props;
 		const {key} = e;
 		if (key == 'ArrowUp') {
-			this.changeValue(negative ? -1 : 1);	
+			this.useAutoCorrection = true;
+			this.changeValue(1);	
 		} else if (key == 'ArrowDown') {
-			this.changeValue(negative ? 1 : -1);
+			this.useAutoCorrection = true;
+			this.changeValue(-1);
 		}
 	}
 
 	handleWheel = (e) => {
+		this.useAutoCorrection = true;
 		e.preventDefault();
-		const {deltaY} = e;
-		const {negative} = this.props;
-		let add = deltaY > 0 ? -1 : 1;
-		if (negative) {
-			add = -add;
-		}
-		this.changeValue(add);
+		this.changeValue(e.deltaY > 0 ? -1 : 1);
 	}
 
 	changeValue(add) {
 		let {disabled, name, value, onChange, negative, positive, decimal, addStep} = this.props;
 		addStep = getNumberOrNull(addStep) || ADD_STEP;
-		if (!disabled && typeof onChange == 'function') {
-			if (typeof value == 'number') {
-				value = String(value);
+		if (!disabled && typeof onChange == 'function') {			
+			value = this.getProperValue(value);
+			if (negative && positive) {
+				positive = false;
 			}
-			if (typeof value != 'string') {
-				value = '';
-			}
-			const parts = value.split('.');
-			value = Number(parts[0]);
-			if (add > 0) {
-				if (!negative || value < 0) {
-					value += addStep;
-				} else {
-					decimal = false;
-				}
-			} else {
-				if (!positive || value > 0) {
-					value -= addStep;
-				} else {
-					decimal = false;
+			const intValue = value > 0 ? Math.floor(value) : Math.ceil(value);			
+			let dec = 0;
+			let toFixed = 0;
+			if (decimal) {
+				dec = value.toString().split('.')[1];
+				if (dec != null) {
+					toFixed = dec.length;
 				}
 			}
-			if (decimal && typeof parts[1] == 'string') {
-				value += '.';
-				if (parts[1] !== '') {
-					value += parts[1];
-				}
+			value = intValue + addStep * add;
+			if ((negative && value > 0) || (positive && value < 0)) {
+				value = 0;
+			} else if (dec) {
+				value = Number(value.toString() + '.' + dec).toFixed(toFixed);
 			}
 			value = this.filterValue(String(value), this.props);
 			onChange(value, name);
@@ -265,22 +206,10 @@ class InputNumberComponent extends Input {
 	
 	blurHandler() {
 		super.blurHandler();
-		let isChanged = false;
 		let {correctionOnBlur, value, onChange, name} = this.props;
-		if (value && typeof value == 'string') {
-			const parts = value.split('.');
-			if (parts[1]) {
-				let dec = replace(/[^\d]/g, '', parts[1]);
-				if (dec === '0') {
-					dec = '';
-				} else {
-					dec = replace(/0+$/g, '', dec);
-				}
-				parts[0] += '.' + dec;
-			}
-			value = Number(parts[0]);
-			isChanged = true;
-		}
+		const oldValue = value;
+		value = this.getProperValue(value);
+		let isChanged = value !== oldValue;
 		if (value && correctionOnBlur && typeof onChange == 'function') {
 			const correctedValue = this.correctValue(value);
 			if (correctedValue != value) {
@@ -291,6 +220,101 @@ class InputNumberComponent extends Input {
 		if (isChanged) {
 			onChange(value, name);
 		}
+	}
+
+	getProperValue(value, canBeString = false) {
+		if ((!value && value !== 0) || (typeof value != 'string' && typeof value != 'number')) {
+			return '';
+		}
+		let {negative, positive, decimal} = this.props;
+		if (negative && positive) {
+			positive = false;
+		}
+		if (typeof value == 'number') {
+			value = String(value);
+		}
+		if (canBeString && value === '-0') {
+			return '-';
+		}
+		value = value.trim();
+		const withMinus = negative || (!positive && value.charAt(0) == '-');
+		let dec = null;
+		let decLength = 0;
+		if (decimal) {
+			value = replace(/,/, '.', value);
+			const parts = value.split('.');
+			if (parts[1]) {
+				dec = replace(/[^\d]/g, '', parts[1]);
+				if (!canBeString || (dec && !(/0$/).test(dec))) {
+					const numDec = Number(dec.replace(/0+$/, ''));
+					decLength = numDec.toString().length;
+					dec = numDec / Math.pow(10, decLength);
+				}
+			} else if (canBeString && parts[1] === '') {
+				dec = '';
+			}
+			dec = this.getProperDecimal(dec);
+			value = parts[0];
+		}
+		value = replace(/[^\d]/g, '', value);
+		const numValue = Number(value);
+		if (String(numValue) == value || !canBeString) {
+			value = numValue;
+		}
+		if (withMinus) {		
+			if (typeof value == 'number') {
+				value *= -1;
+			} else {
+				value = '-' + value;
+			}
+			if (dec && typeof dec == 'number') {
+				dec *= -1;
+			}
+		}
+		if (dec != null) {
+			if (typeof dec == 'number' && typeof value == 'string') {
+				value += '.' + dec.toString().split('.')[1];
+			} else if (typeof dec == 'string') {
+				value += '.' + dec;
+			} else {
+				value = (value + dec).toFixed(decLength);
+			}
+		}
+		if (typeof value == 'string' && withMinus && value.charAt(0) != '-') {
+			value = '-' + value;
+		}
+		return typeof value == 'number' || typeof value == 'string' ? value : '';
+	}
+
+	getProperDecimal(dec) {
+		if (dec) {
+			let {toFixed} = this.props;
+			if (toFixed === 0 || toFixed === '0') {
+				toFixed = 1;
+			} else if (typeof toFixed == 'string') {
+				toFixed = getNumberOrNull(toFixed);
+			}
+			if (typeof toFixed == 'number') {
+				if (typeof dec == 'number') {
+					dec = dec.toString();
+					const parts = dec.split('.');
+					if (parts[1] != null) {
+						dec = parts[1];
+					}
+					return Number('0.' + dec.substring(0, toFixed));
+				}
+				return dec.substring(0, toFixed);
+			}
+		}
+		return dec;
+	}
+
+	handleUpClick = () => {
+		this.changeValue(1);
+	}
+
+	handleDownClick = () => {
+		this.changeValue(-1);
 	}
 }
 

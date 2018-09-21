@@ -12,6 +12,7 @@ export const ANIM_EFFECTS = ['ease', 'ease-in', 'ease-out', 'ease-in-out'];
 export const ANIM_SPEED = ['fast', 'normal', 'slow'];
 export const FORM_BUTTON_DISPLAY = ['united', 'under-left', 'under-center', 'under-right', 'under-stretch'];
 export const SIDES = ['right', 'left', 'top', 'bottom'];
+export const DIRECTIONS = ['up', 'down', 'left', 'right', 'up-left', 'up-right', 'down-left', 'down-right'];
 export const ANIM_TYPE = ['fade', 'roll', 'fall', 'fade-roll', 'fade-fall'];
 export const PANEL_ANIMATION = ['fade', 'roll', 'fade-roll'];
 export const MODAL_ANIMATION = ['fade', 'fall', 'float', 'scale-up', 'scale-down', 'perspective-top', 'perspective-bottom'];
@@ -78,6 +79,7 @@ export const PROPTYPE = {
 	]),
 	DRAG_LIMITS: PropTypes.oneOf(DRAG_LIMITS),
 	COLORS: PropTypes.oneOf(COLORS),
+	DIRECTIONS: PropTypes.oneOf(DIRECTIONS),
 	ALIGN: PropTypes.oneOf(ALIGN),
 	CELL_ALIGN: PropTypes.oneOf(CELL_ALIGN),
 	ALIGN_SELF: PropTypes.oneOf(ALIGN_SELF),

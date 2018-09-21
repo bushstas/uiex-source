@@ -222,9 +222,11 @@ export const addStyleProperty = (value, name, style = null) => {
 	return style
 }
 
-export const addObject = (obj1, obj2) => {
-	if (obj1 instanceof Object) {
-		obj2 = obj2 || {};
+export const mergeObjects = (obj1, obj2) => {
+	if (obj1 && obj1 instanceof Object) {
+		if (!(obj2 instanceof Object)) {
+			obj2 = {};
+		}
 		for (let k in obj1) {
 			obj2[k] = obj1[k];
 		}
@@ -271,7 +273,7 @@ export const getSizeInPercentageOfWindow = (value, attr) => {
 }
 
 export const propsChanged = (p1, p2, list) => {
-	if (list instanceof Array) {
+	if (list instanceof Array && p1 instanceof Object && p2 instanceof Object) {
 		for (let i = 0; i < list.length; i++) {
 			const k = list[i];
 			if (p1[k] != p2[k]) {
@@ -280,6 +282,16 @@ export const propsChanged = (p1, p2, list) => {
 		}
 	}
 	return false;
+}
+
+export const cacheProps = (props, list) => {
+	if (list instanceof Array && props instanceof Object) {
+		const cachedProps = {};
+		for (let i = 0; i < list.length; i++) {
+			cachedProps[list[i]] = props[list[i]];
+		}
+		return cachedProps;
+	}
 }
 
 export const replace = (regexp, to, str) => {

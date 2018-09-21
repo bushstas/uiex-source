@@ -1,19 +1,17 @@
 import React from 'react';
-import {withStateMaster, registerContext, unregisterContext} from './state-master';
+import {registerContext, unregisterContext} from './state-master';
 import {BoxCommonPropTypes} from './Box/proptypes';
 import {
 	showImproperChildError,
 	showProperChildMaxCountError,
 	getComponentClassName,
 	addStyleProperty,
-	addObject,
+	mergeObjects,
 	mapChildren
 } from './utils';
 import {FORM_BUTTON_DISPLAY} from './consts';
 
-const PROPS_LIST = ['width', 'height', 'fontSize', 'style'];
-
-class UIEXComponentClass extends React.PureComponent {
+export class UIEXComponent extends React.PureComponent {
 	constructor(props) {
 		super(props);
 		this.stylesChanged = {};
@@ -21,14 +19,8 @@ class UIEXComponentClass extends React.PureComponent {
 		this.state = {};
 		registerContext(this);		
 	}
-
-	static getDerivedStateFromProps({nextProps, add, isChangedAny, isInitial}) {
-		if (isChangedAny()) {
-			add('mainStyle', this.getMainStyle(nextProps));
-		}
-	}
 	
-	componentWillReceiveProps_(nextProps) {
+	//componentWillReceiveProps(nextProps) {
 		// const {width, height, fontSize, style} = nextProps;
 		// this.stylesChanged.main = (
 		// 	width != this.props.width ||
@@ -46,7 +38,7 @@ class UIEXComponentClass extends React.PureComponent {
 		// 		}
 		// 	}
 		// }
-	}
+	//}
 
 	initStyleChange(name, props) {
 		const key = name + 'Style';
@@ -73,22 +65,38 @@ class UIEXComponentClass extends React.PureComponent {
 		return this.styles[name];
 	}
 
-	getMainStyle(props, styleProps = null) {
-		let style = null;		
-		style = addObject(this.getDefaultStyle(), style);
-		style = addObject(this.getCustomStyle(styleProps || props), style);		
-		if (this.isWithPropStyle()) {
-			style = addObject(props.style, style);
+	getMainStyle() {
+		const {style, fontSize} = this.props;
+		const isWithPropStyle = this.isWithPropStyle();
+		const width = this.getWidthProp();
+		const height = this.getHeightProp();
+		const isCustomStyleChanged = this.isCustomStyleChanged();
+		if (isCustomStyleChanged) {
+			this.initCustomStyles();
 		}
-		
-		const width = this.getWidthProp(props);
-		style = addStyleProperty(width, 'width', style);
-		
-		const height = this.getHeightProp(props);
-		style = addStyleProperty(height, 'height', style);
-		
-		style = addStyleProperty(props.fontSize, 'fontSize', style);
-		return style;
+		if (
+			isCustomStyleChanged ||
+			(isWithPropStyle && this.cachedStyle != style) ||
+			this.cachedWidth != width ||
+			this.cachedHeight != height ||
+			this.cachedFontSize != fontSize
+		) {
+			let newStyle = mergeObjects(this.getDefaultStyle());
+			if (isWithPropStyle) {
+				newStyle = mergeObjects(style, newStyle);
+			}
+			newStyle = addStyleProperty(fontSize, 'fontSize', newStyle);
+			newStyle = addStyleProperty(width, 'width', newStyle);
+			newStyle = addStyleProperty(height, 'height', newStyle);
+			newStyle = mergeObjects(this.getCustomStyle(), newStyle);
+			
+			this.cachedStyle = style;
+			this.cachedWidth = width;
+			this.cachedHeight = height;
+			this.cachedFontSize = fontSize;
+			this.cachedMainStyle = newStyle;
+		}
+		return this.cachedMainStyle;
 	}
 
 	componentWillUnmount() {
@@ -178,11 +186,8 @@ class UIEXComponentClass extends React.PureComponent {
 		if (typeof title == 'string') {
 			componentProps.title = title;
 		}
-		if (withStyle && this.state instanceof Object) {
-			const style = this.state.mainStyle;
-			if (style) {
-				componentProps.style = style;
-			}
+		if (withStyle) {
+			componentProps.style = this.getMainStyle();
 		}
 		if (props instanceof Object) {
 			for (let k in props) {
@@ -318,25 +323,28 @@ class UIEXComponentClass extends React.PureComponent {
 		return children;
 	}
 
-	getWidthProp(props) {
-		return props.width;
+	getWidthProp() {
+		return this.props.width;
 	}
 
-	getHeightProp(props) {
-		return props.height;
+	getHeightProp() {
+		return this.props.height;
 	}
 
 	isWithPropStyle() {
 		return true;
 	}
 
+	isCustomStyleChanged() {
+		return false;
+	}
+
 	initRendering() {}
 	addChildProps() {}
 	getStyleNames() {}
 	addClassNames() {}
+	initCustomStyles() {}
 }
-
-export const UIEXComponent = withStateMaster(UIEXComponentClass, PROPS_LIST);
 
 
 export class UIEXButtons extends UIEXComponent {

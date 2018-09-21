@@ -1,5 +1,4 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
 import {UIEXComponent} from '../UIEXComponent';
 import {getNumberOrNull, replace} from '../utils';
 import {DRAG_POSITION_X, DRAG_POSITION_Y} from '../consts';
@@ -8,39 +7,15 @@ import {DraggablePropTypes} from './proptypes';
 import '../style.scss';
 import './style.scss';
 
-const PROPS_LIST = ['dragLimits', 'fixed', 'x', 'y', 'z', 'areaWidth', 'areaHeight', 'initialPositionX', 'initialPositionY'];
 const CLASS_NAME = 'draggable-handle-area';
 
-class DraggableComponent extends UIEXComponent {
+export class Draggable extends UIEXComponent {
 	static propTypes = DraggablePropTypes;
 	static displayName = 'Draggable';
 	static properChildren = 'DragHandleArea';
 
 	componentDidMount() {
 		window.addEventListener('resize', this.handleResize, false);
-		let {initialPositionX, initialPositionY, x, y, z} = this.props;
-		if ((initialPositionX && x == null) || (initialPositionY && y == null)) {
-			x = this.getPositionX(x, this.props);
-			y = this.getPositionY(y, this.props);
-			this.setState({
-				mainStyle: this.getMainStyle(this.props, {x, y, z}), 
-				x,
-				y
-			});
-		}
-	}
-
-	static getDerivedStateFromProps({isChangedAny, nextProps, add}) {
-		if (isChangedAny('x', 'y', 'z', 'initialPositionX', 'initialPositionY', 'dragLimits')) {
-			let {x, y, z} = nextProps;
-			x = this.getPositionX(x, nextProps);
-			y = this.getPositionY(y, nextProps);
-			add({
-				mainStyle: this.getMainStyle(nextProps, {x, y, z}), 
-				x,
-				y
-			});
-		}
 	}
 
 	componentWillUnmount() {
@@ -59,11 +34,31 @@ class DraggableComponent extends UIEXComponent {
 		add('with-own-position', withOwnPosition);
 	}
 
-	getCustomStyle(props) {
-		let {x, y, z} = props;
+	isCustomStyleChanged() {
+		let {initialPositionX, initialPositionY, x, y, z, dragLimits} = this.props;
+		return (
+			x != this.cachedX ||
+			y != this.cachedY ||
+			z != this.cachedZ ||
+			initialPositionX != this.cachedIX ||
+			initialPositionY != this.cachedIY ||
+			dragLimits != this.cachedDragLimits
+		);
+	}
+
+	getCustomStyle() {
+		let {initialPositionX, initialPositionY, x, y, z, dragLimits} = this.props;
+		this.cachedX = x;
+		this.cachedY = y;
+		this.cachedZ = z;
+		this.cachedIX = initialPositionX;
+		this.cachedIY = initialPositionY;
+		this.cachedDragLimits = dragLimits;		
+		this.X = this.getPositionX(x);
+		this.Y = this.getPositionY(y);		
 		return {
-			left: x + 'px',
-			top: y + 'px',
+			left: this.X,
+			top: this.Y,
 			zIndex: z
 		};
 	}
@@ -89,7 +84,7 @@ class DraggableComponent extends UIEXComponent {
 		}
 	}
 
-	getPositionX(x, props) {
+	getPositionX(x) {
 		x = getNumberOrNull(x);
 		if (x != null) {
 			return x;
@@ -97,7 +92,7 @@ class DraggableComponent extends UIEXComponent {
 		if (!this.refs.main) {
 			return 0;
 		}
-		let {initialPositionX: ix, dragLimits, fixed} = props;
+		let {initialPositionX: ix, dragLimits, fixed} = this.props;
 		if (ix && typeof ix == 'string') {
 			let nx;
 			const ownRect = this.refs.main.getBoundingClientRect();
@@ -156,7 +151,7 @@ class DraggableComponent extends UIEXComponent {
 		return 0;		
 	}
 
-	getPositionY(y, props) {
+	getPositionY(y) {
 		y = getNumberOrNull(y);
 		if (y != null) {
 			return y;
@@ -164,7 +159,7 @@ class DraggableComponent extends UIEXComponent {
 		if (!this.refs.main) {
 			return 0;
 		}
-		let {initialPositionY: iy, dragLimits, fixed} = props;
+		let {initialPositionY: iy, dragLimits, fixed} = this.props;
 		if (iy && typeof iy == 'string') {
 			let ny;
 			const ownRect = this.refs.main.getBoundingClientRect();
@@ -291,7 +286,8 @@ class DraggableComponent extends UIEXComponent {
 	handleResize = () => {
 		const {dragLimits, onDrag} = this.props;
 		if (typeof onDrag == 'function' && dragLimits) {
-			let {x, y} = this.state;
+			let x = this.X;
+			let y = this.Y;
 			this.initDragLimits();
 			let isChanged = false;			
 			if (x > this.limitX) {
@@ -320,7 +316,7 @@ class DraggableComponent extends UIEXComponent {
 		document.body.addEventListener('mouseup', this.handleMouseUp, false);
 		this.initDragLimits();
 		if (typeof onDragStart == 'function') {
-			onDragStart(this.state.x, this.state.y, name);
+			onDragStart(this.X, this.Y, name);
 		}
 	}
 
@@ -331,7 +327,8 @@ class DraggableComponent extends UIEXComponent {
 				horizontal = false;
 				vertical = false;
 			}
-			let {x, y} = this.state;
+			let x = this.X;
+			let y = this.Y;
 			let mx = x || 0;
 			let my = y || 0;
 			let {clientX, clientY} = e;
@@ -386,14 +383,12 @@ class DraggableComponent extends UIEXComponent {
 	handleMouseUp = () => {
 		const {onDragEnd, name} = this.props;
 		if (typeof onDragEnd == 'function') {
-			onDragEnd(this.state.x, this.state.y, name);
+			onDragEnd(this.X, this.Y, name);
 		}
 		document.body.removeEventListener('mousemove', this.handleMouseMove, false);
  		document.body.removeEventListener('mouseup', this.handleMouseUp, false);
 	}
 }
-
-export const Draggable = withStateMaster(DraggableComponent, PROPS_LIST, null, UIEXComponent);
 
 export class DragHandleArea extends React.PureComponent {
 	static displayName = 'DragHandleArea';

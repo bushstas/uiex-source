@@ -1,50 +1,46 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
 import {UIEXComponent} from '../UIEXComponent';
 import {SectionPropTypes} from './proptypes';
-import {getNumberInPxOrPercent, addObject} from '../utils';
+import {getNumberInPxOrPercent, addStyleProperty} from '../utils';
 
 import '../style.scss';
 import './style.scss';
 
-const PROPS_LIST = ['borderWidth', 'borderColor', 'borderStyle', 'borderRadius', 'bgColor', 'padding'];
-
-class SectionComponent extends UIEXComponent {
+export class Section extends UIEXComponent {
 	static propTypes = SectionPropTypes;
 	static styleNames = ['caption', 'note', 'content'];
 	static displayName = 'Section';
 
-	static getDerivedStateFromProps({add, nextProps, isChangedAny}) {
-		if (isChangedAny()) {
-			let customStyle = {};
-			let {borderColor, borderWidth, borderStyle, borderRadius, bgColor: backgroundColor, padding} = nextProps;
-			borderWidth = getNumberInPxOrPercent(borderWidth);
-			padding = getNumberInPxOrPercent(padding);
-			borderRadius = getNumberInPxOrPercent(borderRadius);
-			if (padding) {
-				customStyle.padding = padding;
-			}
-			if (borderWidth) {
-				customStyle.borderWidth = borderWidth;
-			}
-			if (borderColor) {
-				customStyle.borderColor = borderColor;
-			}
-			if (borderStyle) {
-				customStyle.borderStyle = borderStyle;
-			}
-			if (borderRadius) {
-				customStyle.borderRadius = borderRadius;
-			}
-			if (backgroundColor) {
-				customStyle.backgroundColor = backgroundColor;
-			}
-			add('customStyle', customStyle);
-		}
+	isCustomStyleChanged() {
+		const {borderColor: bc, borderWidth: bw, borderStyle: bs, borderRadius: br, bgColor: bg, padding: pd} = this.props;
+		return (
+			bc != this.bc ||
+			bw != this.bw ||
+			bs != this.bs ||
+			br != this.br ||
+			bg != this.bg ||
+			pd != this.pd
+		)
 	}
 
 	getCustomStyle() {
-		return this.state.customStyle;
+		let {borderColor: bc, borderWidth: bw, borderStyle: bs, borderRadius: br, bgColor: bg, padding: pd} = nextProps;
+		bw = getNumberInPxOrPercent(bw);
+		pd = getNumberInPxOrPercent(pd);
+		br = getNumberInPxOrPercent(br);
+		let style = addStyleProperty(pd, 'padding');
+		style = addStyleProperty(bw, 'borderWidth', style);
+		style = addStyleProperty(bc, 'borderColor', style);
+		style = addStyleProperty(bs, 'borderStyle', style);
+		style = addStyleProperty(br, 'borderRadius', style);
+		style = addStyleProperty(bg, 'backgroundColor', style);
+		this.bc = bc;
+		this.bw = bw;
+		this.bs = bs;
+		this.br = br;
+		this.bg = bg;
+		this.pd = pd;
+		return style;
 	}
 
 	renderInternal() {
@@ -70,5 +66,3 @@ class SectionComponent extends UIEXComponent {
 		)
 	}
 }
-
-export const Section = withStateMaster(SectionComponent, PROPS_LIST, null, UIEXComponent);

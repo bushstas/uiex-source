@@ -16,13 +16,10 @@ const DEFAULT_THICKNESS = 5;
 export class Arrow extends UIEXComponent {
 	static propTypes = ArrowPropTypes;
 	static displayName = 'Arrow';
+	static propsToCheck = ['size', 'direction', 'color', 'lengthRatio', 'thickness', 'clipped'];
 
 	addClassNames(add) {
-		let {onClick, clipped} = this.props;
-		const direction = this.getDirection();
-		add('direction-' + direction);
-		add('pointer', !!onClick);
-		add('clipped', clipped);
+		add('pointer', !!this.props.onClick);
 	}
 
 	getCustomProps() {
@@ -34,9 +31,9 @@ export class Arrow extends UIEXComponent {
 	renderInternal() {
 		const TagName = this.getTagName();
 		return (
-			<div className={this.getClassName('outer', this.getOuterClassName())}>
-				<TagName {...this.getProps()}/>
-			</div>
+			<TagName className={this.getClassName('outer', this.getOuterClassName())}>
+				<div {...this.getProps()}/>
+			</TagName>
 		)
 	}
 
@@ -52,28 +49,9 @@ export class Arrow extends UIEXComponent {
 		}
 	}
 
-	isCustomStyleChanged() {
-		const {size, direction, color, lengthRatio, thickness, clipped} = this.props;
-		return (
-			this.cachedSize !== size || 
-			this.cachedDirection !== direction || 
-			this.cachedColor !== color ||
-			this.cachedLength !== lengthRatio ||
-			this.cachedThickness !== thickness ||
-			this.cachedClipped !== clipped
-		)
-	}
-
 	getCustomStyle() {
 		let {size, color, lengthRatio, thickness, clipped} = this.props;
 		const direction = this.getDirection();
-
-		this.cachedSize = size;
-		this.cachedDirection = direction;
-		this.cachedColor = color;
-		this.cachedLength = lengthRatio;
-		this.cachedThickness !== thickness;
-		this.cachedClipped !== clipped;
 
 		size = getNumberOrNull(size);
 		lengthRatio = getNumberOrNull(lengthRatio);
@@ -181,8 +159,7 @@ export class Arrow extends UIEXComponent {
 					return '0 0, 100% 50%, 0 100%';
 				} else {
 					return '0 0, 100% 50%, 0 100%, 0 ' + thickness2 + '%, ' + (100 -thickness3) + '% 50%, 0 ' + thickness + '%';
-				}
-			
+				}			
 		}
 	}
 }

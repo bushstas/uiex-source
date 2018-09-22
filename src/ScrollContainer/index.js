@@ -1,7 +1,7 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {Draggable} from '../Draggable';
-import {getNumberOrNull, propsChanged, cacheProps} from '../utils';
+import {getNumberOrNull, getNumberInPxOrPercent, propsChanged, cacheProps} from '../utils';
 import {ScrollContainerPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -12,18 +12,30 @@ const MIN_STEP = 20;
 const MAX_STEP = 500;
 const MIN_SPEED = 1;
 const MAX_SPEED = 8;
-const MAIN_PROPS_LIST = ['scrollTop', 'scrollTopPercent', 'transitionSpeed'];
-const PROPS_LIST = ['width', 'height', 'style', 'fontSize', 'float', 'className', 'tagName', 'children'];
+const MIN_SCROLL_WIDTH = 5;
+const MAX_SCROLL_WIDTH = 50;
+const PROPS_LIST = ['scrollTop', 'scrollTopPercent', 'transitionSpeed', 'withoutScrollbar', 'innerPadding', 'scrollerWidth', 'trackColor', 'sliderColor', 'overflowMaskColor', 'overlaidScrollbar'];
 
 export class ScrollContainer extends UIEXComponent {
 	static propTypes = ScrollContainerPropTypes;
 	static displayName = 'ScrollContainer';
 	static className = 'scroll-container';
+	static propsToCheck = ['outerPadding'];
 
 	getCustomProps() {
 		return {
 			onWheel: this.handleWheel
 		}
+	}
+
+	addClassNames(add) {
+		const {withoutScrollbar, hiddenScrollbar, scrollbarAtLeft, transparentTrack, overlaidScrollbar} = this.props;
+		add('without-scrollbar', withoutScrollbar);
+		add('overlaid-scrollbar', overlaidScrollbar);
+		add('hidden-scrollbar', hiddenScrollbar);
+		add('scrollbar-at-left', scrollbarAtLeft);
+		add('transparent-track', transparentTrack);
+		add('dragging', this.state.dragging);
 	}
 
 	componentDidMount() {
@@ -36,9 +48,18 @@ export class ScrollContainer extends UIEXComponent {
 		window.removeEventListener('resize', this.handleWindowResize, false);
 	}
 
+	getCustomStyle() {
+		const {outerPadding} = this.props;
+		if (outerPadding) {
+			return {
+				padding: getNumberInPxOrPercent(outerPadding)
+			}
+		}
+	}
+
 	renderInternal() {
 		const {outerContent, disabled} = this.props;
-		const {scrollStyle, innerStyle, barStyle, scrollerTop, scrollerHeight} = this.getStyles();
+		const {scrollStyle, innerStyle, barStyle, scrollerTop, scrollerHeight, topMaskStyle, bottomMaskStyle} = this.getStyles();
 		const TagName = this.getTagName();
 		return (
 			<TagName {...this.getProps()}>
@@ -46,6 +67,8 @@ export class ScrollContainer extends UIEXComponent {
 					<div ref="inner" className={this.getClassName('inner')} style={innerStyle}>
 						{this.renderChildren()}
 					</div>
+					<div className={this.getClassName('top-mask')} style={topMaskStyle}/>
+					<div className={this.getClassName('bottom-mask')} style={bottomMaskStyle}/>
 					<div ref="bar" className={this.getClassName('bar')} style={barStyle}>
 						<Draggable
 							ref="scroller"
@@ -72,18 +95,12 @@ export class ScrollContainer extends UIEXComponent {
 	}
 
 	isAnyPropChanged() {
-		let isChanged = !this.cachedProps;
-		if (!isChanged) {
-			if (propsChanged(this.props, this.cachedProps, PROPS_LIST)) {
-				clearTimeout(this.timeout);
-				this.timeout = setTimeout(this.checkToUpdate, 0);
-			}
-			isChanged = propsChanged(this.props, this.cachedProps, MAIN_PROPS_LIST);
-		}
-		if (this.refs.outer) {
+		clearTimeout(this.timeout);
+		this.timeout = setTimeout(this.checkToUpdate, 0);
+		if (propsChanged(this.props, this.cachedProps, PROPS_LIST)) {
 			this.cachedProps = cacheProps(this.props, PROPS_LIST);
+			return true;
 		}
-		return isChanged;
 	}
 
 	checkToUpdate = () => {
@@ -101,7 +118,7 @@ export class ScrollContainer extends UIEXComponent {
 				}
 				const diff = innerHeight - outerHeight;
 				if (Math.abs(scrollTop) > diff) {
-					return onWheel(diff, 0);
+					return onWheel(diff, 100);
 				}
 			}
 			this.cachedProps = null;
@@ -111,39 +128,81 @@ export class ScrollContainer extends UIEXComponent {
 
 	getStyles() {
 		if (this.refs.outer && this.isAnyPropChanged()) {
+			const {withoutScrollbar, innerPadding, scrollbarAtLeft, trackColor, sliderColor} = this.props;
+			const {dragging} = this.state;
 			let {top, height, scrollTop} = this.getScrollerStyle();
-			const transition = this.getTransition();			
-			this.scrollStyle = transition && !this.dragging ? {transition} : null;
+			const transition = this.getTransition();
+			const scrollerWidth = this.getScrollerWidth();
+			this.scrollStyle = transition && !dragging ? {transition} : null;
+			const diff = this.cachedDiff || 0;
+			const noScroll = top == null || height == null;
+			
 			this.barStyle = {
-				display: top != null && height != null ? 'block' : 'none'
+				display: noScroll ? 'none' : 'block',
+				width: scrollerWidth,
+				backgroundColor: trackColor
 			};
 			this.innerStyle = {
 				top: scrollTop,
-				transition: this.dragging && this.props.noTransitionOnDrag ? null : transition
+				transition: dragging && this.props.noTransitionOnDrag ? null : transition,
+				padding: getNumberInPxOrPercent(innerPadding)
 			};
+			this.innerStyle[scrollbarAtLeft ? 'left' : 'right'] = withoutScrollbar ? 0 : scrollerWidth;
 			this.scrollerTop = top;
 			this.scrollerHeight = height;
+
+			const isTopLimit =  noScroll || scrollTop > -15;
+			this.topMaskStyle = {
+				display: isTopLimit ? 'none' : 'block',
+				backgroundImage: this.getMaskGradient('top')
+			};
+
+			const isBottomLimit = noScroll || scrollTop <= diff + 15;
+			this.bottomMaskStyle = {
+				display: isBottomLimit ? 'none' : 'block',
+				backgroundImage: this.getMaskGradient('bottom')
+			};
+
+			if (sliderColor) {
+				this.scrollStyle = this.scrollStyle || {};
+				this.scrollStyle.backgroundColor = sliderColor
+			}
 		}		
 		return {
 			scrollerTop: this.scrollerTop,
 			scrollerHeight: this.scrollerHeight,
 			scrollStyle: this.scrollStyle,
 			innerStyle: this.innerStyle,
-			barStyle:  this.barStyle
-		}
+			barStyle:  this.barStyle,
+			topMaskStyle: this.topMaskStyle,
+			bottomMaskStyle: this.bottomMaskStyle,
+			sliderStyle: this.sliderStyle
+		};
 	}
 
 	handleWheel = (e) => {
 		const {onWheel, disabled, onDisabledWheel} = this.props;
 		if (!disabled && typeof onWheel == 'function') {
 			e.preventDefault();
+			if (this.isInTransition) {
+				return;
+			}
 			const [scrollTop, scrollTopPercent] = this.calculateScrollTop(e);
-			const prevScrollTop = this.getScrollTop();
-			if (Math.abs(prevScrollTop) != scrollTop) {
-				onWheel(scrollTop, scrollTopPercent);
+			if (scrollTop != null) {
+				const prevScrollTop = this.getScrollTop();
+				if (Math.abs(prevScrollTop) != scrollTop) {
+					onWheel(scrollTop, scrollTopPercent);
+				}
 			}
 		} else if (disabled && typeof onDisabledWheel == 'function') {
 			onDisabledWheel();
+		}
+	}
+
+	getMaskGradient(side) {
+		const {overflowMaskColor} = this.props;
+		if (overflowMaskColor) {
+			return 'linear-gradient(to ' + side + ', transparent, ' + overflowMaskColor + ')';
 		}
 	}
 
@@ -152,11 +211,11 @@ export class ScrollContainer extends UIEXComponent {
 	}
 
 	handleScrollerDragStart = () => {		
-		this.dragging = true;
+		this.setState({dragging: true});
 	}
 
 	handleScrollerDragEnd = () => {
-		this.dragging = false;
+		this.setState({dragging: false});
 	}
 
 	handleScrollerDrag = (x, y) => {
@@ -177,12 +236,29 @@ export class ScrollContainer extends UIEXComponent {
 	}
 
 	getTransition() {
+		if (!this.needTransition) {
+			this.needTransition = true;
+			return null;
+		}
+		if (this.scrollingIntoViewTransition) {
+			const transition = this.scrollingIntoViewTransition;
+			this.scrollingIntoViewTransition = null;
+			return transition;
+		}
 		let transitionSpeed = getNumberOrNull(this.props.transitionSpeed);
 		if (!transitionSpeed) {
 			return null;
 		}
 		transitionSpeed = Math.max(MIN_SPEED, Math.min(MAX_SPEED, transitionSpeed));
 		return 'top .' + transitionSpeed + 's';
+	}
+
+	getScrollerWidth() {
+		let scrollerWidth = getNumberOrNull(this.props.scrollerWidth);
+		if (!scrollerWidth) {
+			return null;
+		}
+		return Math.max(MIN_SCROLL_WIDTH, Math.min(MAX_SCROLL_WIDTH, scrollerWidth));
 	}
 	
 	getScrollTop() {
@@ -213,8 +289,8 @@ export class ScrollContainer extends UIEXComponent {
 	}
 
 	getScrollerStyle() {
-		let scrollTop = this.getScrollTop();
-		return this.getCalculatedData(scrollTop);
+		const scrollTop = this.validateScrollTop(this.getScrollTop());
+		return this.getCalculatedData(Math.abs(scrollTop));
 	}
 
 	calculateScrollTop(e) {
@@ -228,14 +304,24 @@ export class ScrollContainer extends UIEXComponent {
 		const step = scrollStep * (deltaY > 0 ? -1 : 1);		
 		let scrollTop = this.getScrollTop();
 		const {diff} = this.getCalculatedDiff();
-		scrollTop += step;
-		if (scrollTop > 0) {
-			scrollTop = 0;
-		} else if (diff < 0 && scrollTop < diff) {
-			scrollTop = diff;
+		if (diff >= 0) {
+			return [];
 		}
-		scrollTop = Math.abs(scrollTop);
+		scrollTop = Math.abs(this.validateScrollTop(scrollTop + step));
 		return [scrollTop , this.getScrollTopPercentage(scrollTop)];
+	}
+	
+	validateScrollTop(scrollTop) {
+		let diff = this.cachedDiff;
+		if (diff == null) {
+			diff = this.getCalculatedDiff().diff;
+		}
+		if (scrollTop > 0) {
+			return 0;
+		} else if (diff < 0 && scrollTop < diff) {
+			return diff;
+		}
+		return scrollTop;
 	}
 
 	getCalculatedDiff() {
@@ -265,13 +351,48 @@ export class ScrollContainer extends UIEXComponent {
 		let height, top;
 		if (barHeight != null)  {
 			height =  percentage == 100 ? null : Number((barHeight * percentage / 100).toFixed(2));
-			top = -scrollTop * 100 / innerHeight;
+			top = scrollTop * 100 / innerHeight;
 		}
 		return {
 			diff,
 			height,
 			top: Number((top * barHeight / 100).toFixed(2)),
-			scrollTop
+			scrollTop: -scrollTop
+		}
+	}
+
+	scrollIntoView(selector, options) {
+		let duration;
+		if (options instanceof Object) {
+			const transitionSpeed = getNumberOrNull(options.transitionSpeed);
+			if (transitionSpeed) {
+				duration = transitionSpeed;
+			}
+		}
+		const {onWheel} = this.props;
+		if (typeof onWheel == 'function') {
+			const {inner} = this.refs;
+			const element = inner.querySelector(selector);
+			if (element) {
+				const parentTop = inner.getBoundingClientRect().top;
+				const elementTop = element.getBoundingClientRect().top;
+				let relativeTop = elementTop - parentTop - 20;
+				if (duration) {
+					duration = Math.max(MIN_SPEED, Math.min(MAX_SPEED, duration));
+					this.scrollingIntoViewTransition = 'top .' + duration + 's ease-in-out';
+					this.isInTransition = true;
+					setTimeout(() => {
+						this.isInTransition = false;
+					}, duration * 100);
+				}
+				let diff = this.cachedDiff;
+				if (diff == null) {
+					this.getCalculatedDiff();
+					diff = this.cachedDiff;
+				}
+				relativeTop = Math.min(Math.max(0, relativeTop), -diff);
+				onWheel(relativeTop, this.getScrollTopPercentage(relativeTop));
+			}
 		}
 	}
 }

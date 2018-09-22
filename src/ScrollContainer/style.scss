@@ -3,6 +3,7 @@
 	min-width: 100px;
 	position: relative;
 	border: 1px solid #aaa;
+	box-sizing: border-box;
 
 	.uiex-scroll-container-outer-content {
 		position: absolute;
@@ -19,29 +20,95 @@
 	.uiex-scroll-container-inner {
 		position: absolute;
 		left: 0;
-		right: 15px;
+		right: 12px;
 		top: 0;
 	}
 	.uiex-scroll-container-bar {
 		position: absolute;
-		width: 15px;
-		right: 0px;
+		width: 12px;
+		right: 0;
 		top: 0;
 		bottom: 0;
 		background-color: #aaa;
 	}
 	.uiex-scroll-container-scroller {
 		position: absolute;
-		width: 15px;
 		top: 0;
 		left: 0;
 		right: 0;
 		background-color: #555;
 	}
+	.uiex-scroll-container-top-mask {
+		position: absolute;
+		top: 0;
+		right: 12px;
+		left: 0;
+		height: 40px;
+	}
+	.uiex-scroll-container-bottom-mask {
+		position: absolute;
+		bottom: 0;
+		right: 12px;
+		left: 0;
+		height: 50px;
+	}
 	
 	&.uiex-disabled {
 		.uiex-scroll-container-bar {
 			opacity: 0.5;
+		}
+	}
+	&.uiex-without-scrollbar {
+		.uiex-scroll-container-bar {
+			visibility: hidden !important;
+		}
+		.uiex-scroll-container-inner {
+			left: 0 !important;
+			right: 0 !important;
+		}
+	}
+	&.uiex-scrollbar-at-left {
+		.uiex-scroll-container-bar {
+			left: 0;
+			right: auto;
+		}
+		.uiex-scroll-container-top-mask,
+		.uiex-scroll-container-bottom-mask,
+		.uiex-scroll-container-inner {
+			left: 12px;
+			right: 0;
+		}
+	}
+	&.uiex-transparent-track {
+		.uiex-scroll-container-bar {
+			background-color: transparent !important;
+		}
+	}
+	&.uiex-overlaid-scrollbar {
+		.uiex-scroll-container-bar {
+			opacity: 0.8;
+			transition: opacity .3s;
+		}
+		.uiex-scroll-container-inner {
+			left: 0 !important;
+			right: 0 !important;
+		}
+	}
+	&.uiex-hidden-scrollbar {
+		.uiex-scroll-container-bar {
+			opacity: 0;
+			transition: opacity .3s;
+		}
+	}
+	&.uiex-dragging,
+	&:hover:not(.uiex-disabled) {
+		.uiex-scroll-container-bar {
+			opacity: 1;
+		}
+		&.uiex-overlaid-scrollbar {
+			.uiex-scroll-container-bar {
+				opacity: 0.8;
+			}	
 		}
 	}
 }

@@ -273,7 +273,12 @@ export const getSizeInPercentageOfWindow = (value, attr) => {
 }
 
 export const propsChanged = (p1, p2, list) => {
-	if (list instanceof Array && p1 instanceof Object && p2 instanceof Object) {
+	const io1 = p1 instanceof Object;
+	const io2 = p2 instanceof Object;
+	if ((io1 && !io2) || (!io1 && io2)) {
+		return true;
+	}
+	if (list instanceof Array && io1 && io2) {
 		for (let i = 0; i < list.length; i++) {
 			const k = list[i];
 			if (p1[k] != p2[k]) {

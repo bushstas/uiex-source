@@ -81,9 +81,9 @@
 			&:hover:not(.uiex-disabled) {
 				background-color: #333;
 			}
-			&.uiex-direction-down {
-				margin-top: 8px;
-			}
+		}
+		*:nth-child(2) {
+			margin-top: 8px;
 		}
 	}
 }

@@ -10,21 +10,10 @@ export class Section extends UIEXComponent {
 	static propTypes = SectionPropTypes;
 	static styleNames = ['caption', 'note', 'content'];
 	static displayName = 'Section';
-
-	isCustomStyleChanged() {
-		const {borderColor: bc, borderWidth: bw, borderStyle: bs, borderRadius: br, bgColor: bg, padding: pd} = this.props;
-		return (
-			bc != this.bc ||
-			bw != this.bw ||
-			bs != this.bs ||
-			br != this.br ||
-			bg != this.bg ||
-			pd != this.pd
-		)
-	}
+	static propsToCheck = ['borderColor', 'borderWidth', 'borderStyle', 'borderRadius', 'bgColor', 'padding'];
 
 	getCustomStyle() {
-		let {borderColor: bc, borderWidth: bw, borderStyle: bs, borderRadius: br, bgColor: bg, padding: pd} = nextProps;
+		let {borderColor: bc, borderWidth: bw, borderStyle: bs, borderRadius: br, bgColor: bg, padding: pd} = this.props;
 		bw = getNumberInPxOrPercent(bw);
 		pd = getNumberInPxOrPercent(pd);
 		br = getNumberInPxOrPercent(br);
@@ -34,12 +23,6 @@ export class Section extends UIEXComponent {
 		style = addStyleProperty(bs, 'borderStyle', style);
 		style = addStyleProperty(br, 'borderRadius', style);
 		style = addStyleProperty(bg, 'backgroundColor', style);
-		this.bc = bc;
-		this.bw = bw;
-		this.bs = bs;
-		this.br = br;
-		this.bg = bg;
-		this.pd = pd;
 		return style;
 	}
 

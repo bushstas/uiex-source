@@ -7,7 +7,9 @@ import {
 	getComponentClassName,
 	addStyleProperty,
 	mergeObjects,
-	mapChildren
+	mapChildren,
+	propsChanged,
+	cacheProps
 } from './utils';
 import {FORM_BUTTON_DISPLAY} from './consts';
 
@@ -43,10 +45,6 @@ export class UIEXComponent extends React.PureComponent {
 	initStyleChange(name, props) {
 		const key = name + 'Style';
 		this.stylesChanged[name] = this.props[key] != props[key];
-	}
-
-	setStyleChanged(isChanged) {
-		this.stylesChanged.main = isChanged;
 	}
 
 	getStyle(name) {
@@ -336,6 +334,11 @@ export class UIEXComponent extends React.PureComponent {
 	}
 
 	isCustomStyleChanged() {
+		const propsToCheck = this.constructor.propsToCheck;
+		if (propsToCheck instanceof Array && propsChanged(this.props, this.cachedProps, propsToCheck)) {
+			this.cachedProps = cacheProps(this.props, propsToCheck);
+			return true;
+		}
 		return false;
 	}
 

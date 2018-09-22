@@ -1,5 +1,6 @@
 .uiex-scroll-container {
 	height: 500px;
+	min-width: 100px;
 	position: relative;
 	border: 1px solid #aaa;
 
@@ -32,8 +33,15 @@
 	.uiex-scroll-container-scroller {
 		position: absolute;
 		width: 15px;
+		top: 0;
 		left: 0;
-		right: 0px;
+		right: 0;
 		background-color: #555;
+	}
+	
+	&.uiex-disabled {
+		.uiex-scroll-container-bar {
+			opacity: 0.5;
+		}
 	}
 }

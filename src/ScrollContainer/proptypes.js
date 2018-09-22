@@ -5,6 +5,9 @@ import {PROPTYPE} from '../consts';
 export const ScrollContainerPropTypes = {
 	...UIEXComponentPropTypes,
 	scrollTop: PROPTYPE.STRNUM,
-	onWheel: PropTypes.func,
+	transitionSpeed: PROPTYPE.STRNUM,
+	scrollStep: PROPTYPE.STRNUM,
+	noTransitionOnDrag: PropTypes.bool,
+	onWheel: PropTypes.func.isRequired,
 	onDisabledWheel: PropTypes.func
 }

@@ -185,6 +185,14 @@
         }
         .uiex-modal-body {
             padding-top: 32px;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+        }
+    }
+    &.uiex-without-footer {
+        .uiex-modal-body {
+            border-bottom-left-radius: 3px;
+            border-bottom-right-radius: 3px;
         }
     }
 

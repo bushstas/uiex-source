@@ -66,6 +66,16 @@
 		.uiex-color-picker {
 			border-color: #888;
 		}
+		&.uiex-at-top {
+			top: auto;
+			bottom: 100%;
+			margin-top: 0;
+			margin-bottom: 2px;
+		}
+		&.uiex-at-left {
+			left: auto;
+			right: 0;
+		}
 	}
 	&.uiex-full-with-picker {
 		.uiex-popup {

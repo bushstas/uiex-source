@@ -28,30 +28,17 @@ class PopupMenuComponent extends Popup {
 		animation: 'fade-fall'
 	}
 
-	static getDerivedStateFromProps({add, isChanged, nextProps, call}) {
+	static getDerivedStateFromProps({add, isChanged, nextProps, call, get}) {
 		if (isChanged('isOpen')) {
 			add('isOpen');
 			call(() => {
-				if (nextProps.isOpen) {
-					this.checkPosition();
+				if (nextProps.isOpen) {	
 					this.addKeydownHandler();
 				} else {
 					this.removeKeydownHandler();
 				}
 			});
 		}
-	}
-
-	checkPosition() {
-		const {main} = this.refs;
-		if (!main) {
-			return;
-		}
-		main.style.height = 'auto';
-		const {top, height} = main.getBoundingClientRect();
-		const {innerHeight} = window;
-		this.atTop = top + height > innerHeight + 5;
-		main.style.height = '';
 	}
 
 	componentDidUpdate() {
@@ -86,10 +73,10 @@ class PopupMenuComponent extends Popup {
 	}
 
 	addClassNames(add) {
+		super.addClassNames(add);
 		add('scrollable');
 		add('shown', this.state.isOpen);
 		add('multiple', this.props.multiple);
-		add('options-on-top', this.atTop);
 	}
 
 	initRendering() {
@@ -321,6 +308,12 @@ class PopupMenuComponent extends Popup {
 				}
 			break;
 		}		
+	}
+
+	getInnerContainer() {
+		if (this.refs.box) {
+			return this.refs.box.refs.inner;
+		}
 	}
 }
 

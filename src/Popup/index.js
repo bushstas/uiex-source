@@ -12,10 +12,25 @@ class PopupComponent extends UIEXBoxContainer {
 	static propTypes = PopupPropTypes;
 	static displayName = 'Popup';
 
-	static getDerivedStateFromProps({isChanged, nextProps, call, isInitial}) {
+	static getDerivedStateFromProps({add, isChanged, nextProps, call, isInitial}) {
 		if (isChanged('isOpen')) {
+			const {isOpen} = nextProps;
+			if (isOpen) {
+				const {main} = this.refs;
+				const inner = this.getInnerContainer();
+				if (main && inner) {
+					const {height, width} = inner.getBoundingClientRect();
+					const {top, left} = main.getBoundingClientRect();
+					const {scrollWidth, scrollHeight} = document.body;
+					add('atTop', top + height > scrollHeight + 5);
+					add('atLeft', left + width > scrollWidth + 5);
+				}
+			} else {
+				add('atTop', false);
+				add('atLeft', false);
+			}
 			call(() => {			
-				if (nextProps.isOpen) {
+				if (isOpen) {
 					this.addBodyClickHandler();
 				} else if (!isInitial) {
 					this.removeBodyClickHandler();
@@ -31,6 +46,8 @@ class PopupComponent extends UIEXBoxContainer {
 
 	addClassNames(add) {
 		add('open', this.props.isOpen);
+		add('at-top', this.props.onTop || this.state.atTop);
+		add('at-left', this.state.atLeft);
 	}
 
 	addBodyClickHandler() {
@@ -71,6 +88,10 @@ class PopupComponent extends UIEXBoxContainer {
 			}
 			this.removeBodyClickHandler();
 		}
+	}
+
+	getInnerContainer() {
+		return this.refs.inner;
 	}
 }
 

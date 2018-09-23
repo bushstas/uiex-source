@@ -14,12 +14,13 @@
 	height: 0;
 	display: block;
 
-	&.uiex-options-on-top {
+	&.uiex-at-top {
 		top: auto;
 		margin-top: 0;
 		bottom: 100%;
 		margin-bottom: 1px;
 	}
+
 	&.uiex-shown {
 		visibility: visible;
 		height: auto;

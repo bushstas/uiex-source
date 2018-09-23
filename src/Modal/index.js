@@ -222,7 +222,7 @@ class ModalComponent extends UIEXComponent {
 	}
 
 	addClassNames(add) {
-		const {expandable, animation, maskOpacity, expanded, withoutPortal, header} = this.props;
+		const {expandable, animation, maskOpacity, expanded, withoutPortal, header, footer} = this.props;
 		add('expandable', expandable);
 		add('shown', this.state.isOpen);
 		add('expanded', expanded);
@@ -230,6 +230,7 @@ class ModalComponent extends UIEXComponent {
 		add('opacity-' + maskOpacity, maskOpacity);
 		add('without-portal', withoutPortal);
 		add('without-header', !header);
+		add('without-footer', !footer);
 	}
 
 	renderInternal() {

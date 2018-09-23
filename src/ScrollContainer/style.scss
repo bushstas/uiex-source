@@ -2,7 +2,6 @@
 	height: 500px;
 	min-width: 100px;
 	position: relative;
-	border: 1px solid #aaa;
 	box-sizing: border-box;
 
 	.uiex-scroll-container-outer-content {
@@ -30,6 +29,18 @@
 		top: 0;
 		bottom: 0;
 		background-color: #aaa;
+
+		&:before {
+			content: '';
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 50%;
+			width: 1px;
+			margin-left: -1px;
+			border-right: 1px solid #ddd;
+			background-color: #aaa;
+		}
 	}
 	.uiex-scroll-container-scroller {
 		position: absolute;
@@ -44,6 +55,7 @@
 		right: 12px;
 		left: 0;
 		height: 40px;
+		display: none;
 	}
 	.uiex-scroll-container-bottom-mask {
 		position: absolute;
@@ -51,6 +63,7 @@
 		right: 12px;
 		left: 0;
 		height: 50px;
+		display: none;
 	}
 	
 	&.uiex-disabled {

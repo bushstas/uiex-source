@@ -36,9 +36,6 @@ class InputColorComponent extends Input {
 		super.addClassNames(add);
 		add('input');
 		add('full-with-picker', this.props.fullWidthPicker);
-		if (this.refs.popup && (this.props.pickerShown || this.state.pickerShown)) {
-			console.log(this.refs.popup.refs.inner.getBoundingClientRect())
-		}
 	}
 
 	getCustomInputProps() {
@@ -61,7 +58,7 @@ class InputColorComponent extends Input {
 
 	renderAdditionalContent() {
 		let {pickerShown, isValidColor, colorStyle} = this.state;
-		const {withoutPicker, presetColors, pickerShown: pickerAlwaysShown} = this.props;
+		const {withoutPicker, presetColors, pickerShown: pickerAlwaysShown, pickerOnTop} = this.props;
 		pickerShown = pickerShown || pickerAlwaysShown;
 		return (
 			<div className={this.getClassName('functional')}>
@@ -78,6 +75,7 @@ class InputColorComponent extends Input {
 					<Popup
 						ref="popup"
 						isOpen={pickerShown}
+						onTop={pickerOnTop}
 						onCollapse={this.handlePopupCollapse}
 					>
 						<ColorPicker 
@@ -156,6 +154,10 @@ class InputColorComponent extends Input {
 		if (value || required) {
 			this.fireChangeValidity(isValidColor, value);
 		}
+	}
+
+	checkPosition() {
+		
 	}
 }
 export const InputColor = withStateMaster(InputColorComponent, PROPS_LIST, null, Input);

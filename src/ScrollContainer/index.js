@@ -14,7 +14,9 @@ const MIN_SPEED = 1;
 const MAX_SPEED = 8;
 const MIN_SCROLL_WIDTH = 5;
 const MAX_SCROLL_WIDTH = 50;
-const PROPS_LIST = ['scrollTop', 'scrollTopPercent', 'transitionSpeed', 'withoutScrollbar', 'innerPadding', 'scrollerWidth', 'trackColor', 'sliderColor', 'overflowMaskColor', 'overlaidScrollbar'];
+const MIN_MASK_HEIGHT = 10;
+const MAX_MASK_HEIGHT = 50;
+const PROPS_LIST = ['scrollTop', 'scrollTopPercent', 'transitionSpeed', 'withoutScrollbar', 'innerPadding', 'scrollerWidth', 'trackColor', 'sliderColor', 'overflowMaskColor', 'overlaidScrollbar', 'scrollbarRadius', 'overflowMaskHeight'];
 
 export class ScrollContainer extends UIEXComponent {
 	static propTypes = ScrollContainerPropTypes;
@@ -69,7 +71,12 @@ export class ScrollContainer extends UIEXComponent {
 					</div>
 					<div className={this.getClassName('top-mask')} style={topMaskStyle}/>
 					<div className={this.getClassName('bottom-mask')} style={bottomMaskStyle}/>
-					<div ref="bar" className={this.getClassName('bar')} style={barStyle}>
+					<div 
+						ref="bar" 
+						className={this.getClassName('bar')} 
+						style={barStyle}
+						onClick={this.handleTrackClick}
+					>
 						<Draggable
 							ref="scroller"
 							className={this.getClassName('scroller')} 
@@ -96,7 +103,7 @@ export class ScrollContainer extends UIEXComponent {
 
 	isAnyPropChanged() {
 		clearTimeout(this.timeout);
-		this.timeout = setTimeout(this.checkToUpdate, 0);
+		this.timeout = setTimeout(this.checkToUpdate, 200);
 		if (propsChanged(this.props, this.cachedProps, PROPS_LIST)) {
 			this.cachedProps = cacheProps(this.props, PROPS_LIST);
 			return true;
@@ -128,7 +135,7 @@ export class ScrollContainer extends UIEXComponent {
 
 	getStyles() {
 		if (this.refs.outer && this.isAnyPropChanged()) {
-			const {withoutScrollbar, innerPadding, scrollbarAtLeft, trackColor, sliderColor} = this.props;
+			const {withoutScrollbar, innerPadding, scrollbarAtLeft, trackColor, sliderColor, scrollbarRadius} = this.props;
 			const {dragging} = this.state;
 			let {top, height, scrollTop} = this.getScrollerStyle();
 			const transition = this.getTransition();
@@ -140,7 +147,8 @@ export class ScrollContainer extends UIEXComponent {
 			this.barStyle = {
 				display: noScroll ? 'none' : 'block',
 				width: scrollerWidth,
-				backgroundColor: trackColor
+				backgroundColor: trackColor,
+				borderRadius: scrollbarRadius
 			};
 			this.innerStyle = {
 				top: scrollTop,
@@ -151,21 +159,38 @@ export class ScrollContainer extends UIEXComponent {
 			this.scrollerTop = top;
 			this.scrollerHeight = height;
 
-			const isTopLimit =  noScroll || scrollTop > -15;
-			this.topMaskStyle = {
-				display: isTopLimit ? 'none' : 'block',
-				backgroundImage: this.getMaskGradient('top')
-			};
-
-			const isBottomLimit = noScroll || scrollTop <= diff + 15;
-			this.bottomMaskStyle = {
-				display: isBottomLimit ? 'none' : 'block',
-				backgroundImage: this.getMaskGradient('bottom')
-			};
+			let overflowMaskHeight = getNumberOrNull(this.props.overflowMaskHeight);
+			if (overflowMaskHeight) {
+				overflowMaskHeight = Math.max(MIN_MASK_HEIGHT, Math.min(MAX_MASK_HEIGHT, overflowMaskHeight));
+			} else {
+				overflowMaskHeight = '';
+			}
+			if (!noScroll && scrollTop < -15) {
+				this.topMaskStyle = {
+					display: 'block',
+					backgroundImage: this.getMaskGradient('top'),
+					height: overflowMaskHeight
+				};
+			} else {
+				this.topMaskStyle = null;
+			}
+			if (!noScroll && scrollTop > diff + 15) {
+				this.bottomMaskStyle = {
+					display: 'block',
+					backgroundImage: this.getMaskGradient('bottom'),
+					height: overflowMaskHeight
+				};
+			} else {
+				this.bottomMaskStyle = null;
+			}
 
 			if (sliderColor) {
 				this.scrollStyle = this.scrollStyle || {};
 				this.scrollStyle.backgroundColor = sliderColor
+			}
+			if (scrollbarRadius) {
+				this.scrollStyle = this.scrollStyle || {};
+				this.scrollStyle.borderRadius = scrollbarRadius
 			}
 		}		
 		return {
@@ -178,6 +203,20 @@ export class ScrollContainer extends UIEXComponent {
 			bottomMaskStyle: this.bottomMaskStyle,
 			sliderStyle: this.sliderStyle
 		};
+	}
+
+	handleTrackClick = (e) => {
+		const {onWheel} = this.props;
+		if (typeof onWheel == 'function') {
+			const y = e.nativeEvent.offsetY;
+			let barHeight = this.cachedBarHeight;
+			if (barHeight == null) {
+				barHeight = this.getCalculatedDiff().barHeight;
+			}
+			const scrollTopPercent = y * 100 /barHeight;
+			const scrollTop = this.getScrollTopFromPercentage(scrollTopPercent);
+			onWheel(scrollTop, Number(scrollTopPercent.toFixed(2)));
+		}
 	}
 
 	handleWheel = (e) => {
@@ -348,8 +387,8 @@ export class ScrollContainer extends UIEXComponent {
 	getCalculatedData(scrollTop) {
 		const {diff, outerHeight, innerHeight, barHeight} = this.getCalculatedDiff();
 		const percentage =  Math.min(100, outerHeight / innerHeight * 100);
-		let height, top;
-		if (barHeight != null)  {
+		let height = 0, top = 0;
+		if (barHeight != null && !!innerHeight)  {
 			height =  percentage == 100 ? null : Number((barHeight * percentage / 100).toFixed(2));
 			top = scrollTop * 100 / innerHeight;
 		}
@@ -362,12 +401,13 @@ export class ScrollContainer extends UIEXComponent {
 	}
 
 	scrollIntoView(selector, options) {
-		let duration;
+		let duration, effect;
 		if (options instanceof Object) {
-			const transitionSpeed = getNumberOrNull(options.transitionSpeed);
-			if (transitionSpeed) {
-				duration = transitionSpeed;
+			const optDuration = getNumberOrNull(options.duration);
+			if (optDuration) {
+				duration = optDuration;
 			}
+			effect = options.effect;
 		}
 		const {onWheel} = this.props;
 		if (typeof onWheel == 'function') {
@@ -379,7 +419,7 @@ export class ScrollContainer extends UIEXComponent {
 				let relativeTop = elementTop - parentTop - 20;
 				if (duration) {
 					duration = Math.max(MIN_SPEED, Math.min(MAX_SPEED, duration));
-					this.scrollingIntoViewTransition = 'top .' + duration + 's ease-in-out';
+					this.scrollingIntoViewTransition = 'top .' + duration + 's' + (effect && typeof effect == 'string' ? ' ' + effect : '');
 					this.isInTransition = true;
 					setTimeout(() => {
 						this.isInTransition = false;

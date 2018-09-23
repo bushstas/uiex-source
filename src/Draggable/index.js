@@ -68,7 +68,8 @@ export class Draggable extends UIEXComponent {
 			return {
 				onMouseDown: this.handleMouseDown,
 				onDragStart: this.handleDragStart,
-				onDrag: this.handleDragStart
+				onDrag: this.handleDragStart,
+				onClick: this.handleClick
 			}
 		}
 	}
@@ -308,7 +309,12 @@ export class Draggable extends UIEXComponent {
 		e.preventDefault();
 	}
 
+	handleClick = (e) => {
+		e.stopPropagation();
+	}
+
 	handleMouseDown = (e) => {
+		e.preventDefault();
 		const {onDragStart, name} = this.props;
 		this.x = e.clientX;
 		this.y = e.clientY;

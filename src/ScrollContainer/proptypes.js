@@ -10,6 +10,8 @@ export const ScrollContainerPropTypes = {
 	scrollerWidth: PROPTYPE.STRNUM,
 	outerPadding: PROPTYPE.STRNUM,
 	innerPadding: PROPTYPE.STRNUM,
+	scrollbarRadius: PROPTYPE.STRNUM,
+	overflowMaskHeight: PROPTYPE.STRNUM,
 	overflowMaskColor: PropTypes.string,
 	trackColor: PropTypes.string,
 	sliderColor: PropTypes.string,

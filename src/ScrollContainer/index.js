@@ -1,22 +1,46 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {Draggable} from '../Draggable';
-import {getNumberOrNull, getNumberInPxOrPercent, propsChanged, cacheProps} from '../utils';
+import {getNumberOrNull, getNumberInPxOrPercent, propsChanged, cacheProps, getNumericProp} from '../utils';
 import {ScrollContainerPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
 
 const DEFAULT_STEP = 50;
+const DEFAULT_SLIDER_WIDTH = 12;
+const DEFAULT_TRACK_WIDTH = 12;
 const MIN_STEP = 20;
 const MAX_STEP = 500;
+const DEFAULT_SPEED = null;
 const MIN_SPEED = 1;
 const MAX_SPEED = 8;
-const MIN_SCROLL_WIDTH = 5;
-const MAX_SCROLL_WIDTH = 50;
+const MIN_SLIDER_WIDTH = 5;
+const MAX_SLIDER_WIDTH = 50;
+const MIN_TRACK_WIDTH = 1;
+const MAX_TRACK_WIDTH = 50;
 const MIN_MASK_HEIGHT = 10;
 const MAX_MASK_HEIGHT = 50;
-const PROPS_LIST = ['scrollTop', 'scrollTopPercent', 'transitionSpeed', 'withoutScrollbar', 'innerPadding', 'scrollerWidth', 'trackColor', 'sliderColor', 'overflowMaskColor', 'overlaidScrollbar', 'scrollbarRadius', 'overflowMaskHeight'];
+const DEFAULT_RADIUS = null;
+const MIN_RADIUS = 0;
+const MAX_RADIUS = 50;
+const DEFAULT_TRANSITION_EFFECT = 'linear';
+
+const PROPS_LIST = [
+	'scrollTop',
+	'scrollTopPercent',
+	'transitionSpeed',
+	'withoutScrollbar',
+	'innerPadding',
+	'trackWidth',
+	'sliderWidth',
+	'trackColor',
+	'sliderColor',
+	'overflowMaskColor',
+	'overlaidScrollbar',
+	'scrollbarRadius',
+	'overflowMaskHeight'
+];
 
 export class ScrollContainer extends UIEXComponent {
 	static propTypes = ScrollContainerPropTypes;
@@ -26,7 +50,9 @@ export class ScrollContainer extends UIEXComponent {
 
 	getCustomProps() {
 		return {
-			onWheel: this.handleWheel
+			onWheel: this.handleWheel,
+			onKeyDown: this.handleKeyDown,
+			tabIndex: 0
 		}
 	}
 
@@ -47,6 +73,7 @@ export class ScrollContainer extends UIEXComponent {
 
 	componentWillUnmount() {
 		clearTimeout(this.timeout);
+		clearTimeout(this.scrollingTimeout);
 		window.removeEventListener('resize', this.handleWindowResize, false);
 	}
 
@@ -60,8 +87,9 @@ export class ScrollContainer extends UIEXComponent {
 	}
 
 	renderInternal() {
-		const {outerContent, disabled} = this.props;
-		const {scrollStyle, innerStyle, barStyle, scrollerTop, scrollerHeight, topMaskStyle, bottomMaskStyle} = this.getStyles();
+		const {dragging, scrolling} = this.state;
+		const {outerContent, disabled, indicateScrollTop} = this.props;
+		const {sliderStyle, innerStyle, trackStyle, sliderTop, sliderLeft, sliderHeight, topMaskStyle, bottomMaskStyle} = this.getStyles();
 		const TagName = this.getTagName();
 		return (
 			<TagName {...this.getProps()}>
@@ -72,24 +100,31 @@ export class ScrollContainer extends UIEXComponent {
 					<div className={this.getClassName('top-mask')} style={topMaskStyle}/>
 					<div className={this.getClassName('bottom-mask')} style={bottomMaskStyle}/>
 					<div 
-						ref="bar" 
-						className={this.getClassName('bar')} 
-						style={barStyle}
+						ref="track" 
+						className={this.getClassName('track')} 
+						style={trackStyle}
 						onClick={this.handleTrackClick}
 					>
 						<Draggable
-							ref="scroller"
-							className={this.getClassName('scroller')} 
-							y={scrollerTop}
-							height={scrollerHeight}
-							style={scrollStyle}
+							ref="slider"
+							className={this.getClassName('slider')} 
+							x={sliderLeft}
+							y={sliderTop}
+							height={sliderHeight}
+							style={sliderStyle}
 							dragLimits="parent-in"
 							disabled={disabled}
 							vertical
-							onDrag={this.handleScrollerDrag}
-							onDragStart={this.handleScrollerDragStart}
-							onDragEnd={this.handleScrollerDragEnd}
-						/>
+							onDrag={this.handleSliderDrag}
+							onDragStart={this.handleSliderDragStart}
+							onDragEnd={this.handleSliderDragEnd}
+						>
+							{indicateScrollTop && (dragging || scrolling) && 
+								<div className={this.getClassName('indicator')}>
+									{Math.abs(this.cachedScrollTop).toString()}
+								</div>
+							}
+						</Draggable>
 					</div>
 				</div>
 				{outerContent &&
@@ -135,29 +170,51 @@ export class ScrollContainer extends UIEXComponent {
 
 	getStyles() {
 		if (this.refs.outer && this.isAnyPropChanged()) {
-			const {withoutScrollbar, innerPadding, scrollbarAtLeft, trackColor, sliderColor, scrollbarRadius} = this.props;
+			const {withoutScrollbar, innerPadding, scrollbarAtLeft, trackColor, sliderColor} = this.props;
 			const {dragging} = this.state;
-			let {top, height, scrollTop} = this.getScrollerStyle();
+			let {top, height, scrollTop} = this.calculateScrollbarData();
 			const transition = this.getTransition();
-			const scrollerWidth = this.getScrollerWidth();
-			this.scrollStyle = transition && !dragging ? {transition} : null;
+			const trackWidth = this.getTrackWidth();
+			const sliderWidth = this.getSliderWidth();
+			const scrollbarRadius = this.getScrollbarRadius();
+
 			const diff = this.cachedDiff || 0;
 			const noScroll = top == null || height == null;
-			
-			this.barStyle = {
+
+			this.trackStyle = {
 				display: noScroll ? 'none' : 'block',
-				width: scrollerWidth,
+				width: trackWidth,
 				backgroundColor: trackColor,
 				borderRadius: scrollbarRadius
 			};
+			this.sliderStyle = {
+				width: sliderWidth,
+				transition: !dragging ? transition : null
+			};
+			if (sliderColor) {
+				this.sliderStyle.backgroundColor = sliderColor;
+			}
+			if (scrollbarRadius) {
+				this.sliderStyle.borderRadius = scrollbarRadius;
+			}
+			if (trackWidth) {
+				this.trackStyle.width = trackWidth;
+				if (trackWidth >= sliderWidth) {
+					this.trackStyle.right = 0;
+				} else {
+					this.trackStyle.right = Math.ceil((sliderWidth - trackWidth) / 2);
+				}
+			}
 			this.innerStyle = {
 				top: scrollTop,
 				transition: dragging && this.props.noTransitionOnDrag ? null : transition,
 				padding: getNumberInPxOrPercent(innerPadding)
 			};
-			this.innerStyle[scrollbarAtLeft ? 'left' : 'right'] = withoutScrollbar ? 0 : scrollerWidth;
-			this.scrollerTop = top;
-			this.scrollerHeight = height;
+			const sideMargin = Math.max(sliderWidth, trackWidth);
+			this.innerStyle[scrollbarAtLeft ? 'left' : 'right'] = withoutScrollbar ? 0 : sideMargin;
+			this.sliderLeft = Math.ceil((trackWidth - sliderWidth) / 2);
+			this.sliderTop = top;
+			this.sliderHeight = height;
 
 			let overflowMaskHeight = getNumberOrNull(this.props.overflowMaskHeight);
 			if (overflowMaskHeight) {
@@ -183,22 +240,14 @@ export class ScrollContainer extends UIEXComponent {
 			} else {
 				this.bottomMaskStyle = null;
 			}
-
-			if (sliderColor) {
-				this.scrollStyle = this.scrollStyle || {};
-				this.scrollStyle.backgroundColor = sliderColor
-			}
-			if (scrollbarRadius) {
-				this.scrollStyle = this.scrollStyle || {};
-				this.scrollStyle.borderRadius = scrollbarRadius
-			}
-		}		
+		}
 		return {
-			scrollerTop: this.scrollerTop,
-			scrollerHeight: this.scrollerHeight,
-			scrollStyle: this.scrollStyle,
+			sliderTop: this.sliderTop,
+			sliderLeft: this.sliderLeft,
+			sliderHeight: this.sliderHeight,
+			sliderStyle: this.sliderStyle,
 			innerStyle: this.innerStyle,
-			barStyle:  this.barStyle,
+			trackStyle:  this.trackStyle,
 			topMaskStyle: this.topMaskStyle,
 			bottomMaskStyle: this.bottomMaskStyle,
 			sliderStyle: this.sliderStyle
@@ -206,16 +255,28 @@ export class ScrollContainer extends UIEXComponent {
 	}
 
 	handleTrackClick = (e) => {
-		const {onWheel} = this.props;
-		if (typeof onWheel == 'function') {
-			const y = e.nativeEvent.offsetY;
-			let barHeight = this.cachedBarHeight;
-			if (barHeight == null) {
-				barHeight = this.getCalculatedDiff().barHeight;
+		const {onWheel, disabled, onDisabledWheel} = this.props;
+		if (typeof onWheel == 'function' && !disabled) {
+			let trackHeight = this.cachedTrackHeight;
+			let sliderHeight = this.cachedSliderHeight;
+			if (sliderHeight == null) {
+				sliderHeight = this.refs.slider.getBoundingClientRect().height;
 			}
-			const scrollTopPercent = y * 100 /barHeight;
+			if (trackHeight == null) {
+				trackHeight = this.getCalculatedDiff().trackHeight;
+			}
+			const halfOfSliderHeight = sliderHeight / 2;
+			const y = e.nativeEvent.offsetY - halfOfSliderHeight;
+			let scrollTopPercent = y * 100 / (trackHeight - sliderHeight);
+			if (scrollTopPercent < 0) {
+				scrollTopPercent = 0;
+			} else if (scrollTopPercent > 100) {
+				scrollTopPercent = 100;
+			}
 			const scrollTop = this.getScrollTopFromPercentage(scrollTopPercent);
 			onWheel(scrollTop, Number(scrollTopPercent.toFixed(2)));
+		} else if (disabled && typeof onDisabledWheel == 'function') {
+			onDisabledWheel();
 		}
 	}
 
@@ -230,6 +291,11 @@ export class ScrollContainer extends UIEXComponent {
 			if (scrollTop != null) {
 				const prevScrollTop = this.getScrollTop();
 				if (Math.abs(prevScrollTop) != scrollTop) {
+					this.setState({scrolling: true});
+					clearTimeout(this.scrollingTimeout);
+					this.scrollingTimeout = setTimeout(() => {
+						this.setState({scrolling: false})
+					}, 1000);
 					onWheel(scrollTop, scrollTopPercent);
 				}
 			}
@@ -245,28 +311,40 @@ export class ScrollContainer extends UIEXComponent {
 		}
 	}
 
-	getScroller() {
-		return this.refs.scroller.refs.main;
+	getSlider() {
+		return this.refs.slider.refs.main;
 	}
 
-	handleScrollerDragStart = () => {		
+	handleSliderDragStart = () => {		
 		this.setState({dragging: true});
 	}
 
-	handleScrollerDragEnd = () => {
+	handleSliderDragEnd = () => {
 		this.setState({dragging: false});
 	}
 
-	handleScrollerDrag = (x, y) => {
+	handleSliderDrag = (x, y) => {
 		const {onWheel} = this.props;
 		if (typeof onWheel == 'function') {
-			const {height: scrollerHeight} = this.getScroller().getBoundingClientRect();
-			const barHeight = this.cachedBarHeight - scrollerHeight;
-			if (barHeight > 0) {
-				const scrollTopPercent = y * 100 / barHeight;
+			const {height: sliderHeight} = this.getSlider().getBoundingClientRect();
+			const trackHeight = this.cachedTrackHeight - sliderHeight;
+			if (trackHeight > 0) {
+				const scrollTopPercent = y * 100 / trackHeight;
 				const scrollTop = this.getScrollTopFromPercentage(scrollTopPercent);
 				onWheel(scrollTop, Number(scrollTopPercent.toFixed(2)));
 			}
+		}
+	}
+
+	handleKeyDown = (e) => {
+		switch (e.key) {
+			case 'ArrowUp':
+			case 'ArrowDown':
+			case 'Home':
+			case 'End':
+			case 'PageUp':
+			case 'PageDown':
+				return this.handleWheel(e);
 		}
 	}
 
@@ -284,20 +362,27 @@ export class ScrollContainer extends UIEXComponent {
 			this.scrollingIntoViewTransition = null;
 			return transition;
 		}
-		let transitionSpeed = getNumberOrNull(this.props.transitionSpeed);
-		if (!transitionSpeed) {
-			return null;
+		let {transitionEffect} = this.props;
+		if (!transitionEffect || transitionEffect != 'string') {
+			transitionEffect = DEFAULT_TRANSITION_EFFECT;
 		}
-		transitionSpeed = Math.max(MIN_SPEED, Math.min(MAX_SPEED, transitionSpeed));
-		return 'top .' + transitionSpeed + 's';
+		const transitionSpeed = getNumericProp(this.props.transitionSpeed, DEFAULT_SPEED, MIN_SPEED, MAX_SPEED)
+		return 'top .' + transitionSpeed + 's ' + transitionEffect;
 	}
 
-	getScrollerWidth() {
-		let scrollerWidth = getNumberOrNull(this.props.scrollerWidth);
-		if (!scrollerWidth) {
-			return null;
-		}
-		return Math.max(MIN_SCROLL_WIDTH, Math.min(MAX_SCROLL_WIDTH, scrollerWidth));
+	getSliderWidth() {
+		const {sliderWidth} = this.props;
+		return getNumericProp(sliderWidth, DEFAULT_SLIDER_WIDTH, MIN_SLIDER_WIDTH, MAX_SLIDER_WIDTH);
+	}
+
+	getScrollbarRadius() {
+		const {scrollbarRadius} = this.props;
+		return getNumericProp(scrollbarRadius, DEFAULT_RADIUS, MIN_RADIUS, MAX_RADIUS);
+	}
+
+	getTrackWidth() {
+		const {trackWidth} = this.props;
+		return getNumericProp(trackWidth, DEFAULT_TRACK_WIDTH, MIN_TRACK_WIDTH, MAX_TRACK_WIDTH);
 	}
 	
 	getScrollTop() {
@@ -327,25 +412,39 @@ export class ScrollContainer extends UIEXComponent {
 		return Number((scrollTop * 100 / -this.cachedDiff).toFixed(2));
 	}
 
-	getScrollerStyle() {
+	calculateScrollbarData() {
 		const scrollTop = this.validateScrollTop(this.getScrollTop());
+		this.cachedScrollTop = scrollTop;
 		return this.getCalculatedData(Math.abs(scrollTop));
 	}
 
 	calculateScrollTop(e) {
-		const {deltaY} = e;
-		let scrollStep = getNumberOrNull(this.props.scrollStep);
-		if (!scrollStep) {
-			scrollStep = DEFAULT_STEP;
-		} else {
-			scrollStep = Math.min(Math.max(scrollStep, MIN_STEP), MAX_STEP);
-		}
-		const step = scrollStep * (deltaY > 0 ? -1 : 1);		
-		let scrollTop = this.getScrollTop();
-		const {diff} = this.getCalculatedDiff();
+		let deltaY;
 		if (diff >= 0) {
 			return [];
 		}
+		let scrollStep = getNumericProp(this.props.scrollStep, DEFAULT_STEP, MIN_STEP, MAX_STEP);		
+		const {diff} = this.getCalculatedDiff();
+		if (e.type != 'keydown') {
+			deltaY = e.deltaY;
+		} else {
+			const {key} = e;
+			if (key == 'ArrowUp') {
+				deltaY = -1;
+			} else if (key == 'ArrowDown') {
+				deltaY = 1;
+			} else if (key == 'Home') {
+				return [0 , 0];
+			} else if (key == 'End') {
+				return [-diff , 100];
+			}
+			if (this.cachedOuterHeight && (key == 'PageUp' || key == 'PageDown')) {
+				scrollStep = this.cachedOuterHeight;
+				deltaY = key == 'PageUp' ? -1 : 1;
+			}
+		}
+		const step = scrollStep * (deltaY > 0 ? -1 : 1);		
+		let scrollTop = this.getScrollTop();		
 		scrollTop = Math.abs(this.validateScrollTop(scrollTop + step));
 		return [scrollTop , this.getScrollTopPercentage(scrollTop)];
 	}
@@ -366,12 +465,12 @@ export class ScrollContainer extends UIEXComponent {
 	getCalculatedDiff() {
 		const {height: outerHeight} = this.refs.outer.getBoundingClientRect();
 		const {height: innerHeight} = this.refs.inner.getBoundingClientRect();
-		let barHeight;
-		if (this.refs.bar) {
-			barHeight = this.refs.bar.getBoundingClientRect().height;
-			this.cachedBarHeight = barHeight;
+		let trackHeight;
+		if (this.refs.track) {
+			trackHeight = this.refs.track.getBoundingClientRect().height;
+			this.cachedTrackHeight = trackHeight;
 		} else {
-			this.cachedBarHeight = 0;
+			this.cachedTrackHeight = 0;
 		}
 		this.cachedOuterHeight = outerHeight;
 		this.cachedInnerHeight = innerHeight;
@@ -380,22 +479,23 @@ export class ScrollContainer extends UIEXComponent {
 			diff: this.cachedDiff,
 			outerHeight,
 			innerHeight,
-			barHeight
+			trackHeight
 		};
 	}
 
 	getCalculatedData(scrollTop) {
-		const {diff, outerHeight, innerHeight, barHeight} = this.getCalculatedDiff();
+		const {diff, outerHeight, innerHeight, trackHeight} = this.getCalculatedDiff();
 		const percentage =  Math.min(100, outerHeight / innerHeight * 100);
 		let height = 0, top = 0;
-		if (barHeight != null && !!innerHeight)  {
-			height =  percentage == 100 ? null : Number((barHeight * percentage / 100).toFixed(2));
+		if (trackHeight != null && !!innerHeight)  {
+			height =  percentage == 100 ? null : Number((trackHeight * percentage / 100).toFixed(2));
 			top = scrollTop * 100 / innerHeight;
 		}
+		this.cachedSliderHeight = height;
 		return {
 			diff,
 			height,
-			top: Number((top * barHeight / 100).toFixed(2)),
+			top: Number((top * trackHeight / 100).toFixed(2)),
 			scrollTop: -scrollTop
 		}
 	}
@@ -419,7 +519,7 @@ export class ScrollContainer extends UIEXComponent {
 				let relativeTop = elementTop - parentTop - 20;
 				if (duration) {
 					duration = Math.max(MIN_SPEED, Math.min(MAX_SPEED, duration));
-					this.scrollingIntoViewTransition = 'top .' + duration + 's' + (effect && typeof effect == 'string' ? ' ' + effect : '');
+					this.scrollingIntoViewTransition = 'top .' + duration + 's' + (effect && typeof effect == 'string' ? ' ' + effect : DEFAULT_TRANSITION_EFFECT);
 					this.isInTransition = true;
 					setTimeout(() => {
 						this.isInTransition = false;

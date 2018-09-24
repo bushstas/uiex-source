@@ -1,22 +1,29 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
-import {getNumberOrNull} from '../utils';
+import {getNumberOrNull, getNumericProp} from '../utils';
 import {ArrowPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
 
 const DEFAULT_SIZE = 20;
+const MIN_SIZE = 5;
+const MAX_SIZE = 200;
 const DEFAULT_DIRECTION = 'up';
 const DEFAULT_LENGTH_RATIO = 50;
 const MIN_LENGTH_RATIO = 20;
 const MAX_LENGTH_RATIO = 200;
 const DEFAULT_THICKNESS = 5;
+const MIN_THICKNESS = 0;
+const MAX_THICKNESS = 8;
+const DEFAULT_DEPTH = 18;
+const MIN_DEPTH = 5;
+const MAX_DEPTH = 80;
 
 export class Arrow extends UIEXComponent {
 	static propTypes = ArrowPropTypes;
 	static displayName = 'Arrow';
-	static propsToCheck = ['size', 'direction', 'color', 'lengthRatio', 'thickness', 'clipped'];
+	static propsToCheck = ['size', 'direction', 'color', 'lengthRatio', 'thickness', 'clipped', 'figured', 'figuredDepth'];
 
 	addClassNames(add) {
 		add('pointer', !!this.props.onClick);
@@ -50,26 +57,13 @@ export class Arrow extends UIEXComponent {
 	}
 
 	getCustomStyle() {
-		let {size, color, lengthRatio, thickness, clipped} = this.props;
+		let {size, color, lengthRatio, thickness, clipped, figured, figuredDepth} = this.props;
 		const direction = this.getDirection();
 
-		size = getNumberOrNull(size);
-		lengthRatio = getNumberOrNull(lengthRatio);
-		thickness = getNumberOrNull(thickness);
-
-		if (!size) {
-			size = DEFAULT_SIZE;
-		}
-		if (!thickness) {
-			thickness = DEFAULT_THICKNESS;
-		}
-		if (!lengthRatio || typeof lengthRatio != 'number') {
-			lengthRatio = DEFAULT_LENGTH_RATIO;
-		} else if (lengthRatio < MIN_LENGTH_RATIO) {
-			lengthRatio = MIN_LENGTH_RATIO;
-		} else if (lengthRatio > MAX_LENGTH_RATIO) {
-			lengthRatio = MAX_LENGTH_RATIO;
-		}
+		size = getNumericProp(size, DEFAULT_SIZE, MIN_SIZE, MAX_SIZE);
+		lengthRatio = getNumericProp(lengthRatio, DEFAULT_LENGTH_RATIO, MIN_LENGTH_RATIO, MAX_LENGTH_RATIO);
+		thickness = getNumericProp(thickness, DEFAULT_THICKNESS, MIN_THICKNESS, MAX_THICKNESS);
+		figuredDepth = getNumericProp(figuredDepth, DEFAULT_DEPTH, MIN_DEPTH, MAX_DEPTH);
 
 		let sideSize = size * lengthRatio / 100;			
 		let width = size;
@@ -93,7 +87,7 @@ export class Arrow extends UIEXComponent {
 			width,
 			height,
 			backgroundColor: color,
-			clipPath: 'polygon(' + this.getClipPath(direction, clipped, thickness) + ')'
+			clipPath: 'polygon(' + this.getClipPath(direction, clipped, figured, thickness, figuredDepth) + ')'
 		};
 	}
 
@@ -123,14 +117,18 @@ export class Arrow extends UIEXComponent {
 		return direction;
 	}
 
-	getClipPath(direction, clipped, thickness) {
+	getClipPath(direction, clipped, figured, thickness, figuredDepth) {
 		thickness = thickness * 5;
 		const thickness2 = 100 - thickness;
 		const thickness3 = thickness * 2;
+		const figuredDepth2 = 100 - figuredDepth;
 
 		switch (direction) {
 			case 'up':
 				if (!clipped) {
+					if (figured) {
+						return '50% 0, 0 100%, 50% ' + figuredDepth2 + '%, 100% 100%';	
+					}
 					return '50% 0, 0 100%, 100% 100%';
 				} else {
 					return '50% 0, 0 100%, ' + thickness + '% 100%, 50% ' + thickness3 + '%, ' + thickness2 + '% 100%, 100% 100%';
@@ -138,6 +136,9 @@ export class Arrow extends UIEXComponent {
 			
 			case 'down':
 				if (!clipped) {
+					if (figured) {
+						return '0 0, 50% 100%, 100% 0, 50% ' + figuredDepth + '%';	
+					}
 					return '0 0, 50% 100%, 100% 0';
 				} else {
 					return '0 0, 50% 100%, 100% 0, ' + thickness2 + '% 0, 50% ' + (100 - thickness3) + '%, ' + thickness + '% 0';
@@ -147,6 +148,9 @@ export class Arrow extends UIEXComponent {
 			case 'up-left':
 			case 'down-left':
 				if (!clipped) {
+					if (figured) {
+						return '100% 0, 0 50%, 100% 100%, ' + figuredDepth2 + '% 50%';	
+					}
 					return '100% 0, 0 50%, 100% 100%';
 				} else {
 					return '100% 0, 0 50%, 100% 100%, 100% ' + thickness2 + '%, ' + thickness3 + '% 50%, 100% '+ thickness + '%';
@@ -156,6 +160,9 @@ export class Arrow extends UIEXComponent {
 			case 'up-right':
 			case 'down-right':
 				if (!clipped) {
+					if (figured) {
+						return '0 0, 100% 50%, 0 100%, ' + figuredDepth + '% 50%';	
+					}
 					return '0 0, 100% 50%, 0 100%';
 				} else {
 					return '0 0, 100% 50%, 0 100%, 0 ' + thickness2 + '%, ' + (100 -thickness3) + '% 50%, 0 ' + thickness + '%';

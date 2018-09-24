@@ -7,7 +7,9 @@ export const ScrollContainerPropTypes = {
 	scrollTop: PROPTYPE.STRNUM,
 	transitionSpeed: PROPTYPE.STRNUM,
 	scrollStep: PROPTYPE.STRNUM,
-	scrollerWidth: PROPTYPE.STRNUM,
+	trackWidth: PROPTYPE.STRNUM,
+	sliderWidth: PROPTYPE.STRNUM,
+	trackWidth: PROPTYPE.STRNUM,
 	outerPadding: PROPTYPE.STRNUM,
 	innerPadding: PROPTYPE.STRNUM,
 	scrollbarRadius: PROPTYPE.STRNUM,
@@ -21,6 +23,8 @@ export const ScrollContainerPropTypes = {
 	withoutScrollbar: PropTypes.bool,
 	scrollbarAtLeft: PropTypes.bool,
 	transparentTrack: PropTypes.bool,
+	transitionEffect: PROPTYPE.ANIM_EFFECTS,
+	indicateScrollTop: PropTypes.bool,
 	onWheel: PropTypes.func.isRequired,
 	onDisabledWheel: PropTypes.func
 }

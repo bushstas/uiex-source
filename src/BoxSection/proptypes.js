@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
-import {BoxPropTypes} from '../Box';
+import {BoxContainerPropTypes} from '../Box/proptypes';
 import {PROPTYPE} from '../consts';
 
 export const BoxSectionPropTypes = {
-	...BoxPropTypes,
+	...BoxContainerPropTypes,
 	caption: PROPTYPE.REACT_NODES.isRequired,
-	note: PROPTYPE.REACT_NODES
+	note: PROPTYPE.REACT_NODES,
+	iconAtRight: PropTypes.bool
 }

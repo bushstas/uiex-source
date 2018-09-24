@@ -1,31 +1,23 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
 import {UIEXComponent} from '../UIEXComponent';
 import {Box} from '../Box';
-import {Icon} from '../Icon';
+import {Icon} from '../Icon'; 
 import {BoxSectionPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
 
-const PROPS_LIST = 'isOpen';
-
-class BoxSectionComponent extends UIEXComponent {
+export class BoxSection extends UIEXComponent {
 	static propTypes = BoxSectionPropTypes;
 	static className = 'box-section';
 	static displayName = 'BoxSection';
-
-	static getDerivedStateFromProps({addIfChanged}) {
-		addIfChanged('isOpen');
-	}
 
 	addClassNames(add) {
 		add('icon-at-right', this.props.iconAtRight);
 	}
 
 	renderInternal() {
-		const {caption, children, iconAtRight, className, note, ...boxProps} = this.props;
-		const {isOpen} = this.state;
+		const {caption, note, isOpen} = this.props;
 		const TagName = this.getTagName();
 		return (
 			<TagName {...this.getProps()}>
@@ -40,20 +32,17 @@ class BoxSectionComponent extends UIEXComponent {
 						{note}
 					</div>
 				}
-				<Box {...boxProps} isOpen={isOpen}>
-					{children}
-				</Box>
+				<Box {...this.props}/>
 			</TagName>
 		)
 	}
 
 	handleClick = () => {
-		const {disabled} = this.props;
-		if (!disabled) {
-			const {isOpen} = this.state;
-			this.setState({isOpen: !isOpen});
+		const {disabled, onToggle, onDisabledClick, isOpen} = this.props;
+		if (!disabled && typeof onToggle == 'function') {
+			onToggle(!isOpen);
+		} else if (disabled && typeof onDisabledClick == 'function') {
+			onDisabledClick();
 		}
 	}
 }
-
-export const BoxSection = withStateMaster(BoxSectionComponent, PROPS_LIST, null, UIEXComponent);

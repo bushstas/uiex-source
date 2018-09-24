@@ -289,6 +289,14 @@ export const propsChanged = (p1, p2, list) => {
 	return false;
 }
 
+export const getNumericProp = (value, defaultValue = null, minValue = null, maxValue = null) => {
+	value = getNumberOrNull(value);
+	if (!value) {
+		return defaultValue;
+	}
+	return Math.min(Math.max(value, minValue), maxValue);
+}
+
 export const cacheProps = (props, list) => {
 	if (list instanceof Array && props instanceof Object) {
 		const cachedProps = {};

@@ -43,3 +43,9 @@ export const UIEXFormPropTypes = {
     onSubmit: PropTypes.func,
     onChange: PropTypes.func
 }
+
+export const UIEXAnimatedPropTypes = {
+    animation: PROPTYPE.ANIM_TYPE,
+	speed: PROPTYPE.ANIM_SPEED,
+	effect: PROPTYPE.ANIM_EFFECTS
+}

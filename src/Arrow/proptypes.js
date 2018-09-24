@@ -9,7 +9,9 @@ export const ArrowPropTypes = {
 	size: PROPTYPE.STRNUM,
 	lengthRatio: PROPTYPE.STRNUM,
 	thickness: PROPTYPE.STRNUM,
+	figuredDepth: PROPTYPE.STRNUM,
 	clipped: PropTypes.bool,
+	figured: PropTypes.bool,
 	color: PROPTYPE.COLORS,
 	onClick: PropTypes.func,
 	onDisabledClick: PropTypes.func

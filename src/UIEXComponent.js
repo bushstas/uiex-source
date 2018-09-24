@@ -1,6 +1,6 @@
 import React from 'react';
 import {registerContext, unregisterContext} from './state-master';
-import {BoxCommonPropTypes} from './Box/proptypes';
+import {UIEXAnimatedPropTypes} from './UIEXComponentPropTypes';
 import {
 	showImproperChildError,
 	showProperChildMaxCountError,
@@ -419,7 +419,7 @@ export class UIEXIcon extends UIEXComponent {
 
 export class UIEXBoxContainer extends UIEXComponent {
 	getBoxProps() {
-		const keys = Object.keys(BoxCommonPropTypes);
+		const keys = Object.keys(UIEXAnimatedPropTypes);
 		const boxProps = {};
 		for (let k of keys) {
 			boxProps[k] = this.props[k];

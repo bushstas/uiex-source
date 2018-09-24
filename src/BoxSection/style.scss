@@ -10,12 +10,13 @@
 		font-weight: bold;
 		padding: 0 15px;
 		height: 42px;
-		background-color: #f1f1f1;
+		background-color: #ececec;
 		cursor: pointer;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		border-bottom: 2px solid #dadada;
+		user-select: none;
 
 		.uiex-icon {
 			font-size: 28px;

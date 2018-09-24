@@ -3,6 +3,9 @@
 	min-width: 100px;
 	position: relative;
 	box-sizing: border-box;
+	&:focus {
+		outline: 0;
+	}
 
 	.uiex-scroll-container-outer-content {
 		position: absolute;
@@ -22,27 +25,15 @@
 		right: 12px;
 		top: 0;
 	}
-	.uiex-scroll-container-bar {
+	.uiex-scroll-container-track {
 		position: absolute;
 		width: 12px;
 		right: 0;
 		top: 0;
 		bottom: 0;
 		background-color: #aaa;
-
-		&:before {
-			content: '';
-			position: absolute;
-			top: 0;
-			bottom: 0;
-			left: 50%;
-			width: 1px;
-			margin-left: -1px;
-			border-right: 1px solid #ddd;
-			background-color: #aaa;
-		}
 	}
-	.uiex-scroll-container-scroller {
+	.uiex-scroll-container-slider {
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -65,14 +56,29 @@
 		height: 50px;
 		display: none;
 	}
+	.uiex-scroll-container-indicator {
+		position: absolute;
+		right: 100%;
+		margin-right: 15px;
+		top: 50%;
+		margin-top: -15px;
+		line-height: 26px;
+		background-color: #000;
+		opacity: 0.75;
+		color: #f1f1f1;
+		padding: 0 10px;
+		border-radius: 5px;
+		font-size: 13px;
+		border: 1px solid #eee;
+	}
 	
 	&.uiex-disabled {
-		.uiex-scroll-container-bar {
+		.uiex-scroll-container-track {
 			opacity: 0.5;
 		}
 	}
 	&.uiex-without-scrollbar {
-		.uiex-scroll-container-bar {
+		.uiex-scroll-container-track {
 			visibility: hidden !important;
 		}
 		.uiex-scroll-container-inner {
@@ -81,7 +87,7 @@
 		}
 	}
 	&.uiex-scrollbar-at-left {
-		.uiex-scroll-container-bar {
+		.uiex-scroll-container-track {
 			left: 0;
 			right: auto;
 		}
@@ -93,12 +99,12 @@
 		}
 	}
 	&.uiex-transparent-track {
-		.uiex-scroll-container-bar {
+		.uiex-scroll-container-track {
 			background-color: transparent !important;
 		}
 	}
 	&.uiex-overlaid-scrollbar {
-		.uiex-scroll-container-bar {
+		.uiex-scroll-container-track {
 			opacity: 0.8;
 			transition: opacity .3s;
 		}
@@ -108,18 +114,18 @@
 		}
 	}
 	&.uiex-hidden-scrollbar {
-		.uiex-scroll-container-bar {
+		.uiex-scroll-container-track {
 			opacity: 0;
 			transition: opacity .3s;
 		}
 	}
 	&.uiex-dragging,
 	&:hover:not(.uiex-disabled) {
-		.uiex-scroll-container-bar {
+		.uiex-scroll-container-track {
 			opacity: 1;
 		}
 		&.uiex-overlaid-scrollbar {
-			.uiex-scroll-container-bar {
+			.uiex-scroll-container-track {
 				opacity: 0.8;
 			}	
 		}

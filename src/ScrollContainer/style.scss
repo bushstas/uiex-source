@@ -97,6 +97,12 @@
 			left: 12px;
 			right: 0;
 		}
+		.uiex-scroll-container-indicator {
+			right: auto;
+			left: 100%;
+			margin-right: 0;
+			margin-left: 15px;
+		}
 	}
 	&.uiex-transparent-track {
 		.uiex-scroll-container-track {

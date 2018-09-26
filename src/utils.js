@@ -326,3 +326,48 @@ export const modObject = (key, value, obj) => {
 	return obj;
 }
 
+export const secondsToTimeString = (value, options) => {
+	let withHours = true;
+	let hours = 0, minutes = 0, seconds = 0;
+	if (value >= 3600) {
+		hours = Math.floor(value / 3600);
+		value = value - (hours * 3600);
+	}
+	if (value >= 60) {
+		minutes = Math.floor(value / 60);
+		value = value - (minutes * 60);
+	}
+	if (value > 0) {
+		seconds = Math.floor(value);
+	}
+	if (options && options instanceof Object) {
+		withHours = !!hours || !options.noEmptyHours;
+	}
+	let time = '';
+	if (withHours) {
+		time += getTimeNumber(hours) + ':';
+	}
+	return time + getTimeNumber(minutes) + ':' + getTimeNumber(seconds);
+}
+
+const getTimeNumber = (number) => {
+	if (number > 9) {
+		return number;
+	}
+	return '0' + number;
+}
+
+export const timeToNumberSeconds = (time) => {
+	let parts = time.split(':');
+	if (!parts[1]) {
+		return 0;
+	}
+	let seconds = 0;
+	parts = parts.reverse();
+	if (parts[2] != null) {
+		seconds += getNumber(parts[2]) * 3600;
+	}
+	seconds += getNumber(parts[1]) * 60;
+	seconds += getNumber(parts[0]);
+	return seconds;
+}

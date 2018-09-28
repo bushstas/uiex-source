@@ -11,5 +11,6 @@ export const InputColorPropTypes = {
 	pickerOnTop: PropTypes.bool,
 	presetColors: PROPTYPE.STRING_ARRAY,
 	onChangePicker: PropTypes.func,
-	onInput: PropTypes.func
+	onInput: PropTypes.func,
+	onShowPicker: PropTypes.func
 }

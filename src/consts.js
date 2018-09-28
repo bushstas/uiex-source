@@ -20,6 +20,8 @@ export const ARRAY_INPUT_TYPES = ['null', 'string', 'number', 'boolean', 'array'
 export const DRAG_LIMITS = ['window', 'parent-in', 'parent-out', 'parent-in-out'];
 export const DRAG_POSITION_X = ['left', 'center', 'right', 'left-out', 'right-out', 'left-in-out', 'right-in-out'];
 export const DRAG_POSITION_Y = ['top', 'center', 'bottom', 'top-out', 'bottom-out', 'top-in-out', 'bottom-in-out'];
+export const DISPLAY_TIME = ['left-out', 'left-in', 'right-out', 'right-in', 'top', 'bottom'];
+export const BOX_SECTION_VIEWS = ['header', 'large', 'small'];
 
 const ARRAY_INPUT_TYPE = PropTypes.oneOf(ARRAY_INPUT_TYPES);
 const ARRAY_OF_STRNUMS = PropTypes.arrayOf(
@@ -77,6 +79,8 @@ export const PROPTYPE = {
 		PropTypes.array,
 		PropTypes.object
 	]),
+	BOX_SECTION_VIEWS: PropTypes.oneOf(BOX_SECTION_VIEWS),
+	DISPLAY_TIME: PropTypes.oneOf(DISPLAY_TIME),
 	DRAG_LIMITS: PropTypes.oneOf(DRAG_LIMITS),
 	COLORS: PropTypes.oneOf(COLORS),
 	DIRECTIONS: PropTypes.oneOf(DIRECTIONS),

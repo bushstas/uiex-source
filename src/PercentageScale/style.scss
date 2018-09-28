@@ -24,29 +24,4 @@
 		left: 0;
 		right: 0;
 	}
-	.uiex-time-scale-current-time {
-		position: absolute;
-		left: 14px;
-		top: 50%;
-		margin-top: -6px;
-		font-size: 13px;
-		line-height: 12px;
-	}
-	&.uiex-hidden-time {
-		.uiex-time-scale-current-time {
-			opacity: 0;
-			transition: opacity .2s;
-		}
-		&:hover {
-			.uiex-time-scale-current-time {
-				opacity: 1;
-			}
-		}
-	}
-	&.uiex-time-display-right-in {
-		.uiex-time-scale-current-time {
-			left: auto;
-			right: 14px;
-		}	
-	}
 }

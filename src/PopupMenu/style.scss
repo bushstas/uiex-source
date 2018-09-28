@@ -1,5 +1,4 @@
-.uiex-popup-menu {	
-	overflow: auto;
+.uiex-popup-menu {
 	max-height: 350px;
 	position: absolute;
 	left: 0;
@@ -10,11 +9,8 @@
 	border: 1px solid #888;
 	border-radius: 2px;
 	z-index: 100;
-	visibility: hidden;
-	height: 0;
-	display: block;
 
-	&.uiex-at-top {
+	&.uiex-vertically-out {
 		top: auto;
 		margin-top: 0;
 		bottom: 100%;
@@ -22,8 +18,7 @@
 	}
 
 	&.uiex-shown {
-		visibility: visible;
-		height: auto;
+		overflow: auto;
 	}
 	&.uiex-multiple {
 		.uiex-popup-menu-item {

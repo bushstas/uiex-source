@@ -47,12 +47,6 @@ export class TimeScale extends UIEXComponent {
 		this.stop();
 	}
 
-	addClassNames(add) {
-		const {displayTime, hiddenTime} = this.props;
-		add('time-display-' + displayTime, displayTime);
-		add('hidden-time', hiddenTime);
-	}
-
 	getCustomProps() {
 		return {
 			onClick: this.handleTrackClick,
@@ -96,21 +90,7 @@ export class TimeScale extends UIEXComponent {
 		}
 	}
 
-	renderTime() {
-		const time = this.getTimeToDisplay();
-		return (
-			<div 
-				className={this.getClassName('current-time')}
-				style={this.props.timeStyle}
-			>
-				{time}
-			</div>
-		)
-	}
-
 	renderInternal() {
-		const {displayTime} = this.props;
-		const timeIn = displayTime == 'left-in' || displayTime == 'right-in';		
 		const {trackStyle, indicatorStyle, clickAreaStyle} = this.getStyles();
 		const TagName = this.getTagName(); 
 		return (
@@ -124,10 +104,7 @@ export class TimeScale extends UIEXComponent {
 						ref="indicator"
 						className={this.getClassName('indicator-line')} 
 						style={indicatorStyle}
-					>
-						{timeIn && this.renderTime()}
-					</div>
-					{!timeIn && this.renderTime()}
+					/>
 				</div>
 			</TagName>
 		)
@@ -254,16 +231,8 @@ export class TimeScale extends UIEXComponent {
 
 	cacheValues() {
 		let {endValue, startValue} = this.props;
-		if (typeof startValue == 'string' && startValue.split(':')[1] != null) {
-			startValue = timeToNumberSeconds(startValue);
-		} else {
-			startValue = Math.abs(getNumber(startValue));
-		}
-		if (typeof endValue == 'string' && endValue.split(':')[1] != null) {
-			endValue = timeToNumberSeconds(endValue);
-		} else {
-			endValue = Math.abs(getNumber(endValue));
-		}
+		startValue = Math.abs(getNumber(startValue));
+		endValue = Math.abs(getNumber(endValue));
 		if (endValue < startValue) {
 			const temp = endValue;
 			endValue = startValue;
@@ -286,10 +255,5 @@ export class TimeScale extends UIEXComponent {
 	setIndicatorWidthFromValue() {	
 		const indicatorWidth = this.getIndicatorWidthFromValue();
 		this.setIndicatorWidth(indicatorWidth);
-	}
-
-	getTimeToDisplay() {
-		let {time} = this.props;
-		return secondsToTimeString(timeToNumberSeconds(time), {noEmptyHours: true});
 	}
 }

@@ -1,25 +1,19 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
-import {UIEXComponent} from '../UIEXComponent';
+import {UIEXComponent, UIEXBoxContainer} from '../UIEXComponent';
 import {Icon} from '../Icon';
-import {Popup} from '../Popup';
 import {Box} from '../Box';
-import {removeClass} from '../utils';
 import {PopupMenuPropTypes, PopupMenuItemPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
 
 const DEFAULT_MAX_HEIGHT = 350;
-const PROPS_LIST = 'isOpen';
-const INITIAL_STATE = {
-	currentSelected: -1
-};
 
-class PopupMenuComponent extends Popup {
+export class PopupMenu extends UIEXBoxContainer {
 	static propTypes = PopupMenuPropTypes;
 	static properChildren = ['PopupMenuItem', 'SelectOption', 'AutoCompleteOption'];
 	static className = 'popup-menu';
+	static additionalClassName = 'popup';
 	static onlyProperChildren = true;
 	static displayName = 'PopupMenu';
 
@@ -28,21 +22,17 @@ class PopupMenuComponent extends Popup {
 		animation: 'fade-fall'
 	}
 
-	static getDerivedStateFromProps({add, isChanged, nextProps, call, get}) {
-		if (isChanged('isOpen')) {
-			add('isOpen');
-			call(() => {
-				if (nextProps.isOpen) {	
-					this.addKeydownHandler();
-				} else {
-					this.removeKeydownHandler();
-				}
-			});
-		}
+	constructor(props) {
+		super(props);
+		this.state = {
+			currentSelected: -1
+		};
 	}
 
-	componentDidUpdate() {
-		if (this.props.isOpen && this.refs.selected) {
+	componentDidUpdate(prevProps) {
+		super.componentDidUpdate(prevProps);
+		const {isOpen} = this.props;
+		if (isOpen && this.refs.selected) {
 			const {main} = this.refs.selected.refs;
 			if (main instanceof Element) {
 				const {offsetTop: itemY} = main;
@@ -58,9 +48,17 @@ class PopupMenuComponent extends Popup {
 				}
 			}
 		}
+		if (isOpen != prevProps.isOpen) {
+			if (isOpen) {	
+				this.addKeydownHandler();
+			} else {
+				this.removeKeydownHandler();
+			}
+		}
 	}
 
 	componentWillUnmount() {
+		super.componentWillUnmount();
 		this.removeKeydownHandler();
 	}
 
@@ -75,7 +73,6 @@ class PopupMenuComponent extends Popup {
 	addClassNames(add) {
 		super.addClassNames(add);
 		add('scrollable');
-		add('shown', this.state.isOpen);
 		add('multiple', this.props.multiple);
 	}
 
@@ -129,25 +126,25 @@ class PopupMenuComponent extends Popup {
 		this.children.push(child);
 	}
 
-	renderInternal() {
+	renderContent() {
 		return (
-			<div {...this.getProps()}>
-				<Box 					
-					ref="box"
-					isOpen={this.state.isOpen} 
-					{...this.getBoxProps()}
-					onHide={this.handleBoxHide}
-					noHideAnimation
-				>
-					{this.renderChildren()}
-				</Box>
-			</div>
+			<Box 					
+				ref="box"
+				isOpen={this.props.isOpen} 
+				{...this.getBoxProps()}
+				onHide={this.handleBoxHide}
+				noHideAnimation
+			>
+				{this.renderChildren()}
+			</Box>
 		)
 	}
 
 	handleBoxHide = () => {
-		this.setState({isOpen: false});
-		setTimeout(() => removeClass(this.refs.main, 'uiex-options-on-top'), 200);
+		const {onCollapse} = this.props;
+		if (typeof onCollapse == 'function') {
+			onCollapse();
+		}
 	}
 
 	handleEnter() {
@@ -316,8 +313,6 @@ class PopupMenuComponent extends Popup {
 		}
 	}
 }
-
-export const PopupMenu = withStateMaster(PopupMenuComponent, PROPS_LIST, INITIAL_STATE, Popup);
 
 export class PopupMenuItem extends UIEXComponent {
 	static propTypes = PopupMenuItemPropTypes;

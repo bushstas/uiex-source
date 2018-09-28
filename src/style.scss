@@ -4,6 +4,10 @@
 	position: relative;
 	z-index: 1000;
 }
+#uiex-popup-root {
+	position: relative;
+	z-index: 1100;
+}
 
 .uiex-scrollable {
 	&::-webkit-scrollbar {

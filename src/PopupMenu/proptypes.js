@@ -12,7 +12,8 @@ export const PopupMenuPropTypes = {
 	iconType: PROPTYPE.ICON_TYPES,
 	onChange: PropTypes.func,
 	onSelect: PropTypes.func,
-	onSelectByArrow: PropTypes.func	
+	onSelectByArrow: PropTypes.func,
+	onCollapse: PropTypes.func
 }
 
 export const PopupMenuItemPropTypes = {

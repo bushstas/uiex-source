@@ -147,8 +147,8 @@ export class Input extends UIEXComponent {
 		const {disabled, readOnly, onDisabledClick, name} = this.props;
 		if (disabled || readOnly) {
 			e.preventDefault();
-			if (disabled && typeof onDisabledClick == 'function') {
-				onDisabledClick(name);
+			if (disabled) {
+				this.fire('disabledClick', name);
 			}
 		}
 	}
@@ -161,11 +161,9 @@ export class Input extends UIEXComponent {
 	}
 
 	fireChange(props) {
-		const {onChange, name} = props;
-		if (typeof onChange == 'function') {
-			const value = this.filterValue(this.refs.input.value, props);
-			onChange(value, name);
-		}
+		const {name} = props;
+		const value = this.filterValue(this.refs.input.value, props);
+		this.fire('change', value, name);
 	}
 
 	checkValidity(value, props = this.props) {
@@ -202,16 +200,14 @@ export class Input extends UIEXComponent {
 			return;
 		}
 		if (isValid !== this.isValid) {
-			const {name, onChangeValidity} = this.props;
+			const {name} = this.props;
 			this.isValid = isValid;
-			if (typeof onChangeValidity == 'function') {
-				onChangeValidity(isValid, value, name);
-			}
+			this.fire('changeValidity', isValid, value, name);
 		}
 	}
 
 	focusHandler() {
-		const {onFocus, name, focusStyle, disabled, readOnly, value} = this.props;
+		const {name, focusStyle, disabled, readOnly, value} = this.props;
 		this.valueBeforeFocus = value;
 		if (!disabled && !readOnly) {
 			if (focusStyle instanceof Object) {
@@ -220,15 +216,13 @@ export class Input extends UIEXComponent {
 					input.style[k] = focusStyle[k];
 				}
 			}
-			if (typeof onFocus == 'function') {
-				onFocus(this.refs.input.value, name);
-			}
+			this.fire('focus', this.refs.input.value, name);
 			this.setState({focused: true});
 		}
 	}
 
 	blurHandler() {
-		const {onBlur, focusStyle, disabled, readOnly, value, name, onChange} = this.props;
+		const {focusStyle, disabled, readOnly, value, name} = this.props;
 		if (!disabled && !readOnly) {
 			if (focusStyle instanceof Object) {
 				const {input} = this.refs;
@@ -236,56 +230,46 @@ export class Input extends UIEXComponent {
 					input.style[k] = '';
 				}
 			}
-			if (typeof onBlur == 'function') {
-				onBlur(value, name);
-			}
+			this.fire('blur', value, name);
 			this.setState({focused: false});
-			if (typeof onChange == 'function' && value === '') {
-				onChange(this.getProperDefaultValue(), name);
+			if (value === '') {
+				this.fire('change', this.getProperDefaultValue(), name);
 			}
 		}
 	}
 
 	clickHandler() {
-		const {onClick, disabled, name} = this.props;
-		if (!disabled && typeof onClick == 'function') {
-			onClick(name);
+		const {disabled, name} = this.props;
+		if (!disabled) {
+			this.fire('click', name);
 		}
 	}
 
 	handleClear = () => {
-		const {onClear, onChange, name, disabled, readOnly} = this.props;
+		const {name, disabled, readOnly} = this.props;
 		if (!disabled && !readOnly) {
-			if (typeof onChange == 'function') {
-				onChange(this.getProperDefaultValue(), name);
-			}
-			if (typeof onClear == 'function') {
-				onClear();
-			}
+			this.fire('change', this.getProperDefaultValue(), name);
+			this.fire('clear');
 		}
 	}
 
 	keyUpHandler(e) {
 		const {key} = e;
-		const {onEnter, onChange, name, value, textarea} = this.props;
+		const {name, value, textarea} = this.props;
 		switch (key) {
 			case 'Enter':
 				if (!textarea) {
 					if (value) {
 						this.blur();
 					}
-					if (typeof onEnter == 'function') {
-						onEnter(value, name);
-					}
+					this.fire('enter', value, name);
 					this.handleEnter();
 				}
 			break;
 
 			case 'Escape':
-				if (typeof onChange == 'function') {
-					this.blur();
-					onChange(this.valueBeforeFocus, name);
-				}
+				this.blur();					
+				this.fire('change', this.valueBeforeFocus, name);
 				this.handleEscape();
 			break;
 		}

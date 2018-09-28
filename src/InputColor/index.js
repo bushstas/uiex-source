@@ -1,5 +1,4 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
 import {Input} from '../Input';
 import {ColorPicker} from '../ColorPicker';
 import {Popup} from '../Popup';
@@ -11,26 +10,11 @@ import {InputColorPropTypes} from './proptypes';
 import '../style.scss';
 import './style.scss';
 
-const PROPS_LIST = ['pickerShown', 'value', 'defaultValue'];
-
-class InputColorComponent extends Input {
+export class InputColor extends Input {
 	static propTypes = InputColorPropTypes;
 	static className = 'color-input';
 	static isControl = true;
 	static displayName = 'InputColor';
-
-	static getDerivedStateFromProps({add, isChanged, isChangedAny, nextProps}) {
-		if (isChanged('pickerShown', false)) {
-			add('pickerShown');
-		}
-		if (isChangedAny('value', 'defaultValue')) {
-			const {value, defaultValue} = nextProps;
-			const color = getColor(replace(/^#+/, '', value || defaultValue));
-			const isValidColor = color.isValid();
-			add('isValidColor', isValidColor);
-			add('colorStyle', isValidColor ? {backgroundColor: '#' + color.toHex()} : null);
-		}
-	}
 
 	addClassNames(add) {
 		super.addClassNames(add);
@@ -56,14 +40,27 @@ class InputColorComponent extends Input {
 		return '';
 	}
 
+	getColorStyle() {
+		const {value, defaultValue} = this.props;
+		let color = value || defaultValue;
+		if (!this.cachedColorStyle || color != this.cachedColor) {
+			this.cachedColor = color;
+			color = getColor(replace(/^#+/, '', color));
+			this.isValidColor = color.isValid();
+			this.cachedColorStyle = {
+				backgroundColor: '#' + color.toHex()
+			}
+		}
+		return this.cachedColorStyle;
+	}
+
 	renderAdditionalContent() {
-		let {pickerShown, isValidColor, colorStyle} = this.state;
-		const {withoutPicker, presetColors, pickerShown: pickerAlwaysShown, pickerOnTop} = this.props;
-		pickerShown = pickerShown || pickerAlwaysShown;
+		const colorStyle = this.getColorStyle();
+		const {withoutPicker, presetColors, pickerShown, pickerOnTop} = this.props;
 		return (
 			<div className={this.getClassName('functional')}>
 				<div className={this.getClassName('left-side')}>
-					{isValidColor ?
+					{this.isValidColor ?
 						<div className={this.getClassName('color')} style={colorStyle} onClick={this.handleColorClick}/> :
 						<Icon name="block" onClick={this.handleColorClick}/>
 					}
@@ -76,6 +73,8 @@ class InputColorComponent extends Input {
 						ref="popup"
 						isOpen={pickerShown}
 						onTop={pickerOnTop}
+						animation={true}
+						speed="fast"
 						onCollapse={this.handlePopupCollapse}
 					>
 						<ColorPicker 
@@ -93,15 +92,11 @@ class InputColorComponent extends Input {
 	}
 
 	handlePickerChange = (value, colorData) => {
-		const {disabled, onChange, name, withoutHash, onChangePicker} = this.props;
+		const {disabled, name, withoutHash} = this.props;
 		if (!disabled) {
 			this.hue = colorData.hsl instanceof Object ? colorData.hsl.h : null;
-			if (typeof onChange == 'function') {				
-				onChange((withoutHash ? '' : '#') + value, name);
-			}
-			if (typeof onChangePicker == 'function') {
-				onChangePicker((withoutHash ? '' : '#') + value, colorData, name);
-			}
+			this.fire('change', (withoutHash ? '' : '#') + value, name);
+			this.fire('changePicker', (withoutHash ? '' : '#') + value, colorData, name);
 		}
 	}
 
@@ -118,10 +113,10 @@ class InputColorComponent extends Input {
 	}
 
 	inputHandler() {
-		const {name, disabled, readOnly, onInput} = this.props;
-		if (!disabled && !readOnly && typeof onInput == 'function') {
+		const {name, disabled, readOnly} = this.props;
+		if (!disabled && !readOnly) {
 			const value = this.filterValue(this.refs.input.value, this.props);
-			onInput(value, name);
+			this.fire('input', value, name);
 		}
 		super.inputHandler();
 	}
@@ -130,14 +125,12 @@ class InputColorComponent extends Input {
 		const {disabled, readOnly} = this.props;
 		if (!disabled && !readOnly) {
 			super.clickHandler();
-			this.setState({pickerShown: true});
+			this.fire('showPicker', true);
 		}
 	}
 
 	handlePopupCollapse = () => {
-		if (!this.props.pickerShown) {
-			this.setState({pickerShown: false});
-		}
+		this.fire('showPicker', false);
 	}
 
 	handleEnter() {
@@ -150,9 +143,8 @@ class InputColorComponent extends Input {
 
 	checkValidity(value, props = this.props) {
 		const {required} = props;
-		const {isValidColor} = this.state;
 		if (value || required) {
-			this.fireChangeValidity(isValidColor, value);
+			this.fireChangeValidity(this.isValidColor, value);
 		}
 	}
 
@@ -160,4 +152,3 @@ class InputColorComponent extends Input {
 		
 	}
 }
-export const InputColor = withStateMaster(InputColorComponent, PROPS_LIST, null, Input);

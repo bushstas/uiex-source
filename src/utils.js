@@ -154,7 +154,7 @@ export const getClassNameBuilder = (cn = '', cn2 = '') => {
 		cn += ' ' + cn2;
 	}
 	const add = function(c) {
-		if ((arguments.length > 1 ? arguments[1] : true) && c && typeof c == 'string') {
+		if ((arguments.length > 1 ? !!arguments[1] : true) && c && typeof c == 'string') {
 			cn += ' uiex-' + c;
 		}
 	};
@@ -358,6 +358,14 @@ const getTimeNumber = (number) => {
 }
 
 export const timeToNumberSeconds = (time) => {
+	if (typeof time != 'string') {
+		time = time || '';
+		try {
+			time = time.toString();
+		} catch(e) {
+			time = '';
+		}
+	}
 	let parts = time.split(':');
 	if (!parts[1]) {
 		return 0;
@@ -371,3 +379,39 @@ export const timeToNumberSeconds = (time) => {
 	seconds += getNumber(parts[0]);
 	return seconds;
 }
+
+class PopupQueue {
+	constructor() {
+		this.queues = {};
+	}
+
+	addObjectToQueue(name, object) {
+		this.queues[name] = this.queues[name] || [];
+		this.removeObjectFromQueue(name, object);
+		this.queues[name].push(object);
+	}
+
+	removeObjectFromQueue(name, object) {
+		if (this.queues[name] instanceof Array) {
+			const index = this.queues[name].indexOf(object);
+			if (index > -1) {
+				this.queues[name].splice(index, 1);
+			}
+		}
+	}
+
+	isLastInQueue(name, object) {
+		if (this.queues[name] instanceof Array) {
+			const index = this.queues[name].indexOf(object);
+			return index == this.queues[name].length - 1;
+		}
+		return true;
+	}
+}
+
+export const popupQueue = new PopupQueue();
+
+export const ucfirst = (str) => {
+	const f = str.charAt(0).toUpperCase();
+	return f + str.substr(1, str.length - 1);
+}	

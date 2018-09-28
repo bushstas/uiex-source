@@ -13,7 +13,9 @@ export class BoxSection extends UIEXComponent {
 	static displayName = 'BoxSection';
 
 	addClassNames(add) {
-		add('icon-at-right', this.props.iconAtRight);
+		const {iconAtRight, view} = this.props;
+		add('icon-at-right', iconAtRight);
+		add('view-' + view, view);
 	}
 
 	renderInternal() {

@@ -1,11 +1,7 @@
 .uiex-popup {
-    &:not(.uiex-open) {
-        position: absolute !important;
-        visibility: hidden;
-        height: 0;
-        overflow: hidden;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: 0 !important;
+    display: none;
+
+    &.uiex-shown {
+        display: block;
     }
 }

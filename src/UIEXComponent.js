@@ -1,5 +1,6 @@
 import React from 'react';
-import {registerContext, unregisterContext} from './state-master';
+import ReactDOM from 'react-dom';
+import {registerContext, unregisterContext, withStateMaster} from './state-master';
 import {UIEXAnimatedPropTypes} from './UIEXComponentPropTypes';
 import {
 	showImproperChildError,
@@ -9,7 +10,12 @@ import {
 	mergeObjects,
 	mapChildren,
 	propsChanged,
-	cacheProps
+	cacheProps,
+	popupQueue,
+	ucfirst,
+	getSizeInPercentageOfWindow,
+	getTransitionDuration,
+	getNumber
 } from './utils';
 import {FORM_BUTTON_DISPLAY} from './consts';
 
@@ -341,6 +347,13 @@ export class UIEXComponent extends React.PureComponent {
 		}
 		return false;
 	}
+	
+	fire(eventName, ...args) {
+		const eventPropName = 'on' + ucfirst(eventName);
+		if (typeof this.props[eventPropName] == 'function') {
+			this.props[eventPropName].apply(this, args);
+		}
+	}
 
 	initRendering() {}
 	addChildProps() {}
@@ -417,18 +430,6 @@ export class UIEXIcon extends UIEXComponent {
 	}
 }
 
-export class UIEXBoxContainer extends UIEXComponent {
-	getBoxProps() {
-		const keys = Object.keys(UIEXAnimatedPropTypes);
-		const boxProps = {};
-		for (let k of keys) {
-			boxProps[k] = this.props[k];
-		}
-		return boxProps;
-	}
-}
-
-
 export class UIEXForm extends UIEXComponent {
 	addClassNames(add) {
 		const {width, noBorder, buttonDisplay} = this.props;
@@ -478,4 +479,192 @@ export class UIEXForm extends UIEXComponent {
 	}
 
 	renderContent() {}
+}
+
+
+const ROOT_ID = 'uiex-popup-root';
+export class UIEXPopup extends UIEXComponent {
+
+	componentDidMount() {
+		if (this.props.isOpen) {
+			this.showPopup();
+		}
+	}
+
+	addClassNames(add) {
+		const {shown, outY, outX} = this.state;
+		add('shown', shown);
+		add('vertically-out', outY);
+		add('horizontally-out', outX);
+	}
+
+	componentDidUpdate(prevProps) {
+		const {isOpen} = this.props;
+		if (!!isOpen != !!prevProps.isOpen) {
+			if (isOpen) {
+				this.showPopup();
+			} else {
+				this.hidePopup();
+			}
+		}
+	}
+
+	componentWillUnmount() {
+		this.removeBodyClickHandler();
+		super.componentWillUnmount();
+	}
+
+	getCustomProps() {
+		return {
+			onMouseDown: this.handleMouseDown
+		}
+	}
+
+	addBodyClickHandler() {
+		const {queueName} = this.props;
+		if (queueName) {
+			popupQueue.addObjectToQueue(queueName, this);
+		}
+		document.body.addEventListener('mousedown', this.handleBodyClick, false);
+	}
+
+	removeBodyClickHandler() {
+		document.body.removeEventListener('mousedown', this.handleBodyClick, false);
+	}	
+
+	handleBodyClick = (e) => {
+		if (!this.isOwnChild(e.target)) {
+			const {queueName} = this.props;
+			if (!queueName || popupQueue.isLastInQueue(queueName, this)) {
+				if (queueName) {
+					popupQueue.removeObjectFromQueue(queueName, this);
+				}
+				const {onCollapse} = this.props;
+				if (typeof onCollapse == 'function') {
+					onCollapse();
+				}
+				this.removeBodyClickHandler();
+			}
+		}
+	}
+
+	handleMouseDown = (e) => {
+		e.stopPropagation();
+	}
+
+	renderInternal() {
+		const {inPortal} = this.props;
+		const TagName = this.getTagName();
+		const content = (
+			<TagName {...this.getProps()}>
+				<div ref="inner" className="uiex-popup-inner">
+					{this.renderContent()}
+				</div>
+			</TagName>
+		);
+		return inPortal ? ReactDOM.createPortal(content, this.getRootElement()) : content;
+	}
+
+	renderContent() {
+		return this.renderChildren();
+	}
+	
+	getRootElement() {
+		let root = document.getElementById(ROOT_ID);
+		if (!root) {
+			root = document.createElement('div');
+			root.id = ROOT_ID;
+			document.body.appendChild(root);
+		}
+		return root;
+	}
+
+	getPositionState() {
+		const {main} = this.refs;
+		const inner = this.getInnerContainer();
+		if (inner) {
+			const {height, width} = inner.getBoundingClientRect();
+			const {top, left} = main.getBoundingClientRect();
+			const {innerHeight} = window;
+			const {scrollWidth} = document.body;
+			return {
+				outY: top + height > innerHeight + 5,
+				outX: left + width > scrollWidth + 5
+			}
+		}
+		return {
+			outY: false,
+			outX: false
+		}
+	}
+
+	showPopup() {
+		clearTimeout(this.timeout);
+		this.addBodyClickHandler();
+		const {main} = this.refs;
+		main.style.position = this.getPopupPosition();
+		const {animation} = this.props;
+		const positionState = this.getPositionState();
+		main.style.opacity = '0';		
+		this.setState({shown: true, ...positionState}, () => {
+			if (animation) {
+				main.style.transition = 'opacity .' + this.getSpeed() + 's';
+			}
+			this.timeout = setTimeout(() => main.style.opacity = '1', 0);
+		});
+	}
+
+	hidePopup() {
+		clearTimeout(this.timeout);
+		this.removeBodyClickHandler();
+		const {main} = this.refs;
+		main.style.opacity = '0';
+		const {animation} = this.props;
+		const delay = animation ? this.getDelay() : 0;
+		this.timeout = setTimeout(() => {
+			main.style.position = '';		
+			main.style.display = '';
+			main.style.opacity = '';
+			main.style.transition = '';
+			this.setState({shown: false, outY: false, outX: false});
+		}, delay + 100);
+		
+	}
+
+	getInnerContainer() {
+		return this.refs.inner;
+	}
+
+	getPopupPosition() {
+		return 'absolute';
+	}
+
+	getSpeed() {
+		let {speed} = this.props;
+		switch (speed) {
+			case 'fast':
+				return 2;
+
+			case 'slow':
+				return 6;
+
+			default:
+				return 4;
+		}
+	}
+
+	getDelay() {
+		return this.getSpeed() * 100;
+	}
+}
+
+export class UIEXBoxContainer extends UIEXPopup {
+	getBoxProps() {
+		const keys = Object.keys(UIEXAnimatedPropTypes);
+		const boxProps = {};
+		for (let k of keys) {
+			boxProps[k] = this.props[k];
+		}
+		return boxProps;
+	}
 }

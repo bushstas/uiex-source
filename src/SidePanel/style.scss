@@ -1,26 +1,22 @@
-.uiex-side-panel-outer {
+.uiex-popup.uiex-side-panel {
 	position: fixed;
 	overflow: hidden;
-	z-index: 900;
+    z-index: 900;
+    background-color: #f1f1f1;
+    box-sizing: border-box;
+    box-shadow: 0 0 30px #a1a1a1;
+    padding: 15px;
 
     &.uiex-animated {
         &.uiex-animation-fade {
             transition-property: opacity;
         }
         &.uiex-animation-roll {
-            transition-property: width, height;
+            transition-property: left, right, top, bottom;
         }
         &.uiex-animation-fade-roll {
-            transition-property: width, height, opacity;
+            transition-property: left, right, top, bottom, opacity;
         }
-    }
-
-    .uiex-side-panel {
-    	position: absolute;    	
-    	background-color: #f1f1f1;
-    	box-sizing: border-box;
-    	box-shadow: 0 0 30px #a1a1a1;
-        padding: 15px;
     }
 
     &.uiex-side-left {    	

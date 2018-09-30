@@ -13,7 +13,6 @@ export const InputPropTypes = {
 	clearable: PropTypes.bool,
 	valid: PropTypes.bool,
 	withIndicator: PropTypes.bool,
-	invalid: PropTypes.bool,
 	focusStyle: PropTypes.object,
 	clearButtonStyle: PropTypes.object,
 	customFilter: PropTypes.func,

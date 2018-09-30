@@ -355,6 +355,18 @@ export class UIEXComponent extends React.PureComponent {
 		}
 	}
 
+	firePropChange(eventName, propName, args, propValue) {
+		if (this.props.uncontrolled) {
+			this.setState({[propName]: propValue});
+		} else {
+			this.fire(eventName, ...args);
+		}
+	}
+
+	getProp(name) {
+		return this.props.uncontrolled ? this.state[name] : this.props[name];
+	}
+
 	initRendering() {}
 	addChildProps() {}
 	getStyleNames() {}

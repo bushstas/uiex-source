@@ -18,8 +18,12 @@ export class InputColor extends Input {
 
 	addClassNames(add) {
 		super.addClassNames(add);
+		const {pickerOnTop, fullWidthPicker} = this.props;
+		const pickerShown = this.getPickerShown();
 		add('input');
-		add('full-with-picker', this.props.fullWidthPicker);
+		add('full-with-picker', fullWidthPicker);
+		add('picker-on-top', pickerOnTop);
+		add('picker-shown', pickerShown);
 	}
 
 	getCustomInputProps() {
@@ -56,7 +60,8 @@ export class InputColor extends Input {
 
 	renderAdditionalContent() {
 		const colorStyle = this.getColorStyle();
-		const {withoutPicker, presetColors, pickerShown, pickerOnTop} = this.props;
+		const {withoutPicker, presetColors} = this.props;
+		const pickerShown = this.getPickerShown();
 		return (
 			<div className={this.getClassName('functional')}>
 				<div className={this.getClassName('left-side')}>
@@ -72,9 +77,6 @@ export class InputColor extends Input {
 					<Popup
 						ref="popup"
 						isOpen={pickerShown}
-						onTop={pickerOnTop}
-						animation={true}
-						speed="fast"
 						onCollapse={this.handlePopupCollapse}
 					>
 						<ColorPicker 
@@ -125,12 +127,12 @@ export class InputColor extends Input {
 		const {disabled, readOnly} = this.props;
 		if (!disabled && !readOnly) {
 			super.clickHandler();
-			this.fire('showPicker', true);
+			this.fireShowPicker(true);
 		}
 	}
 
 	handlePopupCollapse = () => {
-		this.fire('showPicker', false);
+		this.fireShowPicker(false);
 	}
 
 	handleEnter() {
@@ -148,7 +150,19 @@ export class InputColor extends Input {
 		}
 	}
 
-	checkPosition() {
-		
+	getPickerShown() {
+		const {onShowPicker, pickerShown} = this.props;
+		if (typeof onShowPicker == 'function') {
+			return pickerShown;
+		}
+		return this.state.pickerShown;
+	}
+
+	fireShowPicker(pickerShown) {
+		const {onShowPicker} = this.props;
+		if (typeof onShowPicker == 'function') {
+			return this.fire('showPicker', pickerShown);
+		}
+		this.setState({pickerShown});
 	}
 }

@@ -34,7 +34,8 @@ const ARRAY_OF_STRNUMS = PropTypes.arrayOf(
 const OPTION_SHAPE = PropTypes.shape({
 	value: PropTypes.oneOfType([
 		PropTypes.string,
-		PropTypes.number
+		PropTypes.number,
+		PropTypes.bool
 	]).isRequired,
 	title: PropTypes.string.isRequired,
 	icon: PropTypes.string,
@@ -55,9 +56,15 @@ export const PROPTYPE = {
 		PropTypes.string,
 		PropTypes.number
 	]),
+	STRNUMBOOL: PropTypes.oneOfType([
+		PropTypes.string,
+		PropTypes.number,
+		PropTypes.bool
+	]),
 	STRNUMS: PropTypes.oneOfType([
 		PropTypes.string,
 		PropTypes.number,
+		PropTypes.bool,
 		ARRAY_OF_STRNUMS
 	]),
 	STRBOOL:PropTypes.oneOfType([

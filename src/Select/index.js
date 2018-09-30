@@ -53,7 +53,7 @@ class SelectComponent extends UIEXBoxContainer {
 
 	getTitle() {
 		let {value} = this.props;
-		if (value) {
+		if (value != null && value !== '') {
 			if (value instanceof Array) {
 				value = value[0];
 			}

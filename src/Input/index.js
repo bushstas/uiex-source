@@ -1,15 +1,11 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {Icon} from '../Icon';
-import {getNumber, regexEscape} from '../utils';
+import {getNumber, regexEscape, addStyleProperty} from '../utils';
 import {InputPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
-
-const INITIAL_STATE = {
-	focused: false
-};
 
 export class Input extends UIEXComponent {
 	static propTypes = InputPropTypes;
@@ -24,34 +20,45 @@ export class Input extends UIEXComponent {
 		this.handleClick = this.clickHandler.bind(this);
 		this.handleChange = this.inputHandler.bind(this);
 		this.isValid = null;
-		this.state = {
-			...this.state,
-			...INITIAL_STATE
-		};
+
+		if (props.uncontrolled) {
+			this.state = {
+				value: props.value
+			};
+		}
 	}
 
 	componentDidMount() {
-		const {value} = this.props;
-		if (value) {
-			this.checkValidity(value);
+		if (!this.props.uncontrolled) {
+			this.checkValidity(this.props.value);
 		}
 	}
 
 	componentDidUpdate(prevProps) {
-		const {value} = this.props;
-		if (prevProps.value != value) {
-			this.checkValidity(value, this.props);
+		const {value, required, maxLength, pattern} = this.props;
+		if (!this.props.uncontrolled) {
+			if (value !== prevProps.value) {
+				return this.checkValidity(value);
+			}
+		}
+		if (
+			required !== prevProps.required ||
+			maxLength !== prevProps.maxLength ||
+			pattern !== prevProps.pattern
+		) {
+			this.checkValidity(this.getProp('value'));
 		}
 	}
 
 	addClassNames(add) {
-		const {textarea, readOnly, valid, invalid} = this.props;
+		const {textarea, readOnly} = this.props;
+		const valid = this.getProp('valid');
 		add('control');
 		add('textarea', textarea);
 		add('readonly', readOnly);
 		add('clearable', this.isClearable());
-		add('valid', valid);
-		add('invalid', invalid);
+		add('valid', valid === true);
+		add('invalid', valid === false);
 		add('focused', this.state.focused);
 	}
 
@@ -106,7 +113,8 @@ export class Input extends UIEXComponent {
 	}
 
 	getValue() {
-		let {value, defaultValue} = this.props;
+		let value = this.getProp('value');
+		let {defaultValue} = this.props;
 		if (value == null) {
 			value = defaultValue || '';
 		}
@@ -144,7 +152,7 @@ export class Input extends UIEXComponent {
 
 	handleMouseDown = (e) => {
 		e.stopPropagation();
-		const {disabled, readOnly, onDisabledClick, name} = this.props;
+		const {disabled, readOnly, name} = this.props;
 		if (disabled || readOnly) {
 			e.preventDefault();
 			if (disabled) {
@@ -163,16 +171,27 @@ export class Input extends UIEXComponent {
 	fireChange(props) {
 		const {name} = props;
 		const value = this.filterValue(this.refs.input.value, props);
-		this.fire('change', value, name);
+		if (this.props.uncontrolled) {
+			this.setState({
+				value,
+				valid: this.isValueValid(value)
+			})	
+		} else {
+			this.fire('change', value, name);
+		}
 	}
 
-	checkValidity(value, props = this.props) {
-		let {pattern, required, minLength} = props;
+	isValueValid(value) {
+		let {pattern, required, minLength} = this.props;
 		let isValid = true;
 		if (pattern && typeof pattern == 'string') {
-			pattern = new RegExp(regexEscape(pattern));
+			if (pattern == '^') {
+				pattern = null;
+			} else {
+				pattern = new RegExp(regexEscape(pattern));
+			}
 		}
-		if (value && pattern instanceof RegExp || typeof pattern == 'function') {
+		if (value && (pattern instanceof RegExp || typeof pattern == 'function')) {
 			if (pattern instanceof RegExp) {
 				isValid = pattern.test(value);
 			} else {
@@ -192,17 +211,21 @@ export class Input extends UIEXComponent {
 				}
 			}
 		}
-		this.fireChangeValidity(isValid, value);
+		return isValid;
 	}
 
-	fireChangeValidity(isValid, value = undefined) {
+	checkValidity(value) {
+		this.fireChangeValidity(this.isValueValid(value));
+	}
+
+	fireChangeValidity(isValid) {
 		if (isValid === false && this.isValid == null) {
 			return;
 		}
 		if (isValid !== this.isValid) {
-			const {name} = this.props;
+			const {name, value} = this.props;
 			this.isValid = isValid;
-			this.fire('changeValidity', isValid, value, name);
+			this.firePropChange('changeValidity', 'valid', [isValid, value, name], isValid);
 		}
 	}
 

@@ -102,7 +102,7 @@ export class PopupMenu extends UIEXBoxContainer {
 			if (currentValue instanceof Array) {
 				currentValue = currentValue[0];
 			}
-			if (value == currentValue) {
+			if (value === currentValue || ((currentValue == null || currentValue === '') && (value === '' || value == null))) {
 				props.selected = true;
 				props.ref = 'selected';
 				this.selectedIdx = idx;

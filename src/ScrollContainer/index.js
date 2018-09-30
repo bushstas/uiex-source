@@ -420,11 +420,11 @@ export class ScrollContainer extends UIEXComponent {
 
 	calculateScrollTop(e) {
 		let deltaY;
+		let scrollStep = getNumericProp(this.props.scrollStep, DEFAULT_STEP, MIN_STEP, MAX_STEP);		
+		const {diff} = this.getCalculatedDiff();
 		if (diff >= 0) {
 			return [];
 		}
-		let scrollStep = getNumericProp(this.props.scrollStep, DEFAULT_STEP, MIN_STEP, MAX_STEP);		
-		const {diff} = this.getCalculatedDiff();
 		if (e.type != 'keydown') {
 			deltaY = e.deltaY;
 		} else {

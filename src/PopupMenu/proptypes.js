@@ -26,6 +26,6 @@ export const PopupMenuItemPropTypes = {
 	children: PROPTYPE.STRNUM,
 	icon: PropTypes.string,
 	iconType: PROPTYPE.ICON_TYPES,
-	value: PROPTYPE.STRNUM,
+	value: PROPTYPE.STRNUMBOOL,
 	onSelect: PropTypes.func
 }

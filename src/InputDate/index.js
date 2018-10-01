@@ -1,5 +1,4 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
 import {Input} from '../Input';
 import {Icon} from '../Icon';
 import {getNumberOrNull, replace, propsChanged} from '../utils';
@@ -11,7 +10,7 @@ import './style.scss';
 const PROPS_LIST = ['yearFirst', 'past', 'future', 'withTime', 'delimiter', 'minYear', 'maxYear', 'periodFrom', 'periodTo'];
 const DEFAULT_DELIMITER = '.';
 
-class InputDateComponent extends Input {
+export class InputDate extends Input {
 	static propTypes = InputDatePropTypes;
 	static className = 'input';
 	static isControl = true;
@@ -28,7 +27,7 @@ class InputDateComponent extends Input {
 		let {onChange, name, value} = this.props;
 		if (value && propsChanged(prevProps, this.props, PROPS_LIST)) {
 			if (typeof onChange == 'function') {
-				const newValue = this.filterValue(value, this.props);
+				const newValue = this.filterValue(value);
 				if (newValue != value) {
 					onChange(newValue, name);
 				}
@@ -60,8 +59,8 @@ class InputDateComponent extends Input {
 		return {maxLength}
 	}
 
-	getDelimiter(props) {
-		let {delimiter} = props;
+	getDelimiter() {
+		let {delimiter} = this.props;
 		if (!delimiter || typeof delimiter != 'string') {
 			delimiter = DEFAULT_DELIMITER;
 		} else {
@@ -75,10 +74,10 @@ class InputDateComponent extends Input {
 		return delimiter;
 	}
 
-	filterValue(value, props) {
-		value = super.filterValue(value, props);
-		let {withTime, yearFirst} = props;
-		const delimiter = this.getDelimiter(props);
+	filterValue(value) {
+		value = super.filterValue(value);
+		let {withTime, yearFirst} = this.props;
+		const delimiter = this.getDelimiter();
 		let mask;
 		if (yearFirst) {
 			mask = '9999' + delimiter + '99' + delimiter + '99';
@@ -334,5 +333,3 @@ class InputDateComponent extends Input {
 		}
 	}
 }
-
-export const InputDate = withStateMaster(InputDateComponent, PROPS_LIST, null, Input);

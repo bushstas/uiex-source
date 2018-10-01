@@ -25,28 +25,39 @@ export class Input extends UIEXComponent {
 			this.state = {
 				value: props.value
 			};
+			if (props.validating) {
+				this.isValid = this.isValueValid(props.value);
+				this.state.valid = this.isValid;
+			}
 		}
 	}
 
 	componentDidMount() {
-		if (!this.props.uncontrolled) {
+		const {validating, uncontrolled} = this.props;
+		if (!uncontrolled && validating) {
 			this.checkValidity(this.props.value);
 		}
 	}
 
 	componentDidUpdate(prevProps) {
-		const {value, required, maxLength, pattern} = this.props;
-		if (!this.props.uncontrolled) {
+		const {uncontrolled, validating, value, required, minLength, pattern} = this.props;
+		if (!uncontrolled && validating) {
 			if (value !== prevProps.value) {
 				return this.checkValidity(value);
 			}
 		}
 		if (
-			required !== prevProps.required ||
-			maxLength !== prevProps.maxLength ||
-			pattern !== prevProps.pattern
+			validating && (
+				validating !== prevProps.validating ||
+				required !== prevProps.required ||
+				minLength !== prevProps.minLength ||
+				pattern !== prevProps.pattern
+			)
 		) {
-			this.checkValidity(this.getProp('value'));
+			return this.checkValidity(this.getProp('value'));
+		}
+		if (prevProps.validating !== validating) {
+			this.fireChangeValidity(null);
 		}
 	}
 
@@ -122,7 +133,8 @@ export class Input extends UIEXComponent {
 	}
 
 	isClearable() {
-		const {value, clearable, readOnly, defaultValue} = this.props;
+		const value = this.getProp('value');
+		const {clearable, readOnly, defaultValue} = this.props;
 		return (value || value === 0) && clearable && !readOnly && (!defaultValue || (defaultValue && value !== defaultValue));
 	}
 
@@ -164,21 +176,20 @@ export class Input extends UIEXComponent {
 	inputHandler() {
 		const {disabled, readOnly} = this.props;
 		if (!disabled && !readOnly) {
-			this.fireChange(this.props);
+			this.fireChange();
 		}
 	}
 
-	fireChange(props) {
-		const {name} = props;
-		const value = this.filterValue(this.refs.input.value, props);
-		if (this.props.uncontrolled) {
+	fireChange() {
+		const {name, uncontrolled, validating} = this.props;
+		const value = this.filterValue(this.refs.input.value);
+		if (uncontrolled) {
 			this.setState({
 				value,
-				valid: this.isValueValid(value)
+				valid: validating ? this.isValueValid(value) : null
 			})	
-		} else {
-			this.fire('change', value, name);
 		}
+		this.fire('change', value, name);
 	}
 
 	isValueValid(value) {
@@ -198,10 +209,10 @@ export class Input extends UIEXComponent {
 				isValid = pattern(value);
 			}
 		} else if (!required && !minLength) {
-			return;
+			return null;
 		}
 		if (isValid) {
-			if (value === '' && required) {
+			if ((value === '' || value == null) && required) {
 				isValid = false;
 			} else {
 				minLength = getNumber(minLength);
@@ -219,9 +230,6 @@ export class Input extends UIEXComponent {
 	}
 
 	fireChangeValidity(isValid) {
-		if (isValid === false && this.isValid == null) {
-			return;
-		}
 		if (isValid !== this.isValid) {
 			const {name, value} = this.props;
 			this.isValid = isValid;
@@ -269,10 +277,17 @@ export class Input extends UIEXComponent {
 	}
 
 	handleClear = () => {
-		const {name, disabled, readOnly} = this.props;
+		const {name, disabled, readOnly, uncontrolled, validating} = this.props;
 		if (!disabled && !readOnly) {
-			this.fire('change', this.getProperDefaultValue(), name);
-			this.fire('clear');
+			const value = this.getProperDefaultValue();
+			if (uncontrolled) {
+				this.setState({
+					value,
+					valid: validating ? this.isValueValid(value) : null
+				})	
+			}
+			this.fire('change', value, name);			
+			this.fire('clear', name);
 		}
 	}
 
@@ -306,8 +321,8 @@ export class Input extends UIEXComponent {
 		this.refs.input.blur();
 	}
 
-	filterValue(value, props) {
-		const {customFilter} = props;
+	filterValue(value) {
+		const {customFilter} = this.props;
 		if (value == null) {
 			value = '';
 		}

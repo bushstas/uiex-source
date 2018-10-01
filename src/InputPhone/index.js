@@ -19,7 +19,7 @@ export class InputPhone extends Input {
 		let {onChange, name, value} = this.props;
 		if (value && propsChanged(prevProps, this.props, PROPS_LIST)) {
 			if (typeof onChange == 'function') {
-				const newValue = this.filterValue(this.getWithoutCode(value, prevProps), this.props);
+				const newValue = this.filterValue(this.getWithoutCode(value));
 				if (newValue != value) {
 					onChange(newValue, name);
 				}
@@ -61,8 +61,8 @@ export class InputPhone extends Input {
 		return this.getMaskedValue(value);
 	}
 
-	filterValue(value, props) {		
-		const {numeric} = props;
+	filterValue(value) {		
+		const {numeric} = this.props;
 		return numeric ? replace(/[^\d]/g, '', this.getWithCode(value)) : this.getWithCode(this.getMaskedValue(value));
 	}
 

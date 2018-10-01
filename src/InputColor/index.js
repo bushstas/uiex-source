@@ -31,7 +31,7 @@ export class InputColor extends Input {
 	}
 
 	filterValue(value) {
-		value = super.filterValue(value, this.props);
+		value = super.filterValue(value);
 		const {withoutHash} = this.props;
 		return value ? (withoutHash ? '' : '#') + replace(/[^abcdef\d]/gi, '', value) : '';
 	}
@@ -117,7 +117,7 @@ export class InputColor extends Input {
 	inputHandler() {
 		const {name, disabled, readOnly} = this.props;
 		if (!disabled && !readOnly) {
-			const value = this.filterValue(this.refs.input.value, this.props);
+			const value = this.filterValue(this.refs.input.value);
 			this.fire('input', value, name);
 		}
 		super.inputHandler();

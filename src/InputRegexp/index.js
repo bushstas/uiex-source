@@ -25,8 +25,8 @@ export class InputRegexp extends Input {
 		return value;
 	}
 
-	filterValue(value, props) {
-		const {stringified} = props;
+	filterValue(value) {
+		const {stringified} = this.props;
 		if (!stringified && value) {
 			let v;
 			try {

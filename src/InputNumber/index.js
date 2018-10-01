@@ -21,7 +21,7 @@ class InputNumberComponent extends Input {
 		let {onChange, name, value} = this.props;
 		if (value && propsChanged(prevProps, this.props, PROPS_LIST)) {
 			if (typeof onChange == 'function') {
-				const newValue = this.filterValue(value, this.props);
+				const newValue = this.filterValue(value);
 				if (newValue != value) {
 					onChange(newValue, name);
 				}
@@ -99,10 +99,10 @@ class InputNumberComponent extends Input {
 		return this.getProperValue(super.getValue(), true);
 	}
 
-	filterValue(value, props) {
-		value = super.filterValue(value, props);
+	filterValue(value) {
+		value = super.filterValue(value);
 		if (value) {
-			let {valueWithMeasure, measure, correctionOnBlur} = props;
+			let {valueWithMeasure, measure, correctionOnBlur} = this.props;
 			value = this.getProperValue(value, true);
 			if (!correctionOnBlur || this.useAutoCorrection) {
 				value = this.correctValue(value);
@@ -199,7 +199,7 @@ class InputNumberComponent extends Input {
 			} else if (dec) {
 				value = Number(value.toString() + '.' + dec).toFixed(toFixed);
 			}
-			value = this.filterValue(String(value), this.props);
+			value = this.filterValue(String(value));
 			onChange(value, name);
 		}
 	}

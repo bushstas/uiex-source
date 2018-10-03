@@ -12,6 +12,15 @@ export class BoxSection extends UIEXComponent {
 	static className = 'box-section';
 	static displayName = 'BoxSection';
 
+	constructor(props) {
+		super(props);
+		if (props.uncontrolled) {
+			this.state = {
+				isOpen: props.isOpen
+			};
+		}
+	}
+
 	addClassNames(add) {
 		const {iconAtRight, view} = this.props;
 		add('icon-at-right', iconAtRight);
@@ -19,7 +28,8 @@ export class BoxSection extends UIEXComponent {
 	}
 
 	renderInternal() {
-		const {caption, note, isOpen} = this.props;
+		const isOpen = this.getProp('isOpen');
+		const {caption, note} = this.props;
 		const TagName = this.getTagName();
 		return (
 			<TagName {...this.getProps()}>
@@ -34,17 +44,25 @@ export class BoxSection extends UIEXComponent {
 						{note}
 					</div>
 				}
-				<Box {...this.props}/>
+				<Box 
+					{...this.props} 
+					isOpen={isOpen}
+					uncontrolled={false}
+				/>
 			</TagName>
 		)
 	}
 
 	handleClick = () => {
-		const {disabled, onToggle, onDisabledClick, isOpen} = this.props;
-		if (!disabled && typeof onToggle == 'function') {
-			onToggle(!isOpen);
-		} else if (disabled && typeof onDisabledClick == 'function') {
-			onDisabledClick();
+		const isOpen = !this.getProp('isOpen');
+		const {disabled, uncontrolled} = this.props;
+		if (!disabled) {
+			if (uncontrolled) {
+				this.setState({isOpen});
+			}
+			this.fire('toggle', isOpen);
+		} else {
+			this.fire('disabledClick');
 		}
 	}
 }

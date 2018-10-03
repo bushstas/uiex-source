@@ -92,13 +92,13 @@ export class Arrow extends UIEXComponent {
 	}
 
 	handleClick = (e) => {
-		const {onClick, value, disabled, onDisabledClick} = this.props;
-		if (!disabled && typeof onClick == 'function') {
+		const {value, disabled} = this.props;
+		if (!disabled) {
 			e.stopPropagation();
-			onClick(value);
-		} else if (disabled && typeof onDisabledClick == 'function') {
+			this.fire('click', value);
+		} else {
 			e.stopPropagation();
-			onDisabledClick(value);
+			this.fire('disabledClick', value);
 		}
 	}
 	getWidthProp() {

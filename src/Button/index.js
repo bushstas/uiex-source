@@ -57,22 +57,11 @@ export class Button extends UIEXComponent {
 
 	handleClick = (e) => {
 		e.stopPropagation();
-		const {
-			value,
-			disabled,
-			onClick,
-			onDisabledClick,
-			href
-		} = this.props;
-
+		const {value, disabled, href} = this.props;
 		if (!disabled) {
-			if (typeof onClick == 'function') {
-				onClick(value);
-			}
+			this.fire('click', value);
 		} else {
-			if (typeof onDisabledClick == 'function') {
-				onDisabledClick(value);
-			}
+			this.fire('disabledClick', value);
 			if (typeof href == 'string') {
 				e.preventDefault();
 				return false;

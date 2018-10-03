@@ -286,7 +286,7 @@ export class Input extends UIEXComponent {
 					valid: validating ? this.isValueValid(value) : null
 				})	
 			}
-			this.fire('change', value, name);			
+			this.fire('change', value, name);
 			this.fire('clear', name);
 		}
 	}

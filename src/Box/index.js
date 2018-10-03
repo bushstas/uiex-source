@@ -1,5 +1,4 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
 import {UIEXComponent} from '../UIEXComponent';
 import {Button} from '../Button';
 import {getTransitionDuration} from '../utils';
@@ -9,20 +8,17 @@ import '../style.scss';
 import './style.scss';
 
 const DEFAULT_SPEED = 'normal';
-const PROPS_LIST = 'isOpen';
 
-class BoxComponent extends UIEXComponent {
+export class Box extends UIEXComponent {
 	static propTypes = BoxPropTypes;
 	static displayName = 'Box';
 
-	static getDerivedStateFromProps({call, isChanged, nextProps, isInitial}) {
-		if (isChanged('isOpen')) {		
-			call(() => {
-				if (!nextProps.isOpen && !isInitial) {
-					this.setHeight();
-				}
-				this.animate(nextProps.isOpen);
-			});
+	constructor(props) {
+		super(props);
+		if (props.uncontrolled) {
+			this.state = {
+				isOpen: props.isOpen
+			};
 		}
 	}
 
@@ -39,13 +35,31 @@ class BoxComponent extends UIEXComponent {
 	}
 
 	componentDidMount() {
-		this.changeStyles(this.props.isOpen);
+		const isOpen = this.getProp('isOpen');
+		this.animate(isOpen);
+		this.changeStyles(isOpen);
 	}
+
+	componentDidUpdate(prevProps) {
+		const {isOpen, uncontrolled} = this.props;
+		if (!uncontrolled && isOpen !== prevProps.isOpen) {
+			this.update();
+		}
+	}
+	
 
 	componentWillUnmount() {
 		clearTimeout(this.mainTimeout);
 		clearTimeout(this.timeout);
 		super.componentWillUnmount();
+	}
+
+	update = () => {
+		const isOpen = this.getProp('isOpen');
+		if (!isOpen) {
+			this.setHeight();
+		}
+		this.animate(isOpen);
 	}
 
 	changeStyles(isOpen) {
@@ -243,7 +257,8 @@ class BoxComponent extends UIEXComponent {
 	}
 
 	renderButton() {
-		const {isOpen, disabled, onDisabledClick} = this.props;
+		const {disabled, onDisabledClick} = this.props;
+		const isOpen = this.getProp('isOpen');
 		return (
 			<Button 
 				className="uiex-box-button"
@@ -260,7 +275,8 @@ class BoxComponent extends UIEXComponent {
 	}
 
 	getButtonTitle() {
-		const {button, isOpen} = this.props;
+		const isOpen = this.getProp('isOpen');
+		const {button} = this.props;
 		const parts = button.split('/');
 		if (isOpen && parts[1]) {
 			return parts[1].trim();
@@ -269,11 +285,13 @@ class BoxComponent extends UIEXComponent {
 	}
 
 	handleToggle = () => {
-		const {onToggle, isOpen, disabled} = this.props;
-		if (!disabled && !this.animating && typeof onToggle == 'function') {
-			onToggle(!isOpen);
-		} 
+		const isOpen = !this.getProp('isOpen');
+		const {disabled, uncontrolled} = this.props;
+		if (!disabled && !this.animating) {
+			if (uncontrolled) {
+				this.setState({isOpen}, this.update);
+			}
+			this.fire('toggle', isOpen);
+		}
 	}
 }
-
-export const Box = withStateMaster(BoxComponent, PROPS_LIST, null, UIEXComponent);

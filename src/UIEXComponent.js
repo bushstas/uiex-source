@@ -12,10 +12,7 @@ import {
 	propsChanged,
 	cacheProps,
 	popupQueue,
-	ucfirst,
-	getSizeInPercentageOfWindow,
-	getTransitionDuration,
-	getNumber
+	ucfirst
 } from './utils';
 import {FORM_BUTTON_DISPLAY} from './consts';
 
@@ -316,7 +313,17 @@ export class UIEXComponent extends React.PureComponent {
 	}
 
 	getClassName(cn, add = null) {
-		return this.getNativeClassName() + '-' + cn + (add && typeof add == 'string' ? ' ' + add : '');
+		let classNames;
+		if (cn instanceof Array) {
+			classNames = [];
+			for (let i = 0; i < cn.length; i++) {
+				classNames.push(this.getClassName(cn[i]));
+			}
+			classNames = classNames.join(' ');
+		} else {
+			classNames = this.getNativeClassName() + '-' + cn;
+		}
+		return classNames + (add && typeof add == 'string' ? ' ' + add : '');
 	}
 
 	isAlignable() {
@@ -365,6 +372,33 @@ export class UIEXComponent extends React.PureComponent {
 
 	getProp(name) {
 		return this.props.uncontrolled ? this.state[name] : this.props[name];
+	}
+
+	cacheProps(list) {
+		this.cachedProps = this.cachedProps || {};
+		for (let i = 0; i < list.length; i++) {
+			this.cachedProps[list[i]] = this.props[list[i]];
+		}
+	}
+
+	isCachedPropsChanged(list, cacheIfChanged = false) {
+		this.cachedProps = this.cachedProps || {};
+		if (!(list instanceof Array)) {
+			if (this.props[list] !== this.cachedProps[list]) {
+				this.cacheProps([list]);
+				return true;
+			}
+			return false;
+		}
+		for (let i = 0; i < list.length; i++) {
+			if (this.props[list[i]] !== this.cachedProps[list[i]]) {
+				if (cacheIfChanged) {
+					this.cacheProps(list);
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 
 	initRendering() {}

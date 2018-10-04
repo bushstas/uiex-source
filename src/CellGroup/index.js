@@ -6,6 +6,8 @@ import {CellGroupPropTypes, CellGroupRowPropTypes, CellPropTypes} from './propty
 import '../style.scss';
 import './style.scss';
 
+const PROPS_LIST = ['rowMargin', 'height'];
+
 export class CellGroup extends UIEXComponent {
 	static className = 'cell-group';
 	static propTypes = CellGroupPropTypes;
@@ -35,7 +37,7 @@ export class CellGroup extends UIEXComponent {
 	getRowStyle() {
 		const rowMargin = getNumber(this.props.rowMargin);
 		const {height} = this.props;
-		if (rowMargin != this.rm || height != this.ht) {
+		if (this.isCachedPropsChanged(PROPS_LIST, true)) {
 			this.cachedRowStyle = null;
 			if (rowMargin) {
 				if (isValidAndNotEmptyNumericStyle(height)) {
@@ -43,11 +45,9 @@ export class CellGroup extends UIEXComponent {
 				} else {
 					this.cachedRowStyle = {marginTop: rowMargin};
 				}
-			}			
-			this.rm = rowMargin;
-			this.ht = height;
+			}
 		}
-		return this.cachedRowStyle;
+		return this.cachedRowStyle;		
 	}
 
 	initRendering() {
@@ -328,6 +328,8 @@ export class CellGroup extends UIEXComponent {
 	}
 }
 
+const CELL_PROPS_LIST = ['leftPadding', 'rightPadding', 'leftMargin', 'minHeight'];
+
 export class Cell extends UIEXComponent {
 	static propTypes = CellPropTypes;
 	static displayName = 'Cell';
@@ -337,8 +339,7 @@ export class Cell extends UIEXComponent {
 	}
 
 	isCustomStyleChanged() {
-		const {leftPadding: l, rightPadding: r, leftMargin: m, minHeight: mh} = this.props;
-		return this.lp != l || this.rp != r || this.lm != m || this.mh != mh;
+		return this.isCachedPropsChanged(CELL_PROPS_LIST, true);
 	}
 
 	getCustomStyle() {
@@ -362,10 +363,6 @@ export class Cell extends UIEXComponent {
 				style.minHeight = mh;
 			}
 		}
-		this.lp = l;
-		this.rp = r;
-		this.lm = m;
-		this.mh = mh;
 		return style;
 	}
 
@@ -413,19 +410,17 @@ class CellContent extends UIEXComponent {
 	static displayName = 'CellContent';
 
 	isCustomStyleChanged() {
-		return this.props.minHeight != this.mh;
+		return this.isCachedPropsChanged('minHeight', true);
 	}
 
 	getCustomStyle() {
-		const minHeight = getNumber(this.props.minHeight);
-		this.mh = minHeight;
-		return {minHeight};
+		return {minHeight: getNumber(this.props.minHeight)};
 	}
 
 	renderInternal() {
 		return (
 			<div {...this.getProps()}>
-				<div className="uiex-cell-content-inner uiex-scrollable">
+				<div className={this.getClassName('inner', 'uiex-scrollable')}>
 					{this.renderChildren()}
 				</div>
 			</div>

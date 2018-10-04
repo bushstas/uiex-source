@@ -1,11 +1,19 @@
 .uiex-checkbox {	
-	padding-left: 28px;
 	display: inline-block;
- 
+
+	.uiex-checkbox-main-content {
+		display: inline-flex;
+		user-select: none;
+		-moz-user-select: none;
+		&:hover {
+			& > .uiex-checkbox-label {
+				color: #333;
+			}
+		}
+	}
+
 	.uiex-checkbox-control {
-		position: absolute;
-		left: 0;
-		top: 0;
+		position: relative;
 		width: 20px;
 		height: 20px;
 		border-radius: 2px;
@@ -13,6 +21,8 @@
 		border: 1px solid #aaa;
 		cursor: pointer;
 		box-sizing: border-box;
+		margin-right: 8px;
+		flex-shrink: 0;
 	}
 
 	.uiex-checkbox-marker {
@@ -29,33 +39,41 @@
 	}
 
 	&:not(.uiex-read-only):not(.uiex-disabled):hover {
-		& > .uiex-checkbox-control {
-			border-color: #777;
-			& > .uiex-checkbox-marker {
-				background-color: #555;
-				color: #555;
+		& > .uiex-checkbox-main-content {
+			& > .uiex-checkbox-control {
+				border-color: #777;
+				& > .uiex-checkbox-marker {
+					background-color: #555;
+					color: #555;
+				}
 			}
 		}
 	}
 
 	&.uiex-with-icon {
-		& > .uiex-checkbox-control {
-			& > .uiex-checkbox-marker {
-				background-color: transparent !important;
+		& > .uiex-checkbox-main-content {
+			& > .uiex-checkbox-control {
+				& > .uiex-checkbox-marker {
+					background-color: transparent !important;
+				}
 			}
 		}
 		&.uiex-checked {
-			& > .uiex-checkbox-control {
-				background-color: #555;
-				border-color: #555;
-				& > .uiex-checkbox-marker {
-					color: #fff;
+			& > .uiex-checkbox-main-content {
+				& > .uiex-checkbox-control {
+					background-color: #555;
+					border-color: #555;
+					& > .uiex-checkbox-marker {
+						color: #fff;
+					}
 				}
 			}
 			&:hover {
-				& > .uiex-checkbox-control {
-					background-color: #444;
-					border-color: #444;
+				& > .uiex-checkbox-main-content {
+					& > .uiex-checkbox-control {
+						background-color: #444;
+						border-color: #444;
+					}
 				}
 			}
 		}
@@ -63,33 +81,48 @@
 
 	&.uiex-checked,
 	&.uiex-undetermined {
-		& > .uiex-checkbox-control {
-			& > .uiex-checkbox-marker {
-				display: flex;
-				justify-content: center;
-				align-items: center;
+		& > .uiex-checkbox-main-content {
+			& > .uiex-checkbox-control {
+				& > .uiex-checkbox-marker {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+				}
 			}
 		}
 	}
 	&.uiex-undetermined:not(.uiex-with-icon) {
-		& > .uiex-checkbox-control {
-			& > .uiex-checkbox-marker {
-				opacity: 0.3;
+		& > .uiex-checkbox-main-content {
+			& > .uiex-checkbox-control {
+				& > .uiex-checkbox-marker {
+					opacity: 0.4;
+					border: 1px solid #000;
+				}
 			}
 		}
 	}
 	&.uiex-disabled {
-		.uiex-checkbox-control {
-			background-color: #f1f1f1;
-			border-color: #bbb;
-			cursor: not-allowed;
+		.uiex-checkbox-main-content {
+			.uiex-checkbox-control {
+				background-color: #f1f1f1;
+				border-color: #bbb;
+				cursor: not-allowed;
+			}
+			.uiex-checkbox-marker {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}		
+			.uiex-checkbox-label > span {
+				cursor: not-allowed !important;
+			}
 		}
-		.uiex-checkbox-marker {
-			opacity: 0.5;
-			cursor: not-allowed;
-		}
-		.uiex-checkbox-label {
-			cursor: not-allowed;
+		&.uiex-undetermined:not(.uiex-with-icon) {
+			.uiex-checkbox-main-content {
+				.uiex-checkbox-marker {
+					opacity: 0.2;
+					border: 1px solid #333;
+				}
+			}
 		}
 	}
 
@@ -104,7 +137,6 @@
 		word-break: normal;
 		& > span {
 			cursor: pointer;
-			user-select: none;
 		}
 	}
 
@@ -133,6 +165,9 @@
 		    	}
 		    }
 		}
+	}
+	.uiex-checkbox-additional-content {
+		margin-top: 3px;
 	}
 
 	&.uiex-multilined {

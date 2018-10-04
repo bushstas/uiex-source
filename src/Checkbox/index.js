@@ -1,5 +1,4 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
 import {UIEXComponent} from '../UIEXComponent';
 import {Icon} from '../Icon';
 import {CheckboxPropTypes} from './proptypes';
@@ -7,9 +6,7 @@ import {CheckboxPropTypes} from './proptypes';
 import '../style.scss';
 import './style.scss';
 
-const PROPS_LIST = 'checked';
-
-class CheckboxComponent extends UIEXComponent {
+export class Checkbox extends UIEXComponent {
 	static propTypes = CheckboxPropTypes;
 	static styleNames = ['control', 'marker', 'label'];
 	static properChildren = 'CheckboxGroup';
@@ -17,8 +14,18 @@ class CheckboxComponent extends UIEXComponent {
 	static isControl = true;
 	static displayName = 'Checkbox';
 
-	static getDerivedStateFromProps({addIfChanged}) {
-		addIfChanged('checked');
+	constructor(props) {
+		super(props);
+		this.state = {
+			checked: props.checked
+		};
+	}
+
+	componentDidUpdate(prevProps) {
+		const {uncontrolled, checked} = this.props;
+		if (!uncontrolled && prevProps.checked !== checked) {
+			this.setState({checked});
+		}
 	}
 
 	addClassNames(add) {
@@ -59,7 +66,7 @@ class CheckboxComponent extends UIEXComponent {
 	}
 
 	renderInternal() {
-		let {children, iconType, label} = this.props;
+		let {iconType, label} = this.props;
 		let {icon} = this.props;
 		if (icon && typeof icon != 'string') {
 			icon = 'check';
@@ -75,32 +82,34 @@ class CheckboxComponent extends UIEXComponent {
 		const TagName = this.getTagName();
 		return (
 			<TagName {...this.getProps()}>
-				<span 
-					className="uiex-checkbox-control"
-					onClick={this.handleClick}
-					style={this.getStyle('control')}
-				>
+				<div className={this.getClassName('main-content')}>
 					<span 
-						className="uiex-checkbox-marker"
-						style={this.getStyle('marker')}
+						className={this.getClassName('control')}
+						onClick={this.handleClick}
+						style={this.getStyle('control')}
 					>
-						{icon &&
-							<Icon name={icon} type={iconType}/>
-						}
-					</span>
-				</span>
-				{label &&
-					<div 
-						className="uiex-checkbox-label uiex-checkbox-content"
-						style={this.getStyle('label')}
-					>
-						<span onClick={this.handleClick}>
-							{label}
+						<span 
+							className={this.getClassName('marker')}
+							style={this.getStyle('marker')}
+						>
+							{icon &&
+								<Icon name={icon} type={iconType}/>
+							}
 						</span>
-					</div>
-				}
+					</span>
+					{label &&
+						<div 
+							className={this.getClassName(['label', 'content'])}
+							style={this.getStyle('label')}
+						>
+							<span onClick={this.handleClick}>
+								{label}
+							</span>
+						</div>
+					}
+				</div>
 				{additionalContent && 
-					<div className="uiex-checkbox-content">
+					<div className={this.getClassName(['content', 'additional-content'])}>
 						{additionalContent}
 					</div>
 				}
@@ -110,26 +119,24 @@ class CheckboxComponent extends UIEXComponent {
 
 	handleClick = (e) => {
 		e.stopPropagation();
-		const {
-			value,
-			name,
-			onChange,
-			readOnly
-		} = this.props;
+		const {value, name, readOnly, uncontrolled, disabled} = this.props;		
 		if (readOnly) {
 			return;
 		}
-		const {checked} = this.state;
-
-		if (typeof onChange == 'function') {
-			if (this.properChildrenCount > 0) {
-				const objectValue = {};
-				this.fillValues(this.itemValues, objectValue);
-				onChange(!checked, name, objectValue);
-			} else {
-				onChange(!checked, name, value);
-			}
+		const checked = !this.state.checked;
+		let changedValue = value;
+		if (this.properChildrenCount > 0) {
+			const objectValue = {};
+			this.fillValues(this.itemValues, objectValue);
+			changedValue = objectValue;
 		}
+		if (disabled) {
+			return this.fire('disabledClick', checked, name, changedValue);
+		}
+		if (uncontrolled) {
+			this.setState({checked});
+		}
+		this.fire('change', checked, name, changedValue);
 	}
 
 	fillValues(items, value) {
@@ -145,22 +152,16 @@ class CheckboxComponent extends UIEXComponent {
 	}
 
 	handleChangeChildGroup = (groupValue, groupName) => {
-		const {
-			value,
-			name,
-			onChange
-		} = this.props;
-		if (typeof onChange == 'function') {
-			let isCheckedAll = false;
-			const count = groupValue instanceof Array ? groupValue.length : Object.keys(groupValue).length;
-			if (count > 0) {
-				isCheckedAll = null;
-				if (count == this.itemValues.length) {
-					isCheckedAll = true;
-				}
+		const {name} = this.props;
+		let isCheckedAll = false;
+		const count = groupValue instanceof Array ? groupValue.length : Object.keys(groupValue).length;
+		if (count > 0) {
+			isCheckedAll = null;
+			if (count == this.itemValues.length) {
+				isCheckedAll = true;
 			}
-			onChange(isCheckedAll, name, groupValue);
 		}
+		this.fire('change', isCheckedAll, name, groupValue);
 	}
 
 	handleChildGroupMount = (checkboxGroup) => {
@@ -181,11 +182,6 @@ class CheckboxComponent extends UIEXComponent {
 
 	changeCheckedStatus(checked) {
 		this.setState({checked});
-		const {onUpdateStatus} = this.props;
-		if (typeof onUpdateStatus == 'function') {
-			onUpdateStatus(checked, this);
-		}		
+		this.fire('updateStatus', checked, this);
 	}
 }
-
-export const Checkbox = withStateMaster(CheckboxComponent, PROPS_LIST, null, UIEXComponent);

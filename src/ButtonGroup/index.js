@@ -25,7 +25,7 @@ export class ButtonGroup extends UIEXButtons {
 		const TagName = this.getTagName();
 		return (
 			<TagName {...this.getProps()}>
-				<div className="uiex-button-group-inner">
+				<div className={this.getClassName('inner')}>
 					{this.renderChildren()}
 				</div>
 			</TagName>

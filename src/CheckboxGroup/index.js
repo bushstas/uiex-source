@@ -154,7 +154,6 @@ export class CheckboxGroup extends UIEXComponent {
 	}
 
 	isCheckedAll() {
-		const total = this.properChildrenCount;
 		if (this.undeterminedCount > 0) {
 			return null;
 		}
@@ -256,9 +255,9 @@ export class CheckboxGroup extends UIEXComponent {
 	}
 
 	handleChange = (checked, checkboxName, checkboxValue) => {
-		let {name, onChange, mapped, radioMode} = this.props;
-		if (radioMode && !this.hasChildGroups && typeof onChange == 'function') {
-			return onChange(checkboxValue, name);
+		let {name, mapped, radioMode} = this.props;
+		if (radioMode && !this.hasChildGroups) {
+			return this.fire('change', checkboxValue, name);
 		}
 		let value = this.getValue();
 		if (this.hasChildGroups || (value && !(value instanceof Array))) {
@@ -272,70 +271,67 @@ export class CheckboxGroup extends UIEXComponent {
 			value = objValue;
 		}
 		let newValue;
-		if (typeof onChange == 'function') {
-			if (checked === true || checked === null) {
-				if (!value) {
-					if (mapped) {
-						if (checkboxValue instanceof Object) {
-							newValue = {[checkboxName]: checkboxValue};
-						} else {
-							newValue = {[checkboxValue]: true};
-						}
+		
+		if (checked === true || checked === null) {
+			if (!value) {
+				if (mapped) {
+					if (checkboxValue instanceof Object) {
+						newValue = {[checkboxName]: checkboxValue};
 					} else {
-						newValue = [checkboxValue];
+						newValue = {[checkboxValue]: true};
 					}
 				} else {
-					if (mapped) {
-						if (checkboxValue instanceof Object) {
-							value[checkboxName] = checkboxValue;
-						} else {
-							value[checkboxValue] = true;
-						}
-						newValue = {...value}
-					} else {
-						value.push(checkboxValue);
-						newValue = [...value]
-					}
+					newValue = [checkboxValue];
 				}
 			} else {
 				if (mapped) {
 					if (checkboxValue instanceof Object) {
-						delete value[checkboxName];
+						value[checkboxName] = checkboxValue;
 					} else {
-						delete value[checkboxValue];
+						value[checkboxValue] = true;
 					}
 					newValue = {...value}
 				} else {
-					const index = value.indexOf(checkboxValue);
-					if (index > -1) {
-						value.splice(index, 1);
-						newValue = [...value]
-					}
+					value.push(checkboxValue);
+					newValue = [...value]
 				}
 			}
-			onChange(newValue, name);
+		} else {
+			if (mapped) {
+				if (checkboxValue instanceof Object) {
+					delete value[checkboxName];
+				} else {
+					delete value[checkboxValue];
+				}
+				newValue = {...value}
+			} else {
+				const index = value.indexOf(checkboxValue);
+				if (index > -1) {
+					value.splice(index, 1);
+					newValue = [...value]
+				}
+			}
 		}
+		this.fire('change', newValue, name);
 	}
 
 	handleChangeCheckAll = (checked) => {
-		let {value: currentValue, name, onChange, mapped} = this.props;
+		let {value: currentValue, name, mapped} = this.props;
 		if (this.hasChildGroups || currentValue instanceof Object) {
 			mapped = true;
 		}
-		if (typeof onChange == 'function') {
-			let value;
-			if (checked) {				
-				if (mapped) {
-					value = {};
-					this.fillValues(this.itemValues, value);
-				} else {
-					value = this.itemValues;
-				}
+		let value;
+		if (checked) {				
+			if (mapped) {
+				value = {};
+				this.fillValues(this.itemValues, value);
 			} else {
-				value = mapped ? {} : [];
+				value = this.itemValues;
 			}
-			onChange(value, name, checked);
+		} else {
+			value = mapped ? {} : [];
 		}
+		this.fire('change', value, name, checked);
 	}
 
 	fillValues(items, value) {
@@ -382,9 +378,7 @@ export class CheckboxGroup extends UIEXComponent {
 	}
 
 	handleCheckboxUpdateStatus = (checked, checkbox) => {
-		const {onUpdate} = this.props;		
 		const {name} = checkbox.props;
-		const total = this.properChildrenCount;
 		this.checkedStatuses[name] = checked;		
 		this.checkedCount = 0;
 		this.undeterminedCount = 0;
@@ -398,9 +392,7 @@ export class CheckboxGroup extends UIEXComponent {
 		if (this.refs.checkAll) {
 			this.refs.checkAll.setState({checked: this.isCheckedAll()});
 		}
-		if (typeof onUpdate == 'function') {
-			onUpdate(this);
-		}
+		this.fire('update', this);
 	}
 
 	filterOption() {

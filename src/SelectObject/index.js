@@ -50,8 +50,8 @@ export class SelectObject extends UIEXComponent {
 
 	getTitle() {
 		let {value} = this.props;
-		if (!value && value !== 0 && value !== false) {
-			return '';
+		if (value == null) {
+			return 'null';
 		}
 		if (typeof value == 'string' || typeof value == 'number') {
 			return value;
@@ -121,7 +121,7 @@ export class SelectObject extends UIEXComponent {
 			items.push(
 				<div key={null} className={'uiex-select-object-item' + (!value ? ' uiex-active' : '')}>
 					<Radio 
-						checked={!value} 
+						checked={value == null} 
 						value={null} 
 						onChange={this.handleRadioClick}
 					>

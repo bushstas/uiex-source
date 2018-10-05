@@ -29,12 +29,6 @@ export class JsonPreview extends UIEXComponent {
 		this.info = null;
 	}
 
-	getCustomProps() {
-		return {
-			onClick: this.handleClick
-		}
-	}
-
 	renderInternal() {
 		const {data} = this.props;
 		this.renderData(data);
@@ -195,15 +189,5 @@ export class JsonPreview extends UIEXComponent {
 
 	getKey(key) {
 		return this.wrapWithTag(key, 'key');
-	}
-
-	handleClick = () => {
-		let {data, onClick} = this.props;
-		if (data instanceof Object && data.jsonPreviewInfo) {
-			data = data.value;
-		}
-		if (typeof onClick == 'function') {
-			onClick(data);
-		}
 	}
 }

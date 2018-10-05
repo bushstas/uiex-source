@@ -31,7 +31,6 @@ export class CheckboxGroup extends UIEXComponent {
 
 	constructor(props) {
 		super(props);
-		this.initMaxHeight(props.maxHeight);
 		this.itemValues = [];
 		this.hasChildGroups = 0;
 	}
@@ -40,18 +39,6 @@ export class CheckboxGroup extends UIEXComponent {
 		add('control');
 		add('without-border', this.props.noBorder);
 		add('with-columns', this.checkboxWidth);
-	}
-
-	initMaxHeight(maxHeight) {
-		this.contentStyle = addStyleProperty(maxHeight, 'maxHeight');
-	}
-
-	componentWillReceiveProps(nextProps) {
-		super.componentWillReceiveProps(nextProps);
-		const {maxHeight} = nextProps;
-		if (maxHeight !== this.props.maxHeight) {
-			this.initMaxHeight(maxHeight);
-		}
 	}
 
 	initRendering() {
@@ -63,7 +50,7 @@ export class CheckboxGroup extends UIEXComponent {
 	addChildProps(child, props) {
 		let {icon, iconType, multiline, onDisabledClick} = this.props;
 		const value = this.getValue();
-		const {onChange, value: childValue} = child.props;
+		const {value: childValue} = child.props;
 		const checked = this.getChecked(childValue, value);
 		props.icon = icon;
 		props.iconType = iconType;
@@ -98,7 +85,10 @@ export class CheckboxGroup extends UIEXComponent {
 		return (
 			<TagName {...this.getProps()}>
 				{this.renderTopFunctional()}
-				<div className="uiex-checkbox-group-controls uiex-scrollable" style={this.contentStyle}>
+				<div 
+					className={this.getClassName('controls', 'uiex-scrollable')} 
+					style={this.getStyle('content')}
+				>
 					{this.options}
 				</div>
 			</TagName>

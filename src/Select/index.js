@@ -148,7 +148,7 @@ class SelectComponent extends UIEXBoxContainer {
 	renderOptions() {
 		const {focused, options} = this.state;
 		const OptionComponent = this.getOptionComponent();
-		const {value, name, empty, iconType, optionsShown, disabled} = this.props;
+		const {value, name, empty, iconType, optionsShown, disabled, menuStyle, optionStyle} = this.props;
 		let pending = false;
 		let items = [];
 		if (options && options instanceof Object) {
@@ -193,7 +193,7 @@ class SelectComponent extends UIEXBoxContainer {
 				<OptionComponent 
 					key=""
 					className="uiex-empty-option"
-					value={null} 
+					value={null}
 				>
 					{empty === true ? '.....' : empty}
 				</OptionComponent>
@@ -203,6 +203,8 @@ class SelectComponent extends UIEXBoxContainer {
 			<PopupMenu 
 				ref="popupMenu"
 				name={name}
+				style={menuStyle}
+				optionStyle={optionStyle}
 				iconType={iconType}
 				multiple={this.isMultiple()}
 				value={value}

@@ -24,6 +24,7 @@ export class SelectObject extends UIEXComponent {
 			focused: false,
 			selectedItem: null
 		};
+		this.cachedClickHandlers = {};
 	}
 
 	addClassNames(add) {
@@ -119,17 +120,18 @@ export class SelectObject extends UIEXComponent {
 		const items = [];
 		if (empty) {
 			items.push(
-				<div key={null} className={'uiex-select-object-item' + (!value ? ' uiex-active' : '')}>
+				<div 
+					ref={'preview'}
+					key={null} 
+					className={'uiex-select-object-item' + (!value ? ' uiex-active' : '')}
+					onClick={this.getItemClickHandler()}
+				>
 					<Radio 
 						checked={value == null} 
 						value={null} 
 						onChange={this.handleRadioClick}
 					>
-						<JsonPreview 
-							ref={'preview'}
-							data={null} 
-							onClick={this.handleItemClick}
-						/>
+						<JsonPreview data={null} />
 					</Radio>
 				</div>
 			);
@@ -142,18 +144,22 @@ export class SelectObject extends UIEXComponent {
 				} else {
 					active = options[i] == value;
 				}
+				if (options[i] == null) {
+					continue;
+				}
 				items.push(
-					<div key={i} className={'uiex-select-object-item' + (active ? ' uiex-active' : '')}>
+					<div 
+						ref={'preview' + i}
+						key={i} 
+						className={'uiex-select-object-item' + (active ? ' uiex-active' : '')}
+						onClick={this.getItemClickHandler(i, options[i])}
+					>
 						<Radio 
 							checked={active} 
 							value={i} 
 							onChange={this.handleRadioClick}
 						>
-							<JsonPreview 
-								ref={'preview' + i}
-								data={options[i]} 
-								onClick={this.handleItemClick}
-							/>
+							<JsonPreview data={options[i]} />
 						</Radio>
 					</div>
 				);
@@ -188,7 +194,14 @@ export class SelectObject extends UIEXComponent {
 		this.setState({focused: false});
 	}
 
-	handleItemClick = (data) => {
+	getItemClickHandler = (key = -1, data = null) => {
+		if (!this.cachedClickHandlers[key]) {
+			this.cachedClickHandlers[key] = this.handleItemClick.bind(this, data);
+		}
+		return this.cachedClickHandlers[key];
+	}
+
+	handleItemClick(data) {
 		const {onChange, name} = this.props;
 		if (typeof onChange == 'function') {
 			onChange(data, name);
@@ -200,7 +213,7 @@ export class SelectObject extends UIEXComponent {
 		if (value == null) {
 			value = '';
 		}
-		this.refs['preview' + value].refs.main.click();
+		this.refs['preview' + value].click();
 	}
 
 	hasOptions() {

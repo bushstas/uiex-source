@@ -46,7 +46,7 @@ export class Checkbox extends UIEXComponent {
 	addChildProps(child, props) {
 		let {value, icon, iconType, multiline, onDisabledClick} = this.props;
 		props.checkAll = false;
-		props.maxHeight = null;
+		//props.maxHeight = null;
 		props.icon = icon;
 		props.iconType = iconType;
 		if (typeof child.props.multiline != 'boolean') {
@@ -83,6 +83,8 @@ export class Checkbox extends UIEXComponent {
 		return (
 			<TagName {...this.getProps()}>
 				<div className={this.getClassName('main-content')}>
+					<div className={this.getClassName('vertical-line')} />
+					<div className={this.getClassName('horizontal-line')} />
 					<span 
 						className={this.getClassName('control')}
 						onClick={this.handleClick}
@@ -108,8 +110,12 @@ export class Checkbox extends UIEXComponent {
 						</div>
 					}
 				</div>
+				<div className="uiex-clear" />
 				{additionalContent && 
-					<div className={this.getClassName(['content', 'additional-content'])}>
+					<div 
+						className={this.getClassName(['content', 'additional-content'])}
+						style={this.getStyle('content')}
+					>
 						{additionalContent}
 					</div>
 				}

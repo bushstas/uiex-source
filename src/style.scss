@@ -29,6 +29,9 @@
 *.uiex-block:not(.uiex-hidden) {
 	display: block !important;
 }
+.uiex-clear {
+	clear: both;
+}
 *.uiex-float-left {
 	float: left !important;
 }

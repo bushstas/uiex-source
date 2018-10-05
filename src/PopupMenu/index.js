@@ -84,7 +84,7 @@ export class PopupMenu extends UIEXBoxContainer {
 	}
 
 	addChildProps(child, props, idx) {
-		let {value: currentValue = '', multiple} = this.props;
+		let {value: currentValue = '', multiple, optionStyle} = this.props;
 		const {currentSelected} = this.state;
 		const {onSelect, value, iconType, single} = child.props;
 		if (multiple) {
@@ -122,6 +122,7 @@ export class PopupMenu extends UIEXBoxContainer {
 			props.onSelect = this.handleSelectByClick;
 		}
 		props.index = idx;
+		props.style = optionStyle;
 		this.itemValues.push(value);
 		this.children.push(child);
 	}

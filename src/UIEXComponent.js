@@ -19,51 +19,28 @@ import {FORM_BUTTON_DISPLAY} from './consts';
 export class UIEXComponent extends React.PureComponent {
 	constructor(props) {
 		super(props);
-		this.stylesChanged = {};
-		this.styles = {};
 		this.state = {};
 		registerContext(this);		
 	}
 	
-	//componentWillReceiveProps(nextProps) {
-		// const {width, height, fontSize, style} = nextProps;
-		// this.stylesChanged.main = (
-		// 	width != this.props.width ||
-		// 	height != this.props.height || 
-		// 	fontSize != this.props.fontSize || 
-		// 	style != this.props.style
-		// );
-		// const {styleNames} = this.constructor;
-		// if (styleNames) {
-		// 	if (typeof styleNames == 'string') {
-		// 		this.initStyleChange(styleNames, nextProps);
-		// 	} else if (styleNames instanceof Array) {
-		// 		for (let i = 0; i < styleNames.length; i++) {
-		// 			this.initStyleChange(styleNames[i], nextProps);
-		// 		}
-		// 	}
-		// }
-	//}
-
-	initStyleChange(name, props) {
-		const key = name + 'Style';
-		this.stylesChanged[name] = this.props[key] != props[key];
-	}
-
 	getStyle(name) {
-		if (this.styles[name] === undefined || this.stylesChanged[name]) {
+		const propKey = name + 'Style';
+		const cachedPropKey = name + 'StyleCachedProp';
+		const key = name + 'CachedStyle';
+		const additionalStyles = this.getAdditionalStyle(name);
+		if (this[cachedPropKey] !== this.props[propKey] || additionalStyles) {
+			this[cachedPropKey] = this.props[propKey];
+			this[key] = null;
 			const defaultStyle = this.getDefaultStyle(name);
-			const key = name + 'Style';
-			if (this.props[key] || defaultStyle) {
-				this.styles[name] = {
+			if (this.props[propKey] instanceof Object || defaultStyle instanceof Object || additionalStyles) {
+				this[key] = {
 					...defaultStyle,
-					...this.props[key]
+					...this.props[propKey],
+					...additionalStyles
 				};
-			} else {
-				this.styles[name] = null;
 			}
 		}
-		return this.styles[name];
+		return this[key];
 	}
 
 	getMainStyle() {
@@ -406,6 +383,7 @@ export class UIEXComponent extends React.PureComponent {
 	getStyleNames() {}
 	addClassNames() {}
 	initCustomStyles() {}
+	getAdditionalStyle() {}
 }
 
 

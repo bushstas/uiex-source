@@ -15,6 +15,8 @@ export const SelectPropTypes = {
 	multiple: PropTypes.bool,
 	readOnly: PropTypes.bool,
 	iconType: PROPTYPE.ICON_TYPES,
+	menuStyle: PropTypes.object,
+	optionStyle: PropTypes.object,
 	onChange: PropTypes.func,
 	onSelect: PropTypes.func,
 	onSelectOption: PropTypes.func,

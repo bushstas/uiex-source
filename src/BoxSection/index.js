@@ -46,6 +46,7 @@ export class BoxSection extends UIEXComponent {
 				}
 				<Box 
 					{...this.props} 
+					style={null}
 					isOpen={isOpen}
 					uncontrolled={false}
 				/>

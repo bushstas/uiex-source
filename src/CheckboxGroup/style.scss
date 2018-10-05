@@ -11,11 +11,46 @@
 	&.uiex-control {
 		display: block;
 	}
-	.uiex-checkbox {
-		display: block;
-		margin-bottom: 5px;
-		&:last-child {
-			margin-bottom: 0;
+	& > .uiex-checkbox-group-controls {
+		& > .uiex-checkbox {
+			display: block;
+			padding-bottom: 5px;
+			&:last-child {
+				padding-bottom: 0;
+			}
+			.uiex-checkbox-horizontal-line {
+				position: absolute;
+				left: -18px;
+				width: 20px;
+				top: 10px;
+				background-color: #d3d3d3;
+				height: 1px;;
+			}
+			.uiex-checkbox-vertical-line {
+				position: absolute;
+				left: -18px;
+				top: 0;
+				bottom: 0;
+				width: 1px;
+				background-color: #d3d3d3;
+			}
+			&:first-child {
+				.uiex-checkbox-vertical-line {
+					top: -15px;
+				}
+			}
+			&:last-child {
+				.uiex-checkbox-vertical-line {
+					bottom: auto;
+					height: 10px;
+				}
+				& > .uiex-checkbox-additional-content {
+					padding-bottom: 0;
+				}
+			}
+			& > .uiex-checkbox-additional-content {
+				padding-bottom: 6px;
+			}
 		}
 	}
 	.uiex-checkbox-group-top {

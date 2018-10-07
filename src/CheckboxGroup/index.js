@@ -35,6 +35,15 @@ export class CheckboxGroup extends UIEXComponent {
 		this.hasChildGroups = 0;
 	}
 
+	componentDidMount() {
+		this.fire('mount', this);
+	}
+
+	componentWillUnmount() {
+		this.fire('unmount', this);
+		super.componentWillUnmount();
+	}
+
 	addClassNames(add) {
 		add('control');
 		add('without-border', this.props.noBorder);

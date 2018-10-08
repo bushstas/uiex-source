@@ -38,22 +38,20 @@ export class Label extends UIEXComponent {
 		)
 	}
 
-	handleClick = (e) => {
-		const {onClick, value, disabled, onDisabledClick} = this.props;
-		if (!disabled && typeof onClick == 'function') {
-			e.stopPropagation();
-			onClick(value);
-		} else if (disabled && typeof onDisabledClick == 'function') {
-			e.stopPropagation();
-			onDisabledClick(value);
+	handleClick = () => {
+		const {value, disabled} = this.props;
+		if (!disabled) {
+			this.fire('click', value);
+		} else {
+			this.fire('disabledClick', value);
 		}
 	}
 
 	handleRemove = (e) => {
 		e.stopPropagation();
-		const {onRemove, value, disabled} = this.props;
-		if (!disabled && typeof onRemove == 'function') {
-			onRemove(value);
+		const {value, disabled} = this.props;
+		if (!disabled) {
+			this.fire('remove', value);
 		}
 	}
 }

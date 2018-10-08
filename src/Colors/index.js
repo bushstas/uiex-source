@@ -58,11 +58,10 @@ export class Colors extends UIEXComponent {
 	}
 
 	handleSelect = (value) => {
-		const {onSelect, disabled, onDisabledClick} = this.props;
-		if (!disabled && typeof onSelect == 'function') {
-			onSelect(value);
-		} else if (disabled && typeof onDisabledClick == 'function') {
-			onDisabledClick(value);
+		if (!this.props.disabled) {
+			this.fire('select', value);
+		} else {
+			this.fire('disabledClick', value);
 		}
 	}
 }
@@ -94,13 +93,7 @@ class ColorComponent extends UIEXComponent {
 	}
 
 	handleClick = () => {
-		let {onSelect, value} = this.props;
-		if (typeof onSelect == 'function') {
-			if (typeof value == 'string') {
-				value = replace(/^\#/, '', value);
-			}
-			onSelect(value);
-		}
+		this.fire('select', replace(/^\#/, '', this.props.value));
 	}
 }
 

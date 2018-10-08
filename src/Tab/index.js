@@ -1,6 +1,5 @@
 import React from 'react';
 import {Button} from '../Button';
-import {Icon} from '../Icon';
 import {TabPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -21,20 +20,11 @@ export class Tab extends Button {
 
 	handleClick = (e) => {
 		e.stopPropagation();
-		const {
-			value,
-			disabled,
-			onSelect,
-			onDisabledSelect,
-			single
-		} = this.props;
-
-		if (!disabled) {
-			if (typeof onSelect == 'function') {
-				onSelect(value, single);
-			}
-		} else if (typeof onDisabledSelect == 'function') {
-			onDisabledSelect(value);
+		const {value, disabled, single} = this.props;
+		if (!disabled) {			
+			this.fire('select', value, single);
+		} else {
+			this.fire('disabledClick', value);
 		}
 	}
 }

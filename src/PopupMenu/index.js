@@ -142,18 +142,13 @@ export class PopupMenu extends UIEXBoxContainer {
 	}
 
 	handleBoxHide = () => {
-		const {onCollapse} = this.props;
-		if (typeof onCollapse == 'function') {
-			onCollapse();
-		}
+		this.fire('collapse');
 	}
 
 	handleEnter() {
-		const {onEnter, multiple} = this.props;
+		const {multiple} = this.props;
 		if (!multiple) {
-			if (typeof onEnter == 'function') {
-				onEnter();
-			}
+			this.fire('enter');
 		} else {
 			const idx = this.state.currentSelected;
 			const value = this.itemValues[idx];
@@ -165,14 +160,11 @@ export class PopupMenu extends UIEXBoxContainer {
 	}
 
 	handleEscape() {
-		const {onEscape} = this.props;
-		if (typeof onEscape == 'function') {
-			onEscape();
-		}
+		this.fire('escape');
 	}
 
 	handleSelect = (value, idx, option) => {
-		const {onSelect, onSelectOption, value: currentValue, multiple} = this.props;
+		const {value: currentValue, multiple} = this.props;
 		const {single} = option;
 		if (multiple && currentValue && value) {
 			if (!(currentValue instanceof Array)) {
@@ -192,12 +184,8 @@ export class PopupMenu extends UIEXBoxContainer {
 				value = this.removeSingles(value);
 			}
 		}
-		if (typeof onSelect == 'function') {
-			onSelect(value);
-		}
-		if (typeof onSelectOption == 'function') {
-			onSelectOption(idx, option);
-		}
+		this.fire('select', value);
+		this.fire('selectOption', idx, option);
 		this.fireChange(value);
 	}
 
@@ -226,15 +214,10 @@ export class PopupMenu extends UIEXBoxContainer {
 	}
 
 	handleSelectByArrow(value, idx) {
-		const {onSelectByArrow, onSelectOption} = this.props;
-		if (typeof onSelectByArrow == 'function') {
-			onSelectByArrow(value);
-		}
 		this.fireChange(value);
 		const option = this.getOption(idx);
-		if (typeof onSelectOption == 'function') {
-			onSelectOption(idx, option);
-		}		
+		this.fire('selectOption', idx, option);
+		this.fire('selectByArrow', value);
 	}
 
 	getOption(childIdx) {
@@ -259,10 +242,7 @@ export class PopupMenu extends UIEXBoxContainer {
 	}
 
 	fireChange(value) {
-		const {onChange} = this.props;
-		if (typeof onChange == 'function') {
-			onChange(value);
-		}
+		this.fire('change', value);
 	}
 
 	handleKeyDown = (e) => {
@@ -348,18 +328,16 @@ export class PopupMenuItem extends UIEXComponent {
 
 	handleClick = (e) => {
 		e.stopPropagation();
-		const {value, onSelect, children, icon, iconType, withTopDelimiter, withBottomDelimiter, index, single} = this.props;
-		if (typeof onSelect == 'function') {
-			const option = {
-				value,
-				title: children,
-				icon,
-				iconType,
-				withTopDelimiter,
-				withBottomDelimiter,
-				single
-			}
-			onSelect(value, index, option);
-		}
+		const {value, children, icon, iconType, withTopDelimiter, withBottomDelimiter, index, single} = this.props;
+		const option = {
+			value,
+			title: children,
+			icon,
+			iconType,
+			withTopDelimiter,
+			withBottomDelimiter,
+			single
+		};
+		this.fire('select', value, index, option);
 	}
 }

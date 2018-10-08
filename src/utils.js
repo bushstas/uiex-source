@@ -414,4 +414,14 @@ export const popupQueue = new PopupQueue();
 export const ucfirst = (str) => {
 	const f = str.charAt(0).toUpperCase();
 	return f + str.substr(1, str.length - 1);
-}	
+}
+
+export const getString = (str, defaultValue = '') => {
+	if (typeof defaultValue != 'string') {
+		defaultValue = '';
+	}
+	if (!str || typeof str != 'string') {
+		return defaultValue;
+	}
+	return str;
+}

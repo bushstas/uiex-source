@@ -55,13 +55,11 @@ export class SliderScale extends UIEXComponent {
 	}
 
 	handleTrackClick = (e) => {
-		const {onClick, value, disabled, onDisabledClick} = this.props;
-		if (!disabled && typeof onClick == 'function') {
+		if (!this.props.disabled) {
 			e.stopPropagation();
-			onClick(value);
-		} else if (disabled && typeof onDisabledClick == 'function') {
-			e.stopPropagation();
-			onDisabledClick(value);
+			this.fire('click', this.props.value);
+		} else {
+			this.fire('disabledClick');
 		}
 	}
 }

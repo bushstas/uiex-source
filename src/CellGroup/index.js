@@ -37,7 +37,7 @@ export class CellGroup extends UIEXComponent {
 	getRowStyle() {
 		const rowMargin = getNumber(this.props.rowMargin);
 		const {height} = this.props;
-		if (this.isCachedPropsChanged(PROPS_LIST, true)) {
+		if (this.isCachedPropsChanged(PROPS_LIST)) {
 			this.cachedRowStyle = null;
 			if (rowMargin) {
 				if (isValidAndNotEmptyNumericStyle(height)) {
@@ -328,18 +328,13 @@ export class CellGroup extends UIEXComponent {
 	}
 }
 
-const CELL_PROPS_LIST = ['leftPadding', 'rightPadding', 'leftMargin', 'minHeight'];
-
 export class Cell extends UIEXComponent {
 	static propTypes = CellPropTypes;
 	static displayName = 'Cell';
+	static propsToCheck = ['borderColor', 'borderWidth', 'borderStyle', 'borderRadius', 'bgColor', 'padding'];
 
 	addClassNames(add) {
 		add('align-self-' + this.props.alignSelf, this.props.alignSelf);
-	}
-
-	isCustomStyleChanged() {
-		return this.isCachedPropsChanged(CELL_PROPS_LIST, true);
 	}
 
 	getCustomStyle() {
@@ -408,10 +403,7 @@ class CellGroupRow extends UIEXComponent {
 class CellContent extends UIEXComponent {
 	static className = 'cell-content';
 	static displayName = 'CellContent';
-
-	isCustomStyleChanged() {
-		return this.isCachedPropsChanged('minHeight', true);
-	}
+	static propsToCheck = ['minHeight'];
 
 	getCustomStyle() {
 		return {minHeight: getNumber(this.props.minHeight)};

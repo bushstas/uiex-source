@@ -28,8 +28,11 @@ export class SelectObject extends UIEXComponent {
 	}
 
 	addClassNames(add) {
+		const {disabled} = this.props;
+		const {focused} = this.state;
 		add('control');
 		add('without-options', !this.hasOptions());
+		add('select-focused', focused && !disabled);
 	}
 
 	getCustomProps() {
@@ -127,8 +130,8 @@ export class SelectObject extends UIEXComponent {
 					onClick={this.getItemClickHandler()}
 				>
 					<Radio 
-						checked={value == null} 
-						value={null} 
+						value={value == null} 
+						name={null} 
 						onChange={this.handleRadioClick}
 					>
 						<JsonPreview data={null} />
@@ -155,8 +158,8 @@ export class SelectObject extends UIEXComponent {
 						onClick={this.getItemClickHandler(i, options[i])}
 					>
 						<Radio 
-							checked={active} 
-							value={i} 
+							value={active} 
+							name={i} 
 							onChange={this.handleRadioClick}
 						>
 							<JsonPreview data={options[i]} />
@@ -176,17 +179,20 @@ export class SelectObject extends UIEXComponent {
 
 	handleClick = (e) => {
 		e.stopPropagation();
-		const {value, name, onFocus, onBlur, disabled, onDisabledClick} = this.props;
+		const {value, name, disabled, readOnly} = this.props;
+		if (readOnly) {
+			return;
+		}
 		const focused = !this.state.focused;
 		if (!disabled) {
 			this.setState({focused});
-			if (focused && typeof onFocus == 'function') {
-				onFocus(value, name);
-			} else if (!focused && typeof onBlur == 'function') {
-				onBlur(value, name);
+			if (focused) {				
+				this.fire('focus', value, name);
+			} else {
+				this.fire('blur', value, name);
 			}
-		} else if (typeof onDisabledClick == 'function') {
-			onDisabledClick(name);
+		} else {
+			this.fire('disabledClick', name);
 		}
 	}
 
@@ -202,18 +208,15 @@ export class SelectObject extends UIEXComponent {
 	}
 
 	handleItemClick(data) {
-		const {onChange, name} = this.props;
-		if (typeof onChange == 'function') {
-			onChange(data, name);
-		}
+		this.fire('change', data, this.props.name);
 		this.setState({focused: false});
 	}
 
-	handleRadioClick = (name, value) => {
-		if (value == null) {
-			value = '';
+	handleRadioClick = (value, name) => {
+		if (name == null) {
+			name = '';
 		}
-		this.refs['preview' + value].click();
+		this.refs['preview' + name].click();
 	}
 
 	hasOptions() {

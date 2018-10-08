@@ -246,7 +246,7 @@ class InputArrayComponent extends UIEXComponent {
 	}
 
 	handleItemRightClick = (e, index) => {
-		const {rightClickRemove, onRemoveItem} = this.props;
+		const {rightClickRemove} = this.props;
 		if (rightClickRemove || !e) {
 			if (e) {
 				e.preventDefault();
@@ -256,9 +256,7 @@ class InputArrayComponent extends UIEXComponent {
 			const removedValue = value[index];
 			value.splice(index, 1);
 			this.fireChange(value);
-			if (typeof onRemoveItem == 'function') {
-				onRemoveItem(removedValue, index, value);
-			}
+			this.fire('removeItem', index, value);
 		}
 	}
 
@@ -412,10 +410,7 @@ class InputArrayComponent extends UIEXComponent {
 		}
 		if (prevCount != value.length) {
 			this.fireChange(value);
-			const {onAddItem} = this.props;
-			if (typeof onAddItem == 'function') {
-				onAddItem(addedItemArr, value);
-			}
+			this.fire('addItem', addedItemArr, value);
 		}
 	}
 
@@ -456,10 +451,7 @@ class InputArrayComponent extends UIEXComponent {
 	}
 
 	fireChange(value) {
-		const {onChange} = this.props;
-		if (typeof onChange == 'function') {
-			onChange([...value]);
-		}
+		this.fire('change', [...value]);
 	}
 
 	filterUnique(value) {
@@ -539,19 +531,16 @@ class InputArrayItem extends React.PureComponent {
 	}
 
 	handleClick = (e) => {
-		const {index, onSelect} = this.props;
 		e.stopPropagation();
-		if (typeof onSelect == 'function') {
-			onSelect(index);
-		}
+		this.fire('select', this.props.index);
 	}
 
 	handleContextMenu = (e) => {
-		this.props.onRightClick(e, this.props.index);
+		this.fire('rightClick', e, this.props.index);
 	}
 
 	handleDoubleClick = (e) => {
-		this.props.onDoubleClick(e, this.props.index);
+		this.fire('doubleClick', e, this.props.index);
 	}
 }
 

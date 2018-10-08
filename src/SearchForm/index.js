@@ -1,5 +1,4 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
 import {UIEXForm} from '../UIEXComponent';
 import {Input} from '../Input';
 import {Button} from '../Button';
@@ -10,16 +9,11 @@ import '../style.scss';
 import './style.scss';
 
 const DEFAULT_ICON = 'search';
-const PROPS_LIST = 'value';
 
-class SearchFormComponent extends UIEXForm {
+export class SearchForm extends UIEXForm {
 	static propTypes = SearchFormPropTypes;
 	static className = 'search-form';
 	static displayName = 'SearchForm';
-
-	static getDerivedStateFromProps({addIfChanged}) {
-		addIfChanged('value');
-	}
 
 	addClassNames(add) {
 		super.addClassNames(add);
@@ -31,7 +25,8 @@ class SearchFormComponent extends UIEXForm {
 	}
 
 	renderContent() {
-		let {			
+		let {
+			value,
 			buttonColor,
 			buttonWidth,
 			buttonHeight,
@@ -52,7 +47,7 @@ class SearchFormComponent extends UIEXForm {
 		return (
 			<div className={this.getClassName('controls')}>
 				<Input
-					value={this.state.value}
+					value={value}
 					className={this.getClassName('input')}
 					placeholder={placeholder}
 					disabled={disabled}
@@ -82,45 +77,31 @@ class SearchFormComponent extends UIEXForm {
 	}
 
 	handleChange = (value) => {
-		const {onChange} = this.props;
-
-		if (typeof onChange == 'function') {
-			onChange(value);
-		}
-		this.setState({value});
+		this.fire('change', value);
 	}
 
-	handleSubmit = (value) => {
-		const {onSubmit} = this.props;
-		if (typeof onSubmit == 'function') {
-			onSubmit(this.state.value);
-		}
+	handleSubmit = () => {
+		this.fire('submit', this.props.value);
 	}
 
 	handleFocus = () => {
 		this.setState({focused: true});
-		const {focusedWidth, onFocus} = this.props;
+		const {focusedWidth} = this.props;
 		if (focusedWidth) {
 			clearTimeout(this.timeout);
 			this.refs.main.style.width = getNumberInPxOrPercent(focusedWidth);
 		}
-		if (typeof onFocus == 'function') {
-			onFocus();
-		}
+		this.fire('focus');
 	}
 
 	handleBlur = () => {
 		setTimeout(() => this.setState({focused: false}), 100);
-		const {focusedWidth, width, onBlur} = this.props;
+		const {focusedWidth, width} = this.props;
 		if (focusedWidth) {
 			this.timeout = setTimeout(() => {			
 				this.refs.main.style.width = getNumberInPxOrPercent(width);	
 			}, 200);
 		}		
-		if (typeof onBlur == 'function') {
-			onBlur();
-		}
+		this.fire('blur');
 	}
 }
-
-export const SearchForm = withStateMaster(SearchFormComponent, PROPS_LIST, null, UIEXForm);

@@ -94,39 +94,30 @@ class AutoCompleteComponent extends Select {
 
 	handleClick(e) {
 		e.stopPropagation();
-		const {name, disabled, onDisabledClick} = this.props;
-		if (disabled && typeof onDisabledClick == 'function') {
-			onDisabledClick(name);
+		const {name, disabled} = this.props;
+		if (disabled) {
+			this.fire('disabledClick', name);
 		}
 	}
 
 	handleFocus = (value, name) => {
-		const {onFocus} = this.props;		
 		this.valueBeforeFocus = value;		
 		if (!this.isPassive()) {
 			this.setState({focused: true});
 		}
-		if (typeof onFocus == 'function') {
-			onFocus(value, name);
-		}
+		this.fire('focus', value, name);
 	}
 
 	handleBlur = () => {
-		const {value, name, onBlur} = this.props;		
-		if (typeof onBlur == 'function') {
-			onBlur(value, name);
-		}
+		const {value, name} = this.props;
+		this.fire('blur', value, name);
 	}
 
 	handleInputValueChange = (value) => {
 		this.selectedValue = null;
-		const {name, onChange, onInput} = this.props;
-		if (typeof onChange == 'function') {
-			onChange(value, name);
-		}
-		if (typeof onInput == 'function') {
-			onInput(value, name);
-		}
+		const {name} = this.props;
+		this.fire('change', value, name);
+		this.fire('input', value, name);
 	}
 
 	handleSelect(value) {
@@ -137,10 +128,7 @@ class AutoCompleteComponent extends Select {
 		this.selectedValue = value;
 		this.inputedValue = '';
 		super.handleSelect(value);
-		const {onPick} = this.props;
-		if (typeof onPick == 'function') {
-			onPick(value, this.props.name);
-		}
+		this.fire('pick', value, this.props.name);
 	}
 
 	handleEnter() {
@@ -155,10 +143,7 @@ class AutoCompleteComponent extends Select {
 	}
 
 	fireSelect(value) {
-		const {name, onSelect} = this.props;
-		if (typeof onSelect == 'function') {
-			onSelect(value, name);
-		}
+		this.fire('select', value, this.props.name);
 	}
 
 	handleIconClick = (e) => {
@@ -170,10 +155,7 @@ class AutoCompleteComponent extends Select {
 	}
 
 	handleInputEnter = (value, name) => {
-		const {onEnter} = this.props;
-		if (typeof onEnter == 'function') {
-			onEnter(value, name);
-		}
+		this.fire('enter', value, name);
 	}
 
 	hidePopup = () => {

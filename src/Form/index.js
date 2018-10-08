@@ -102,10 +102,7 @@ export class Form extends UIEXComponent {
 		return null;
 	}
 
-	handleChange = (name, value, checked) => {
-		const {onChange} = this.props;
-		if (typeof onChange == 'function') {
-			onChange(name, value, checked);
-		}
+	handleChange = (name, value) => {
+		this.fire('change', name, value);
 	}
 }

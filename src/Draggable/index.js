@@ -315,15 +315,12 @@ export class Draggable extends UIEXComponent {
 
 	handleMouseDown = (e) => {
 		e.preventDefault();
-		const {onDragStart, name} = this.props;
 		this.x = e.clientX;
 		this.y = e.clientY;
 		document.body.addEventListener('mousemove', this.handleMouseMove, false);
 		document.body.addEventListener('mouseup', this.handleMouseUp, false);
 		this.initDragLimits();
-		if (typeof onDragStart == 'function') {
-			onDragStart(this.X, this.Y, name);
-		}
+		this.fire('dragStart', this.X, this.Y, this.props.name);
 	}
 
 	handleMouseMove = (e) => {
@@ -387,12 +384,9 @@ export class Draggable extends UIEXComponent {
 	}
 
 	handleMouseUp = () => {
-		const {onDragEnd, name} = this.props;
-		if (typeof onDragEnd == 'function') {
-			onDragEnd(this.X, this.Y, name);
-		}
 		document.body.removeEventListener('mousemove', this.handleMouseMove, false);
- 		document.body.removeEventListener('mouseup', this.handleMouseUp, false);
+		document.body.removeEventListener('mouseup', this.handleMouseUp, false);
+		this.fire('dragEnd', this.X, this.Y, this.props.name);
 	}
 }
 

@@ -138,10 +138,7 @@ class ColorPickerComponent extends UIEXComponent {
 			huePos.style.left = h * 100 / 360 + '%';
 			satval.style.backgroundColor = 'hsl(' + h + ', 100%, 50%)';
 			this.fireChange(getColor({h, s, l, a}));
-			const {onChangeHue} = this.props;
-			if (typeof onChangeHue == 'function') {
-				onChangeHue(h);
-			}
+			this.fire('changeHue', h);
 		}
 	}
 
@@ -366,10 +363,7 @@ class ColorPickerComponent extends UIEXComponent {
 				}
 			}
 			this.setState(state, () => {
-				const {onChange} = this.props;
-				if (typeof onChange == 'function') {
-					onChange(value, data);
-				}
+				this.fire('change', value, data);				
 				if (typeof callback == 'function') {
 					callback();
 				}

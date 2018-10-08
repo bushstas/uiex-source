@@ -62,7 +62,7 @@ export class InputBoolean extends UIEXComponent {
 		const {value, icon, iconType} = this.props;
 		return (
 			<Checkbox 
-				checked={value}
+				value={value}
 				icon={icon}
 				iconType={iconType}
 				onChange={this.handleClick}
@@ -71,9 +71,7 @@ export class InputBoolean extends UIEXComponent {
 	}
 
 	handleClick = () => {
-		const {value, onChange, name} = this.props;
-		if (typeof onChange == 'function') {
-			onChange(!value, name);
-		}
+		const {value, name} = this.props;
+		this.fire('change', !value, name);
 	}
 }

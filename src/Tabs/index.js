@@ -1,9 +1,8 @@
 import React from 'react';
-import {PROPTYPE} from '../consts';
 import {UIEXButtons} from '../UIEXComponent';
 import {Button} from '../Button';
 import {Icon} from '../Icon';
-import {getClassNameBuilder} from '../utils';
+import {getClassNameBuilder, getString} from '../utils';
 import {TabsPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -15,7 +14,7 @@ const NEW_TAB_CAPTION = 'New tab';
 export class Tabs extends UIEXButtons {
 	static propTypes = TabsPropTypes;
 	static properChildren = 'Tab';
-	static className = 'Tabs';
+	static displayName = 'Tabs';
 
 	addClassNames(add) {		
 		add('dynamic-tabs', this.props.dynamic);
@@ -82,7 +81,6 @@ export class Tabs extends UIEXButtons {
 		if (!(children instanceof Array)) {
 			children = [children];
 		}
-		const activeTab = this.activeTab;
 		return children.map((child, idx) => this.isProperChild(child.type) && this.isTabActive(child, idx) ? child.props.children : null);
 	}
 
@@ -131,7 +129,7 @@ export class Tabs extends UIEXButtons {
 					</div>
 				</div>
 				{!simple &&
-					<div className="uiex-tabs-content">
+					<div className={this.getClassName('content')}>
 						{this.renderContent()}
 					</div>
 				}
@@ -203,20 +201,12 @@ export class Tabs extends UIEXButtons {
 	}
 
 	handleAddTab = () => {
-		let {onAddTab, emptyTabName} = this.props;
-		if (typeof onAddTab == 'function') {
-			if (!emptyTabName || typeof emptyTabName != 'string') {
-				emptyTabName = NEW_TAB_CAPTION;
-			}
-			onAddTab(emptyTabName + ' ' + this.getNextIndex());
-		}
+		const emptyTabName = getString(this.props.emptyTabName, NEW_TAB_CAPTION);
+		this.fire('addTab', emptyTabName + ' ' + this.getNextIndex());
 	}
 
 	handleRemoveTab = (index, value) => {
-		const {onRemoveTab} = this.props;
-		if (typeof onRemoveTab == 'function') {
-			onRemoveTab(index, value);
-		}
+		this.fire('removeTab', index, value);
 	}
 
 	getNextIndex() {

@@ -1,5 +1,4 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
 import {UIEXComponent} from '../UIEXComponent';
 import {MaterialIcon} from './MaterialIcon';
 import {FontAwesomeIcon} from './FontAwesomeIcon';
@@ -14,23 +13,8 @@ import {IcomoonIcon} from './IcomoonIcon';
 import '../style.scss';
 import './style.scss';
 
-const PROPS_LIST = 'style';
-
-class IconComponent extends UIEXComponent {
+export class Icon extends UIEXComponent {
 	static displayName = 'Icon';
-
-	static getDerivedStateFromProps({add, isChanged, nextProps}) {
-		if (isChanged('style')) {
-			if (this.constructor.defaultStyles instanceof Object) {
-				add('style', {
-					...this.constructor.defaultStyles.main,
-					...nextProps.style
-				});
-			} else {
-				add('style');
-			}		
-		}
-	}
 	
 	render() {
 		let TypedIcon = MaterialIcon;
@@ -68,9 +52,7 @@ class IconComponent extends UIEXComponent {
 			break;
 		}
 		return (
-			<TypedIcon {...this.props} style={this.state.style}/>
+			<TypedIcon {...this.props}/>
 		)
 	}
 }
-
-export const Icon = withStateMaster(IconComponent, PROPS_LIST, null, UIEXComponent);

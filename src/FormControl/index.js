@@ -12,18 +12,8 @@ export class FormControl extends Cell {
 	static displayName = 'FormControl';
 
 	addChildProps(child, props) {
-		const {type: control} = child;
-		switch (control.name) {
-			case 'Checkbox':
-				if (typeof child.props.onChange != 'function') {
-					props.onChange = this.handleCheckboxChange;
-				}
-			break;
-
-			default:
-				if (typeof child.props.onChange != 'function') {
-					props.onChange = this.handleChange;
-				}
+		if (typeof child.props.onChange != 'function') {
+			props.onChange = this.handleChange;
 		}
 	}
 
@@ -45,16 +35,6 @@ export class FormControl extends Cell {
 	}
 
 	handleChange = (value, name) => {
-		const {onChange} = this.props;
-		if (typeof onChange == 'function') {
-			onChange(name, value);
-		}
-	}
-
-	handleCheckboxChange = (checked, name, value) => {
-		const {onChange} = this.props;
-		if (typeof onChange == 'function') {
-			onChange(name, value, checked);
-		}
+		this.fire('change', name, value);
 	}
 }

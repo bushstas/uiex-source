@@ -51,13 +51,13 @@ export class RadioGroup extends UIEXComponent {
 		this.firstValue = null;
 	}
 
-	addChildProps(child, props, idx) {
+	addChildProps(child, props) {
 		let {value, multiline, onDisabledClick} = this.props;
 		const {value: childValue} = child.props;
 		if (!this.firstValue) {
 			this.firstValue = childValue;
 		}
-		props.checked = value == childValue;
+		props.value = value == childValue;
 		if (typeof child.props.multiline != 'boolean') {
 			props.multiline = multiline;
 		}
@@ -103,7 +103,7 @@ export class RadioGroup extends UIEXComponent {
 		return [];
 	}
 
-	renderOption = (item, idx) => {
+	renderOption = (item) => {
 		const {value: currentValue, disabled, onDisabledClick, multiline} = this.props;
 		let value, title;
 		if (typeof item == 'string' || typeof item == 'number') {
@@ -121,9 +121,9 @@ export class RadioGroup extends UIEXComponent {
 		return (
 			<Radio 
 				key={value}
+				name={value}
 				label={title}
-				value={value}
-				checked={checked}
+				value={checked}
 				width={this.checkboxWidth}
 				disabled={disabled}
 				multiline={multiline}
@@ -138,10 +138,9 @@ export class RadioGroup extends UIEXComponent {
 		e.stopPropagation();
 	}
 
-	handleChange = (radioName, radioValue) => {
-		const {name, onChange, value} = this.props;
-		if (value !== radioValue && typeof onChange == 'function') {
-			onChange(radioValue, name);
+	handleChange = (value, name) => {
+		if (name !== this.props.value) {
+			this.fire('change', name, this.props.name);
 		}
 	}
 }

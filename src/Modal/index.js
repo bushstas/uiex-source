@@ -177,10 +177,7 @@ class ModalComponent extends UIEXComponent {
 	}
 
 	fireClose() {
-		const {onClose} = this.props;
-		if (typeof onClose == 'function') {
-			onClose();
-		}
+		this.fire('close');
 	}
 
 	initPosition = () => {
@@ -349,11 +346,7 @@ class ModalComponent extends UIEXComponent {
 	}
 
 	handleDrag = (x, y) => {
-		const {onDrag} = this.props;
-		if (typeof onDrag == 'function') {
-			this.dragged = true;
-			onDrag(x, y);
-		}
+		this.dragged = this.fire('drag', x, y);
 	}
 
 	handleClick = (e) => {
@@ -372,10 +365,7 @@ class ModalComponent extends UIEXComponent {
 	}
 
 	handleExpand = () => {
-		const {onExpand, expanded} = this.props;
-		if (typeof onExpand == 'function') {
-			onExpand(!expanded);
-		}
+		this.fire('expand', !this.props.expanded);
 	}
 
 	handleHeaderDoubleClick = () => {

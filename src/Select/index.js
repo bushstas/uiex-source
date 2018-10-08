@@ -65,8 +65,8 @@ class SelectComponent extends UIEXBoxContainer {
 	}
 
 	addClassNames(add) {
-		const {focused, disabled} = this.state;
-		const {value} = this.props;
+		const {focused} = this.state;
+		const {value, disabled} = this.props;
 		add('control');
 		add('select-focused', focused && !disabled);
 		add('without-options', !this.hasOptions);
@@ -273,26 +273,20 @@ class SelectComponent extends UIEXBoxContainer {
 	handlePromiseResolve = (options) => {
 		if (!this.isUnmounted && this.pendingPromise == this.props.options) {
 			this.setState({options, placeholder: null});
-			const {onPromiseResolve} = this.props;
-			if (typeof onPromiseResolve == 'function') {
-				onPromiseResolve(options);
-			}
+			this.fire('promiseResolve', options);
 		}
 	}
 
 	handlePromiseReject = (error) => {
 		if (!this.isUnmounted && this.pendingPromise == this.props.options) {
 			this.setState({options: PENDING_ERROR, placeholder: null});
-			const {onPromiseReject} = this.props;
-			if (typeof onPromiseReject == 'function') {
-				onPromiseReject(error);
-			}
+			this.fire('promiseReject', error);
 		}
 	}
 
 	handleClick(e) {
 		e.stopPropagation();
-		const {value, name, onFocus, onBlur, disabled, onDisabledClick, readOnly} = this.props;
+		const {value, name, disabled, readOnly} = this.props;
 		if (readOnly) {
 			return;
 		}
@@ -300,13 +294,13 @@ class SelectComponent extends UIEXBoxContainer {
 		this.valueBeforeFocus = value;
 		if (!disabled) {
 			this.setState({focused});
-			if (focused && typeof onFocus == 'function') {
-				onFocus(value, name);
-			} else if (!focused && typeof onBlur == 'function') {
-				onBlur(value, name);
+			if (focused) {				
+				this.fire('focus', value, name);
+			} else {
+				this.fire('blur', value, name);
 			}
-		} else if (typeof onDisabledClick == 'function') {
-			onDisabledClick(name);
+		} else {
+			this.fire('disabledClick', name);
 		}
 	}
 
@@ -335,25 +329,20 @@ class SelectComponent extends UIEXBoxContainer {
 	}
 
 	handleSelectByArrow(value) {
-		const {disabled, readOnly} = this.props;
+		const {disabled, readOnly, name} = this.props;
 		if (disabled || readOnly) {
 			return;
 		}
 		this.fireChange(value);
-		const {name, onSelect} = this.props;
-		if (typeof onSelect == 'function') {
-			onSelect(value, name);
-		}
+		this.fire('select', value, name);
 	}
 
 	handleSelectOption = (index, option) => {
-		const {name, onSelectOption, disabled, readOnly} = this.props;
+		const {name, disabled, readOnly} = this.props;
 		if (disabled || readOnly) {
 			return;
-		}		
-		if (typeof onSelectOption == 'function') {
-			onSelectOption(index, option, name);
 		}
+		this.fire('selectOption', index, option, name);
 	}
 
 	fireChange(value) {
@@ -365,19 +354,14 @@ class SelectComponent extends UIEXBoxContainer {
 				}
 			}
 			value = values;
-		}
-		const {onChange, name} = this.props;
-		if (typeof onChange == 'function') {
-			onChange(value, name);
-		}
+		}		
+		this.fire('change', value, this.props.name);
 	}
 
 	hidePopup = () => {
 		this.setState({focused: false});
-		const {value, name, onBlur} = this.props;
-		if (typeof onBlur == 'function') {
-			onBlur(value, name);
-		}
+		const {value, name} = this.props;
+		this.fire('blur', value, name);
 	}
 
 	hasEmptyOption() {

@@ -334,9 +334,11 @@ export class UIEXComponent extends React.PureComponent {
 	
 	fire(eventName, ...args) {
 		const eventPropName = 'on' + ucfirst(eventName);
-		if (typeof this.props[eventPropName] == 'function') {
+		const hasHandler = typeof this.props[eventPropName] == 'function';
+		if (hasHandler) {
 			this.props[eventPropName].apply(this, args);
 		}
+		return hasHandler;
 	}
 
 	firePropChange(eventName, propName, args, propValue) {
@@ -358,7 +360,7 @@ export class UIEXComponent extends React.PureComponent {
 		}
 	}
 
-	isCachedPropsChanged(list, cacheIfChanged = false) {
+	isCachedPropsChanged(list) {
 		this.cachedProps = this.cachedProps || {};
 		if (!(list instanceof Array)) {
 			if (this.props[list] !== this.cachedProps[list]) {
@@ -369,9 +371,7 @@ export class UIEXComponent extends React.PureComponent {
 		}
 		for (let i = 0; i < list.length; i++) {
 			if (this.props[list[i]] !== this.cachedProps[list[i]]) {
-				if (cacheIfChanged) {
-					this.cacheProps(list);
-				}
+				this.cacheProps(list);
 				return true;
 			}
 		}

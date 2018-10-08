@@ -1,24 +1,21 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
 import {UIEXForm} from '../UIEXComponent';
 import {Icon} from '../Icon';
 import {Button} from '../Button';
 import {ButtonGroup} from '../ButtonGroup';
-import {getNumberOrNull} from '../utils';
+import {getNumericProp} from '../utils';
 import {RateFormPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
 
 const DEFAULT_SCALE = 5;
-const DEFAULT_MIN_SCALE = 3;
-const DEFAULT_MAX_SCALE = 10;
+const MIN_SCALE = 3;
+const MAX_SCALE = 10;
 const DEFAULT_ICON = 'star_border';
 const DEFAULT_ACTIVE_ICON = 'star';
 
-const PROPS_LIST = ['value', 'scale', 'normalColor', 'activeColor', 'hoverColor'];
-
-class RateFormComponent extends UIEXForm {
+export class RateForm extends UIEXForm {
 	static propTypes = RateFormPropTypes;
 	static className = 'rate-form';
 	static displayName = 'RateForm';
@@ -27,38 +24,6 @@ class RateFormComponent extends UIEXForm {
 		icon: DEFAULT_ICON,
 		activeIcon: DEFAULT_ACTIVE_ICON
 	};
-
-	static getDerivedStateFromProps({nextProps, isChanged, add}) {
-		if (isChanged('scale')) {
-			let {scale} = nextProps;
-			scale = getNumberOrNull(scale) || DEFAULT_SCALE;
-			scale = Math.max(DEFAULT_MIN_SCALE, scale);
-			scale = Math.min(DEFAULT_MAX_SCALE, scale);
-			add('scale', scale);
-		}
-		if (isChanged('value')) {
-			const value = getNumberOrNull(nextProps.value);
-			add('active', typeof value == 'number' && value > 0 ? value - 1 : null);
-		}
-		if (isChanged('normalColor')) {
-			const {normalColor} = nextProps;
-			if (normalColor && typeof normalColor == 'string') {
-			 	add('normalStyle', {color: normalColor});
-			}
-		}
-		if (isChanged('activeColor')) {
-			const {activeColor} = nextProps;
-			if (activeColor && typeof activeColor == 'string') {
-			 	add('activeStyle', {color: activeColor});
-			}
-		}
-		if (isChanged('hoverColor')) {
-			const {hoverColor} = nextProps;
-			if (hoverColor && typeof hoverColor == 'string') {
-			 	add('hoverStyle', {color: hoverColor});
-			}
-		}
-	}
 
 	addClassNames(add) {
 		super.addClassNames(add);
@@ -75,6 +40,39 @@ class RateFormComponent extends UIEXForm {
 			activeIcon = DEFAULT_ACTIVE_ICON;
 		}
 		return isActive ? activeIcon : icon;
+	}
+
+	getActive() {
+		const {value} = this.props;
+		return typeof value == 'number' ? value - 1 : null;
+	}
+
+	getScale() {
+		return getNumericProp(this.props.scale, DEFAULT_SCALE, MIN_SCALE, MAX_SCALE);
+	}
+
+	getNormalStyle() {
+		if (this.isCachedPropsChanged('normalColor')) {
+			const {normalColor} = this.props;
+			this.cachedNormalStyle = !!normalColor ? {color: normalColor} : null;
+		}
+		return this.cachedNormalStyle;	
+	}
+
+	getActiveStyle() {
+		if (this.isCachedPropsChanged('activeColor')) {
+			const {activeColor} = this.props;
+			this.cachedActiveStyle = !!activeColor ? {color: activeColor} : null;
+		}
+		return this.cachedActiveStyle;		
+	}
+
+	getHoverStyle() {
+		if (this.isCachedPropsChanged('hoverColor')) {
+			const {hoverColor} = this.props;
+			this.cachedHoverStyle = !!hoverColor ? {color: hoverColor} : null;
+		}
+		return this.cachedHoverStyle;
 	}
 
 	renderContent() {
@@ -124,8 +122,13 @@ class RateFormComponent extends UIEXForm {
 	}
 
 	renderStars() {
-		const {hovered, active, scale, normalStyle, activeStyle, hoverStyle} = this.state;
+		const {hovered} = this.state;
 		const {iconType} = this.props;
+		const active = this.getActive();
+		const scale = this.getScale();
+		const normalStyle = this.getNormalStyle();
+		const activeStyle = this.getActiveStyle();
+		const hoverStyle = this.getHoverStyle();
 		const stars = [];		
 		for (let i = 0; i < scale; i++) {
 			const isHovered = typeof hovered == 'number' && hovered >= i;
@@ -153,39 +156,30 @@ class RateFormComponent extends UIEXForm {
 	}
 
 	handleSubmitClick = () => {
-		const {onSubmit} = this.props;
-		if (typeof onSubmit == 'function') {
-			onSubmit();
-		}
+		this.fire('submit', this.props.value);
 	}
 
 	handleResetClick = () => {
-		this.setState({active: -1});
-		const {onReset} = this.props;
-		if (typeof onReset == 'function') {
-			onReset();
-		}	
+		this.fireReset();
 	}
 
 	handleClick = (active) => {
-		const {resettable, onChange, onReset, disabled, onDisabledClick} = this.props;
-		if (disabled) {
-			if (typeof onDisabledClick == 'function') {
-				onDisabledClick();
-			}
-			return;
+		const currentActive = this.getActive();
+		if (this.props.disabled) {
+			return this.fire('disabledClick');			
 		}
-		if (resettable && active == this.state.active) {
-			active = -1;
-			if (typeof onReset == 'function') {
-				onReset();
-			}
+		const isResetting = active === currentActive;
+		if (isResetting) {
+			this.fireReset();
+		} else {
+			this.fire('change', active + 1);
 		}
-		if (active != this.state.active) {
-			this.setState({active});
-			if (typeof onChange == 'function') {
-				onChange(active + 1);
-			}
+	}
+
+	fireReset() {
+		if (this.props.resettable) {
+			this.fire('reset');
+			this.fire('change', null);
 		}
 	}
 
@@ -201,8 +195,6 @@ class RateFormComponent extends UIEXForm {
 		}
 	}
 }
-
-export const RateForm = withStateMaster(RateFormComponent, PROPS_LIST, null, UIEXForm);
 
 class RateFormStar extends React.PureComponent {
 	static displayName = 'RateFormStar';

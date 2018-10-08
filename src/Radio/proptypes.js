@@ -5,8 +5,7 @@ import {PROPTYPE} from '../consts';
 export const RadioPropTypes = {
 	...UIEXComponentPropTypes,
 	name: PROPTYPE.STRNUM,
-	checked: PropTypes.bool,
-	value: PropTypes.any,
+	value: PropTypes.bool,
 	label: PROPTYPE.STRNUM,
 	multiline: PropTypes.bool,
 	controlStyle: PropTypes.object,

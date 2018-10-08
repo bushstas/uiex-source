@@ -11,10 +11,10 @@ export class Radio extends UIEXComponent {
 	static displayName = 'Radio';
 
 	addClassNames(add) {
-		const {children, multiline, checked, label} = this.props;
+		const {children, multiline, value, label} = this.props;
 		add('control');
 		add('multilined', multiline);
-		add('checked', checked);
+		add('checked', !!value);
 		add('without-content', !children && !label);
 	}
 
@@ -59,14 +59,6 @@ export class Radio extends UIEXComponent {
 
 	handleClick = (e) => {
 		e.stopPropagation();
-		const {
-			value,
-			name,
-			onChange
-		} = this.props;
-
-		if (typeof onChange == 'function') {
-			onChange(name, value);
-		}
+		this.fire('change', true, this.props.name);		
 	}
 }

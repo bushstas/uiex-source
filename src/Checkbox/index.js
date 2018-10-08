@@ -49,6 +49,7 @@ export class Checkbox extends UIEXComponent {
 			}
 		} else {
 			add('checked', this.checked);
+			add('undetermined', this.checked === null);
 		}
 	}
 
@@ -64,7 +65,6 @@ export class Checkbox extends UIEXComponent {
 		}
 		props.onChange = this.handleChildGroupChange;
 		props.onDisabledClick = onDisabledClick;
-		props.mapped = true;
 		props.onUpdate = this.handleChildGroupUpdate;
 		props.hasParentalCheckbox = true;
 	}
@@ -143,8 +143,11 @@ export class Checkbox extends UIEXComponent {
 
 	getChecked() {
 		const {value, name} = this.props;
-		if (value == null) {
+		if (value === undefined) {
 			return false;
+		}
+		if (value === null) {
+			return null;
 		}
 		if (value instanceof Array) {
 			return value.indexOf(name) > -1;
@@ -167,14 +170,22 @@ export class Checkbox extends UIEXComponent {
 					this.checkedValues.splice(index, 1);
 				}
 			}
+			// value = false;
+			// const {length} = this.checkedValues;
+			// if (this.totalSubChecks == length) {
+			// 	value = true;
+			// } else if (length > 0) {
+			// 	value = [...this.checkedValues];
+			// }
 			this.fire('change', [...this.checkedValues], this.props.name);
 		}
 	}
 
 	handleChildGroupUpdate = (checkboxGroup) => {
-		const {checkedStatus, checkedValues} = checkboxGroup;
+		const {checkedStatus, checkedValues, properChildrenCount} = checkboxGroup;
 		this.checkedStatus = checkedStatus;
 		this.checkedValues = checkedValues;
+		this.totalSubChecks = properChildrenCount;
 	}
 
 	setChecked(checked) {

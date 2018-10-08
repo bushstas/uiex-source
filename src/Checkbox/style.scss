@@ -146,7 +146,7 @@
 			border-radius: 0;
 		    background-color: transparent;
 		    box-shadow: none;
-		    padding: 15px 0 15px 28px;
+		    padding: 15px 0 10px 28px;
 
 		    & > .uiex-checkbox-group-controls {
 		    	padding: 0;
@@ -167,7 +167,6 @@
 		}
 	}
 	&.uiex-with-child-group {
-		margin-top: 12px;
 		&:first-child {
 			margin-top: 0;
 		}

@@ -2,7 +2,7 @@ import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {Checkbox} from '../Checkbox';
 import {CheckboxGroupPropTypes} from './proptypes';
-import {addStyleProperty, getNumberOrNull} from '../utils';
+import {getNumberOrNull} from '../utils';
 
 import '../style.scss';
 import './style.scss';
@@ -16,18 +16,6 @@ export class CheckboxGroup extends UIEXComponent {
 	static onlyProperChildren = true;
 	static isControl = true;
 	static displayName = 'CheckboxGroup';
-
-	static flatten(obj) {
-
-	}
-
-	static toArray(obj) {
-
-	}
-
-	static toObject(arr) {
-
-	}
 
 	constructor(props) {
 		super(props);
@@ -58,7 +46,7 @@ export class CheckboxGroup extends UIEXComponent {
 
 	addChildProps(child, props) {
 		let {value, icon, iconType, multiline, onDisabledClick} = this.props;
-		props.value = value;		
+		props.value = value || false;
 		props.icon = icon;
 		props.iconType = iconType;
 		if (typeof child.props.multiline != 'boolean') {
@@ -108,7 +96,7 @@ export class CheckboxGroup extends UIEXComponent {
 		const {checkAll} = this.props;
 		if (checkAll) {
 			return (
-				<div className="uiex-checkbox-group-top">
+				<div className={this.getClassName('top')}>
 					{checkAll && this.renderCheckAll()}
 				</div>
 			)
@@ -121,10 +109,10 @@ export class CheckboxGroup extends UIEXComponent {
 			checkAll = DEFAULT_CHECK_ALL;
 		}
 		return (
-			<div className="uiex-checkbox-group-checkall">
+			<div className={this.getClassName('checkall')}>
 				<Checkbox 
 					ref="checkAll"
-					checked={this.isCheckedAll()}
+					checked={true}
 					icon={icon}
 					iconType={iconType}
 					onChange={this.handleChangeCheckAll}
@@ -135,19 +123,6 @@ export class CheckboxGroup extends UIEXComponent {
 		)
 	}
 
-	isCheckedAll() {
-		if (this.undeterminedCount > 0) {
-			return null;
-		}
-		if (this.checkedCount >= this.properChildrenCount) {
-			return true;
-		}
-		if (this.checkedCount > 0) {
-			return null;
-		}
-		return false;
-	}
-
 	renderOptions() {
 		const {options} = this.props;
 		if (options instanceof Array && options.length > 0) {
@@ -156,42 +131,26 @@ export class CheckboxGroup extends UIEXComponent {
 		return [];
 	}
 
-	getValue() {
-		let {value, mapped} = this.props;
-		if (typeof value == 'string' || typeof value == 'number') {
-			return [value];
-		}
-		if (value instanceof Object) {
-			return value;
-		}
-		return mapped ? {} : [];
-	}
-
 	renderOption = (item) => {
-		const {icon, iconType, disabled, onDisabledClick, multiline} = this.props;
-		const currentValue = this.getValue();
-		let value, title, children, readOnly = false;
+		const {icon, iconType, disabled, onDisabledClick, multiline, value} = this.props;
+		let name, title, children, readOnly = false;
 		if (typeof item == 'string' || typeof item == 'number') {
-			value = item;
+			name = item;
 			title = item;
 		} else if (item instanceof Object) {
-			value = item.value;
+			name = item.value;
 			title = item.title;
 			children = item.children;
 			readOnly = item.readOnly;
 		}
-		const name = value;
-		if (this.filterOption(value)) {
-			const checked = this.getChecked(value, currentValue);
-			this.initCheckStatus(checked, value);
+		if (this.filterOption(name)) {
 			this.properChildrenCount++;
 			return (
 				<Checkbox 
-					key={value}
+					key={name}
 					name={name}
 					label={title}
-					value={this.getChildValue(value, currentValue)}
-					checked={checked}
+					value={value}
 					icon={icon}
 					iconType={iconType}
 					readOnly={readOnly}
@@ -201,6 +160,7 @@ export class CheckboxGroup extends UIEXComponent {
 					onChange={this.handleCheckboxChange}
 					onDisabledClick={onDisabledClick}
 					onUpdate={this.handleCheckboxUpdate}
+					hasParentalGroup
 				>
 					{children instanceof Array && 
 						<CheckboxGroup options={children}/>
@@ -208,13 +168,6 @@ export class CheckboxGroup extends UIEXComponent {
 				</Checkbox>
 			)
 		}
-	}
-
-	getChildValue(itemValue, groupValue) {
-		if (groupValue instanceof Object && groupValue[itemValue] instanceof Object) {
-			return groupValue[itemValue];
-		}
-		return itemValue;
 	}
 
 	getChecked(itemValue, groupValue) {

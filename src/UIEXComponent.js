@@ -140,7 +140,6 @@ export class UIEXComponent extends React.PureComponent {
 					if (vertical) {
 						props.block = true;
 					}
-					props.nativeChildIdx = this.currentProperChildIdx;
 					let isLast = false;
 					if (arr instanceof Array) {
 						isLast = idx == arr.length - 1;

@@ -1,11 +1,31 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {Icon} from '../Icon';
-import {addClass, removeClass} from '../utils';
+import {addClass, removeClass, addToArray, removeFromArray} from '../utils';
 import {CheckboxPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
+
+export const commonGetChecked = function(name) {
+	const {getChecked, value} = this.props;
+	if (typeof getChecked == 'function') {
+		return getChecked(name);
+	}
+	if (value === undefined) {
+		return false;
+	}
+	if (value === null) {
+		return null;
+	}
+	if (value instanceof Array) {
+		return value.indexOf(name) > -1;
+	}
+	if (typeof value == 'boolean') {
+		return value;
+	}
+	return value === name;
+};
 
 export class Checkbox extends UIEXComponent {
 	static propTypes = CheckboxPropTypes;
@@ -24,23 +44,24 @@ export class Checkbox extends UIEXComponent {
 	}
 
 	update() {
-		if (this.properChildrenCount > 0) {
+		if (this.hasChildGroup) {
 			this.setChecked(this.checkedStatus);
 		}
 		this.fire('update', this);
 	}
 
 	initRendering() {
-		this.checked = this.getChecked();
+		this.checked = this.getChecked(this.props.name);
 	}
 
 	addClassNames(add) {
+		
 		let {icon, multiline, readOnly} = this.props;
 		add('control');
 		add('with-icon', icon);
 		add('multilined', multiline);
 		add('read-only', readOnly);		
-		if (this.properChildrenCount > 0) {
+		if (this.hasChildGroup) {
 			add('with-child-group');
 			if (this.checkedStatus === null) {
 				add('undetermined');
@@ -54,8 +75,8 @@ export class Checkbox extends UIEXComponent {
 	}
 
 	addChildProps(child, props) {
-		let {value, icon, iconType, multiline, onDisabledClick} = this.props;
-		props.value = value;
+		let {name, icon, iconType, multiline, onDisabledClick} = this.props;
+		props.name = name;
 		props.checkAll = false;
 		props.maxHeight = null;
 		props.icon = icon;
@@ -67,6 +88,7 @@ export class Checkbox extends UIEXComponent {
 		props.onDisabledClick = onDisabledClick;
 		props.onUpdate = this.handleChildGroupUpdate;
 		props.hasParentalCheckbox = true;
+		props.getChecked = this.getChecked;
 	}
 
 	renderInternal() {
@@ -77,6 +99,7 @@ export class Checkbox extends UIEXComponent {
 		}
 
 		const content = this.renderChildren();
+		this.hasChildGroup = this.properChildrenCount > 0;
 		let additionalContent;
 		if (!label) {
 			label = content;
@@ -137,25 +160,16 @@ export class Checkbox extends UIEXComponent {
 			this.fire('disabledClick', name);
 		} else {
 			const checked = !this.checked;
-			this.fire('change', checked, name);
+			if (this.hasChildGroup) {
+				this.fire('change', checked, this.allValues);
+			} else {
+				this.fire('change', checked, name);
+			}
 		}
 	}
 
-	getChecked() {
-		const {value, name} = this.props;
-		if (value === undefined) {
-			return false;
-		}
-		if (value === null) {
-			return null;
-		}
-		if (value instanceof Array) {
-			return value.indexOf(name) > -1;
-		}
-		if (typeof value == 'boolean') {
-			return value;
-		}
-		return value === name;
+	getChecked = (name) => {
+		return commonGetChecked.call(this, name);
 	}
 
 	handleChildGroupChange = (checked, value) => {
@@ -163,12 +177,9 @@ export class Checkbox extends UIEXComponent {
 			this.fire('change', checked, value);
 		} else {
 			if (checked) {
-				this.checkedValues.push(value);	
+				addToArray(this.checkedValues, value);
 			} else {
-				const index = this.checkedValues.indexOf(value);
-				if (index > -1) {
-					this.checkedValues.splice(index, 1);
-				}
+				removeFromArray(this.checkedValues, value);
 			}
 			// value = false;
 			// const {length} = this.checkedValues;
@@ -182,10 +193,10 @@ export class Checkbox extends UIEXComponent {
 	}
 
 	handleChildGroupUpdate = (checkboxGroup) => {
-		const {checkedStatus, checkedValues, properChildrenCount} = checkboxGroup;
+		const {checkedStatus, checkedValues, allValues} = checkboxGroup;
 		this.checkedStatus = checkedStatus;
 		this.checkedValues = checkedValues;
-		this.totalSubChecks = properChildrenCount;
+		this.allValues = allValues;
 	}
 
 	setChecked(checked) {

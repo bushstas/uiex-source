@@ -113,10 +113,6 @@ export const PROPTYPE = {
 				OPTION_SHAPE
 			])
 		)
-	]),	
-	CHECKBOX_GROUP_VALUE: PropTypes.oneOfType([
-		ARRAY_OF_STRNUMS,
-		PropTypes.object
 	]),
 	FORM_BUTTON_DISPLAY: PropTypes.oneOf(FORM_BUTTON_DISPLAY),
 	SIDES: PropTypes.oneOf(SIDES),

@@ -1,11 +1,12 @@
 import PropTypes from 'prop-types';
 import {UIEXComponentPropTypes} from '../UIEXComponentPropTypes';
 import {PROPTYPE} from '../consts';
+import {VALUE_PROPTYPE} from '../Checkbox/proptypes';
 
 export const CheckboxGroupPropTypes = {
 	...UIEXComponentPropTypes,
 	name: PropTypes.string,
-	value: PROPTYPE.CHECKBOX_GROUP_VALUE,
+	value: VALUE_PROPTYPE,
 	options: PROPTYPE.OPTIONS,
 	mapped: PropTypes.bool,
 	maxHeight: PROPTYPE.STRNUM,

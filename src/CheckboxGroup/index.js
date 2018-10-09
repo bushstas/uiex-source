@@ -2,7 +2,8 @@ import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {Checkbox} from '../Checkbox';
 import {CheckboxGroupPropTypes} from './proptypes';
-import {getNumberOrNull} from '../utils';
+import {getNumberOrNull, addToArray, removeFromArray} from '../utils';
+import {commonGetChecked} from '../Checkbox';
 
 import '../style.scss';
 import './style.scss';
@@ -19,9 +20,13 @@ export class CheckboxGroup extends UIEXComponent {
 
 	constructor(props) {
 		super(props);
-		this.checkedCount = 0;
 		this.checkedValues = [];
+		this.allValues = [];
 		this.checkedStatus = false;
+		this.checkedCount = 0;
+		this.uncheckedCount = 0;
+		this.undeterminedCount = 0;
+		this.statusesMap = new Map();
 	}
 
 	componentDidMount() {
@@ -45,8 +50,8 @@ export class CheckboxGroup extends UIEXComponent {
 	}
 
 	addChildProps(child, props) {
-		let {value, icon, iconType, multiline, onDisabledClick} = this.props;
-		props.value = value || false;
+		let {icon, iconType, multiline, onDisabledClick, getChecked} = this.props;
+		props.value = this.getChecked(child.props.name);
 		props.icon = icon;
 		props.iconType = iconType;
 		if (typeof child.props.multiline != 'boolean') {
@@ -57,6 +62,7 @@ export class CheckboxGroup extends UIEXComponent {
 		props.onDisabledClick = onDisabledClick;
 		props.onUpdate = this.handleCheckboxUpdate;
 		props.hasParentalGroup = true;
+		props.getChecked = getChecked;
 	}
 
 	renderInternal() {
@@ -170,17 +176,8 @@ export class CheckboxGroup extends UIEXComponent {
 		}
 	}
 
-	getChecked(itemValue, groupValue) {
-		let checked = false;
-		if (groupValue instanceof Array) {
-			checked = itemValue && groupValue.indexOf(itemValue) > -1;
-		} else if (groupValue instanceof Object) {
-			const value = groupValue[itemValue];
-			if (!(value instanceof Object)) {
-				checked = !!value;
-			}
-		}
-		return checked;
+	getChecked(name) {
+		return commonGetChecked.call(this, name);
 	}
 
 	handleClick = (e) => {
@@ -203,44 +200,65 @@ export class CheckboxGroup extends UIEXComponent {
 		}
 	}
 
-	handleChangeCheckAll = (checked) => {
-		let {value: currentValue, name, mapped} = this.props;
-		if (currentValue instanceof Object) {
-			mapped = true;
-		}
-		let value;
-		if (checked) {				
-			if (mapped) {
-				value = {};
-				this.fillValues(this.itemValues, value);
-			} else {
-				value = this.itemValues;
-			}
-		} else {
-			value = mapped ? {} : [];
-		}
-		this.fire('change', value, name, checked);
-	}
+	// handleChangeCheckAll = (checked) => {
+	// 	let {value: currentValue, name, mapped} = this.props;
+	// 	if (currentValue instanceof Object) {
+	// 		mapped = true;
+	// 	}
+	// 	let value;
+	// 	if (checked) {				
+	// 		if (mapped) {
+	// 			value = {};
+	// 			this.fillValues(this.itemValues, value);
+	// 		} else {
+	// 			value = this.itemValues;
+	// 		}
+	// 	} else {
+	// 		value = mapped ? {} : [];
+	// 	}
+	// 	this.fire('change', value, name, checked);
+	// }
 
 	handleCheckboxUpdate = (checkbox) => {
-		const {checked, props: {name}} = checkbox;
-		if (name) {
-			const index = this.checkedValues.indexOf(name);
+		let {checked, props: {name}, hasChildGroup, checkedValues} = checkbox;
+		if (hasChildGroup) {
+			name = checkedValues;
+		}
+		if (name != null) {			
+			const currentChecked = this.statusesMap.get(checkbox);
+			if (currentChecked !== checked) {
+				if (currentChecked !== undefined) {
+					if (currentChecked) {
+						this.checkedCount--;
+					} else if (currentChecked === null) {
+						this.undeterminedCount--;
+					} else {
+						this.uncheckedCount--;
+					}
+				}
+				if (checked) {
+					this.checkedCount++;
+				} else if (checked === null) {
+					this.undeterminedCount++;
+				} else {
+					this.uncheckedCount++;
+				}
+			}
+			this.statusesMap.set(checkbox, checked);
+
 			if (checked) {
-				if (index == -1) {
-					this.checkedValues.push(name);
-				}
+				addToArray(this.checkedValues, name);
 			} else {
-				if (index > -1) {
-					this.checkedValues.splice(index, 1);
-				}
+				removeFromArray(this.checkedValues, name);
 			}
-			this.checkedCount = this.checkedValues.length;
-			if (this.checkedCount == this.properChildrenCount) {
-				this.checkedStatus = true;	
+			if (this.uncheckedCount == 0 && this.undeterminedCount == 0) {
+				this.checkedStatus = true;
+			} else if (this.undeterminedCount == 0 && this.checkedCount == 0) {
+				this.checkedStatus = false;
 			} else {
-				this.checkedStatus = this.checkedCount > 0 ? null : false;
+				this.checkedStatus = null;
 			}
+			addToArray(this.allValues, name);
 		}
 	}
 

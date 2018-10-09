@@ -425,3 +425,34 @@ export const getString = (str, defaultValue = '') => {
 	}
 	return str;
 }
+
+export const addToArray = (arr, items) => {
+	if (!(arr instanceof Array)) {
+		arr = [];
+	}
+	if (!(items instanceof Array)) {
+		items = [items];
+	}
+	for (let item of items) {
+		if (arr.indexOf(item) === -1) {
+			arr.push(item);
+		}
+	}
+	return arr;
+}
+
+export const removeFromArray = (arr, items) => {
+	if (!(arr instanceof Array)) {
+		return [];
+	}
+	if (!(items instanceof Array)) {
+		items = [items];
+	}
+	for (let item of items) {
+		const index = arr.indexOf(item);
+		if (index !== -1) {
+			arr.splice(index, 1);
+		}
+	}
+	return arr;
+}

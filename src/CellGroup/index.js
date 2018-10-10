@@ -331,7 +331,7 @@ export class CellGroup extends UIEXComponent {
 export class Cell extends UIEXComponent {
 	static propTypes = CellPropTypes;
 	static displayName = 'Cell';
-	static propsToCheck = ['borderColor', 'borderWidth', 'borderStyle', 'borderRadius', 'bgColor', 'padding'];
+	static propsToCheck = ['leftPadding', 'rightPadding', 'leftMargin', 'minHeight'];
 
 	addClassNames(add) {
 		add('align-self-' + this.props.alignSelf, this.props.alignSelf);

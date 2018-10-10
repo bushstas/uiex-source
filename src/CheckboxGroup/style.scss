@@ -35,21 +35,19 @@
 				background-color: #d3d3d3;
 			}
 			&:first-child {
-				.uiex-checkbox-vertical-line {
-					top: -15px;
+				& > .uiex-checkbox-main-content {
+					.uiex-checkbox-vertical-line {
+						top: -15px;
+					}
 				}
 			}
 			&:last-child {
-				.uiex-checkbox-vertical-line {
-					bottom: auto;
-					height: 10px;
+				& > .uiex-checkbox-main-content {
+					.uiex-checkbox-vertical-line {
+						bottom: auto;
+						height: 10px;
+					}
 				}
-				& > .uiex-checkbox-additional-content {
-					padding-bottom: 0;
-				}
-			}
-			& > .uiex-checkbox-additional-content {
-				padding-bottom: 6px;
 			}
 		}
 	}

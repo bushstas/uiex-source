@@ -20,7 +20,7 @@ export class CheckboxGroup extends UIEXComponent {
 
 	constructor(props) {
 		super(props);
-		this.checkedValues = [];
+		this.checkedValues = {};
 		this.allValues = [];
 		this.checkedStatus = false;
 		this.checkedCount = 0;
@@ -37,7 +37,14 @@ export class CheckboxGroup extends UIEXComponent {
 		this.update();
 	}
 
-	update() {
+	componentWillUnmount() {
+		if (this.props.hasParentalCheckbox) {
+			this.fire('unmount');
+		}
+		super.componentWillUnmount();
+	}
+
+	update() {		
 		if (this.props.hasParentalCheckbox) {
 			this.fire('update', this);
 		}
@@ -60,7 +67,9 @@ export class CheckboxGroup extends UIEXComponent {
 		props.width = this.checkboxWidth;
 		props.onChange = this.handleCheckboxChange;
 		props.onDisabledClick = onDisabledClick;
+		props.onMount = this.handleCheckboxMount;
 		props.onUpdate = this.handleCheckboxUpdate;
+		props.onUnmount = this.handleCheckboxUnmount;
 		props.hasParentalGroup = true;
 		props.getChecked = getChecked;
 	}
@@ -165,7 +174,9 @@ export class CheckboxGroup extends UIEXComponent {
 					multiline={multiline}
 					onChange={this.handleCheckboxChange}
 					onDisabledClick={onDisabledClick}
+					onMount={this.handleCheckboxMount}
 					onUpdate={this.handleCheckboxUpdate}
+					onUnmount={this.handleCheckboxUnmount}
 					hasParentalGroup
 				>
 					{children instanceof Array && 
@@ -219,47 +230,70 @@ export class CheckboxGroup extends UIEXComponent {
 	// 	this.fire('change', value, name, checked);
 	// }
 
-	handleCheckboxUpdate = (checkbox) => {
-		let {checked, props: {name}, hasChildGroup, checkedValues} = checkbox;
-		if (hasChildGroup) {
-			name = checkedValues;
-		}
-		if (name != null) {			
-			const currentChecked = this.statusesMap.get(checkbox);
-			if (currentChecked !== checked) {
-				if (currentChecked !== undefined) {
-					if (currentChecked) {
-						this.checkedCount--;
-					} else if (currentChecked === null) {
-						this.undeterminedCount--;
-					} else {
-						this.uncheckedCount--;
-					}
-				}
-				if (checked) {
-					this.checkedCount++;
-				} else if (checked === null) {
-					this.undeterminedCount++;
-				} else {
-					this.uncheckedCount++;
-				}
-			}
-			this.statusesMap.set(checkbox, checked);
+	handleCheckboxMount = (checkbox) => {
+		this.initCheckedStatus(checkbox);
+		this.initCheckedValues(checkbox);
+		const {props: {name}, allValues} = checkbox;
+		addToArray(this.allValues, allValues == null ? name : allValues);	
+	}
 
+	handleCheckboxUpdate = (checkbox) => {
+		this.initCheckedStatus(checkbox);
+		this.initCheckedValues(checkbox);
+	}
+
+	initCheckedStatus(checkbox) {
+		const {checked} = checkbox;
+		const currentChecked = this.statusesMap.get(checkbox);
+		if (currentChecked !== checked) {
+			if (currentChecked !== undefined) {
+				if (currentChecked) {
+					this.checkedCount--;
+				} else if (currentChecked === null) {
+					this.undeterminedCount--;
+				} else {
+					this.uncheckedCount--;
+				}
+			}
 			if (checked) {
-				addToArray(this.checkedValues, name);
+				this.checkedCount++;
+			} else if (checked === null) {
+				this.undeterminedCount++;
 			} else {
-				removeFromArray(this.checkedValues, name);
+				this.uncheckedCount++;
 			}
-			if (this.uncheckedCount == 0 && this.undeterminedCount == 0) {
-				this.checkedStatus = true;
-			} else if (this.undeterminedCount == 0 && this.checkedCount == 0) {
-				this.checkedStatus = false;
-			} else {
-				this.checkedStatus = null;
-			}
-			addToArray(this.allValues, name);
 		}
+		this.statusesMap.set(checkbox, checked);
+		if (this.uncheckedCount == 0 && this.undeterminedCount == 0) {
+			this.checkedStatus = true;
+		} else if (this.undeterminedCount == 0 && this.checkedCount == 0) {
+			this.checkedStatus = false;
+		} else {
+			this.checkedStatus = null;
+		}
+	}
+
+	initCheckedValues(checkbox) {
+		const values = this.getCheckboxValues(checkbox);
+		const {checked} = checkbox;
+		
+		if (!(values instanceof Object)) {
+			this.checkedValues[values] = checked;
+		} else {
+			for (let k in values) {
+				this.checkedValues[k] = values[k];
+			}
+		}		
+	}
+
+	handleCheckboxUnmount = (checkbox) => {
+		const {props: {name}, allValues} = checkbox;
+		removeFromArray(this.allValues, allValues == null ? name : allValues);
+	}
+
+	getCheckboxValues(checkbox) {
+		let {props: {name}, hasChildGroup, checkedValues} = checkbox;
+		return hasChildGroup ? checkedValues : name;
 	}
 
 	filterOption() {

@@ -3,7 +3,7 @@ import {UIEXComponent} from '../UIEXComponent';
 import {Checkbox} from '../Checkbox';
 import {CheckboxGroupPropTypes} from './proptypes';
 import {getNumberOrNull, addToArray, removeFromArray} from '../utils';
-import {commonGetChecked} from '../Checkbox';
+import {commonGetChecked, getProperValue, changeValueChecked} from '../Checkbox';
 
 import '../style.scss';
 import './style.scss';
@@ -54,13 +54,16 @@ export class CheckboxGroup extends UIEXComponent {
 		add('control');
 		add('without-border', this.props.noBorder);
 		add('with-columns', this.checkboxWidth);
+		add('sublevel-group', this.props.hasParentalCheckbox);
 	}
 
 	addChildProps(child, props) {
-		let {icon, iconType, multiline, onDisabledClick, getChecked} = this.props;
+		let {icon, iconType, multiline, onDisabledClick, getChecked, readOnly, disabled} = this.props;
 		props.value = this.getChecked(child.props.name);
 		props.icon = icon;
 		props.iconType = iconType;
+		props.readOnly = readOnly;
+		props.disabled = disabled;
 		if (typeof child.props.multiline != 'boolean') {
 			props.multiline = multiline;
 		}
@@ -71,7 +74,7 @@ export class CheckboxGroup extends UIEXComponent {
 		props.onUpdate = this.handleCheckboxUpdate;
 		props.onUnmount = this.handleCheckboxUnmount;
 		props.hasParentalGroup = true;
-		props.getChecked = getChecked;
+		props.getChecked = typeof getChecked == 'function' ? getChecked : this.getChecked;
 	}
 
 	renderInternal() {
@@ -127,7 +130,7 @@ export class CheckboxGroup extends UIEXComponent {
 			<div className={this.getClassName('checkall')}>
 				<Checkbox 
 					ref="checkAll"
-					checked={true}
+					value={this.getCheckedAllStatus()}
 					icon={icon}
 					iconType={iconType}
 					onChange={this.handleChangeCheckAll}
@@ -187,8 +190,22 @@ export class CheckboxGroup extends UIEXComponent {
 		}
 	}
 
-	getChecked(name) {
+	getChecked = (name) => {
+		if (this.props.value === null) {
+			return false;
+		}
 		return commonGetChecked.call(this, name);
+	}
+
+	getCheckedAllStatus() {
+		const {value} = this.props;
+		if (typeof value == 'boolean') {
+			return value;
+		}
+		if (value == null) {
+			return false;
+		}
+		return null;
 	}
 
 	handleClick = (e) => {
@@ -196,39 +213,25 @@ export class CheckboxGroup extends UIEXComponent {
 	}
 
 	handleCheckboxChange = (checked, value) => {
-		if (this.props.hasParentalCheckbox) {
+		const {name, radioMode, hasParentalCheckbox} = this.props;
+		if (hasParentalCheckbox) {
 			this.fire('change', checked, value);
 		} else {
-			if (checked) {
-				this.checkedValues.push(value);	
-			} else {
-				const index = this.checkedValues.indexOf(value);
-				if (index > -1) {
-					this.checkedValues.splice(index, 1);
+			if (radioMode) {
+				if (!checked) {
+					value = false;	
 				}
-			}			
-			this.fire('change', this.checkedValues, this.props.name);
+			} else {
+				changeValueChecked(checked, value, this.checkedValues);
+				value = getProperValue(this.checkedValues, this.allValues);
+			}
+			this.fire('change', value, name);
 		}
 	}
 
-	// handleChangeCheckAll = (checked) => {
-	// 	let {value: currentValue, name, mapped} = this.props;
-	// 	if (currentValue instanceof Object) {
-	// 		mapped = true;
-	// 	}
-	// 	let value;
-	// 	if (checked) {				
-	// 		if (mapped) {
-	// 			value = {};
-	// 			this.fillValues(this.itemValues, value);
-	// 		} else {
-	// 			value = this.itemValues;
-	// 		}
-	// 	} else {
-	// 		value = mapped ? {} : [];
-	// 	}
-	// 	this.fire('change', value, name, checked);
-	// }
+	handleChangeCheckAll = (checked) => {
+		this.fire('change', checked, this.props.name);
+	}
 
 	handleCheckboxMount = (checkbox) => {
 		this.initCheckedStatus(checkbox);

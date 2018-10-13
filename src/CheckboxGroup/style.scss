@@ -24,7 +24,8 @@
 				width: 20px;
 				top: 10px;
 				background-color: #d3d3d3;
-				height: 1px;;
+				height: 1px;
+				display: none;
 			}
 			.uiex-checkbox-vertical-line {
 				position: absolute;
@@ -51,9 +52,18 @@
 			}
 		}
 	}
+	&.uiex-sublevel-group {
+		& > .uiex-checkbox-group-controls {
+			& > .uiex-checkbox {
+				.uiex-checkbox-horizontal-line {
+					display: block;
+				}
+			}
+		}
+	}
 	.uiex-checkbox-group-top {
 		margin-bottom: 10px;
-		padding: 0 10px 10px 10px;
+		padding: 0 10px 6px 10px;
 		border-bottom: 1px solid #aaa;
 
 		.uiex-checkbox {

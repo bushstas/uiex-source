@@ -8,7 +8,6 @@ export const CheckboxGroupPropTypes = {
 	name: PropTypes.string,
 	value: VALUE_PROPTYPE,
 	options: PROPTYPE.OPTIONS,
-	mapped: PropTypes.bool,
 	maxHeight: PROPTYPE.STRNUM,
 	multiline: PropTypes.bool,
 	checkAll: PROPTYPE.STRBOOL,

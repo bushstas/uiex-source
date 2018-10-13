@@ -1,7 +1,7 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {Icon} from '../Icon';
-import {addClass, removeClass, addToArray, removeFromArray} from '../utils';
+import {addClass, removeClass} from '../utils';
 import {CheckboxPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -26,6 +26,28 @@ export const commonGetChecked = function(name) {
 	}
 	return value === name;
 };
+
+export const getProperValue = function(valueObj, allValues) {	
+	const keys = Object.keys(valueObj);
+	const checkedValues = keys.filter(key => valueObj[key] === true);
+	if (allValues.length == checkedValues.length) {
+		return true;
+	}
+	if (checkedValues.length > 0) {
+		return checkedValues;
+	}
+	return false;
+}
+
+export const changeValueChecked = function(checked, value, checkedValues) {
+	if (value instanceof Array) {
+		for (let v of value) {
+			checkedValues[v] = checked;
+		}
+	} else {
+		checkedValues[value] = checked;
+	}
+}
 
 export class Checkbox extends UIEXComponent {
 	static propTypes = CheckboxPropTypes;
@@ -83,12 +105,14 @@ export class Checkbox extends UIEXComponent {
 	}
 
 	addChildProps(child, props) {
-		let {name, icon, iconType, multiline, onDisabledClick} = this.props;
+		let {name, icon, iconType, multiline, onDisabledClick, getChecked, readOnly, disabled} = this.props;
 		props.ref = 'group';
 		props.name = name;
 		props.checkAll = false;
 		props.maxHeight = null;
 		props.icon = icon;
+		props.readOnly = readOnly;
+		props.disabled = disabled;
 		props.iconType = iconType;
 		if (typeof child.props.multiline != 'boolean') {
 			props.multiline = multiline;
@@ -98,10 +122,13 @@ export class Checkbox extends UIEXComponent {
 		props.onUpdate = this.handleChildGroupUpdate;
 		props.onUnmount = this.handleChildGroupUnmount;
 		props.hasParentalCheckbox = true;
+		if (typeof getChecked != 'function') {
+			getChecked = this.getChecked;
+		}
 		if (!this.props.hasParentalGroup && this.props.value === null) {
 			props.getChecked = this.getUnchecked;
 		} else {
-			props.getChecked = this.getChecked;
+			props.getChecked = getChecked;
 		}
 	}
 
@@ -193,26 +220,8 @@ export class Checkbox extends UIEXComponent {
 		if (this.props.hasParentalGroup) {
 			this.fire('change', checked, value);
 		} else {
-			if (value instanceof Array) {
-				for (let v of value) {
-					this.checkedValues[v] = checked;
-				}
-			} else {
-				this.checkedValues[value] = checked;
-			}			
-			value = false;
-			const checkedValues = [];
-			for (let k in this.checkedValues) {
-				if (this.checkedValues[k]) {
-					checkedValues.push(k);
-				}
-			}
-			if (this.allValues.length == checkedValues.length) {
-				value = true;
-			} else if (checkedValues.length > 0) {
-				value = checkedValues;
-			}
-			this.fire('change', value, this.props.name);
+			changeValueChecked(checked, value, this.checkedValues);
+			this.fire('change', getProperValue(this.checkedValues, this.allValues), this.props.name);
 		}
 	}
 

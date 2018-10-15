@@ -12,6 +12,7 @@ export const CheckboxGroupPropTypes = {
 	multiline: PropTypes.bool,
 	checkAll: PROPTYPE.STRBOOL,
 	columns: PROPTYPE.STRNUM,
+	linked: PropTypes.bool,
 	noBorder: PropTypes.bool,
 	radioMode: PropTypes.bool,
 	contentStyle: PropTypes.object,

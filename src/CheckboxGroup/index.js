@@ -2,7 +2,7 @@ import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {Checkbox} from '../Checkbox';
 import {CheckboxGroupPropTypes} from './proptypes';
-import {getNumberOrNull, addToArray, removeFromArray} from '../utils';
+import {getNumberOrNull, addToArray, removeFromArray, getNumber} from '../utils';
 import {commonGetChecked, getProperValue, changeValueChecked} from '../Checkbox';
 
 import '../style.scss';
@@ -51,10 +51,12 @@ export class CheckboxGroup extends UIEXComponent {
 	}
 
 	addClassNames(add) {
+		const {noBorder, linked, hasParentalCheckbox} = this.props;
 		add('control');
-		add('without-border', this.props.noBorder);
+		add('without-border', noBorder);
 		add('with-columns', this.checkboxWidth);
-		add('sublevel-group', this.props.hasParentalCheckbox);
+		add('sublevel-group', hasParentalCheckbox);
+		add('linked', linked);
 	}
 
 	addChildProps(child, props) {
@@ -77,6 +79,17 @@ export class CheckboxGroup extends UIEXComponent {
 		props.getChecked = typeof getChecked == 'function' ? getChecked : this.getChecked;
 	}
 
+	getInnerStyle() {
+		const maxHeight = getNumber(this.props.maxHeight);
+		if (this.isCachedPropsChanged('maxHeight')) {
+			this.cachedInnerStyle = null;
+			if (maxHeight) {
+				this.cachedInnerStyle = {maxHeight};
+			}
+		}
+		return this.cachedInnerStyle;		
+	}
+
 	renderInternal() {
 		this.renderContent();
 		const TagName = this.getTagName();
@@ -85,7 +98,7 @@ export class CheckboxGroup extends UIEXComponent {
 				{this.renderTopFunctional()}
 				<div 
 					className={this.getClassName('controls', 'uiex-scrollable')} 
-					style={this.getStyle('content')}
+					style={this.getInnerStyle()}
 				>
 					{this.options}
 				</div>

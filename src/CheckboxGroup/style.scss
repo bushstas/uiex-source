@@ -4,7 +4,6 @@
     background-color: #fff;
     border: 1px solid #aaa;
     box-shadow: inset -3px -3px 7px #f1f1f1;
-    padding: 10px 0;
 	font-weight: normal;
 	display: block;
 
@@ -12,6 +11,8 @@
 		display: block;
 	}
 	& > .uiex-checkbox-group-controls {
+		padding: 10px;
+		overflow: auto;
 		& > .uiex-checkbox {
 			display: block;
 			padding-bottom: 5px;
@@ -52,6 +53,36 @@
 			}
 		}
 	}
+	&.uiex-linked:not(.uiex-sublevel-group) {
+		&:not(.uiex-without-border) {
+			.uiex-checkbox-group-top {
+				padding-left: 20px;
+			}
+			& > .uiex-checkbox-group-controls {
+				padding-left: 20px;
+			}
+		}
+		& > .uiex-checkbox-group-controls {
+			& > .uiex-checkbox {
+				& > .uiex-checkbox-main-content {
+					& > .uiex-checkbox-horizontal-line {
+						left: -10px;
+					}
+					& > .uiex-checkbox-vertical-line {
+						left: -10px;
+					}
+				}
+				&:first-child {
+					& > .uiex-checkbox-main-content {
+						& > .uiex-checkbox-vertical-line {
+							top: 10px;
+						}
+					}
+				}
+			}
+		}
+	}
+	&.uiex-linked,
 	&.uiex-sublevel-group {
 		& > .uiex-checkbox-group-controls {
 			& > .uiex-checkbox {
@@ -62,17 +93,12 @@
 		}
 	}
 	.uiex-checkbox-group-top {
-		margin-bottom: 10px;
-		padding: 0 10px 6px 10px;
+		padding: 10px 10px 6px 10px;
 		border-bottom: 1px solid #aaa;
 
 		.uiex-checkbox {
 			margin-bottom: 0;
 		}
-	}
-	.uiex-checkbox-group-controls {
-		overflow: auto;
-		padding: 0 10px;
 	}
 	&.uiex-with-columns {
 		& > .uiex-checkbox-group-controls {
@@ -92,5 +118,10 @@
 		border: 0;
 		box-shadow: none;
 		border-radius: 0;
+		background-color: transparent;
+		.uiex-checkbox-group-top {
+			border-bottom: 0;
+			padding-bottom: 0;
+		}
 	}
 }

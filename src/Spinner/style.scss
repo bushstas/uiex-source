@@ -1,0 +1,40 @@
+.uiex-spinner {    
+    display: inline-block;
+    position: relative;
+    width: 64px;
+    height: 64px;
+      
+    .uiex-spinner-inner {
+        width: 100%;
+        height: 100%;
+        margin: 1px;
+        border-radius: 50%;
+        border-width: 3px;
+        border-style: solid;
+        border-color: #555;
+        box-sizing: border-box;
+        border-right-color: transparent !important;
+        border-left-color: transparent !important;
+        animation-name: dual-ring;
+        animation-duration: 0.5s;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+    }
+}
+@keyframes dual-ring {
+    0% {
+    transform: rotate(0deg);
+    }
+    100% {
+    transform: rotate(360deg);
+    }
+}
+@keyframes ring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+  

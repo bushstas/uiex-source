@@ -11,10 +11,17 @@ export class Button extends UIEXComponent {
 	static displayName = 'Button';
 	
 	addClassNames(add) {
-		const {iconAtRight, icon, children, gradient} = this.props;		
+		const {iconAtRight, icon, children, gradient, color, onClick} = this.props;		
 		add('icon-at-right', iconAtRight && children);
 		add('icon-button', icon && typeof icon == 'string' && !children);
 		add('with-gradient', gradient);
+		if (color) {
+			add('colored');
+			if (onClick) {
+				add('color-hover');
+			}
+			add('color-' + color);
+		}
 	}
 
 	renderInternal() {

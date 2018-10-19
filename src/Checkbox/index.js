@@ -37,7 +37,18 @@ export const getProperValue = function(valueObj, allValues) {
 		return checkedValues;
 	}
 	return false;
-}
+};
+
+export const setChecked = function(checked, element) {
+	removeClass(element, 'uiex-checked');
+	removeClass(element, 'uiex-undetermined');
+	if (checked === null) {
+		addClass(element, 'uiex-undetermined');
+	} else if (checked) {
+		addClass(element, 'uiex-checked');
+	}
+	this.checked = checked;
+};
 
 export const changeValueChecked = function(checked, value, checkedValues) {
 	if (value instanceof Array) {
@@ -74,7 +85,7 @@ export class Checkbox extends UIEXComponent {
 
 	fireUpdate(isMount = false) {
 		if (this.hasChildGroup) {
-			this.setChecked(this.checkedStatus);
+			setChecked.call(this, this.checkedStatus, this.refs.main);
 		}
 		if (this.props.hasParentalGroup) {
 			this.fire(isMount ? 'mount' : 'update', this);
@@ -236,17 +247,5 @@ export class Checkbox extends UIEXComponent {
 		this.checkedStatus = undefined;
 		this.checkedValues = null;
 		this.allValues = null;
-	}
-
-	setChecked(checked) {
-		const {main} = this.refs;
-		removeClass(main, 'uiex-checked');
-		removeClass(main, 'uiex-undetermined');
-		if (checked === null) {
-			addClass(main, 'uiex-undetermined');
-		} else if (checked) {
-			addClass(main, 'uiex-checked');
-		}
-		this.checked = checked;
 	}
 }

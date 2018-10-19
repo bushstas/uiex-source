@@ -64,4 +64,10 @@
 	&.uiex-block {
 		display: flex !important;
 	}
+	&.uiex-align-left {
+		justify-content: flex-start;
+	}
+	&.uiex-align-right {
+		justify-content: flex-end;
+	}
 }

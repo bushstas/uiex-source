@@ -3,7 +3,7 @@ import {UIEXComponent} from '../UIEXComponent';
 import {Checkbox} from '../Checkbox';
 import {CheckboxGroupPropTypes} from './proptypes';
 import {getNumberOrNull, addToArray, removeFromArray, getNumber} from '../utils';
-import {commonGetChecked, getProperValue, changeValueChecked} from '../Checkbox';
+import {commonGetChecked, getProperValue, changeValueChecked, setChecked} from '../Checkbox';
 
 import '../style.scss';
 import './style.scss';
@@ -30,11 +30,11 @@ export class CheckboxGroup extends UIEXComponent {
 	}
 
 	componentDidMount() {
-		this.update();
+		this.fireUpdate();
 	}
 
 	componentDidUpdate() {
-		this.update();
+		this.fireUpdate();
 	}
 
 	componentWillUnmount() {
@@ -44,7 +44,10 @@ export class CheckboxGroup extends UIEXComponent {
 		super.componentWillUnmount();
 	}
 
-	update() {		
+	fireUpdate() {
+		if (this.refs.checkAll) {
+			setChecked.call(this, this.checkedStatus, this.refs.checkAll.refs.main);
+		}
 		if (this.props.hasParentalCheckbox) {
 			this.fire('update', this);
 		}
@@ -242,8 +245,8 @@ export class CheckboxGroup extends UIEXComponent {
 		}
 	}
 
-	handleChangeCheckAll = (checked) => {
-		this.fire('change', checked, this.props.name);
+	handleChangeCheckAll = () => {
+		this.fire('change', !this.checked, this.props.name);
 	}
 
 	handleCheckboxMount = (checkbox) => {

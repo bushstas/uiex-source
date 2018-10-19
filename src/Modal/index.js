@@ -5,7 +5,7 @@ import {UIEXComponent} from '../UIEXComponent';
 import {Icon} from '../Icon';
 import {Draggable, DragHandleArea} from '../Draggable';
 import {ModalPropTypes} from './proptypes';
-import {replace, getNumberOrNull, addClass, removeClass} from '../utils';
+import {replace, getNumberOrNull, addClass, removeClass, getNumericProp} from '../utils';
 
 import '../style.scss';
 import './style.scss';
@@ -80,11 +80,12 @@ class ModalComponent extends UIEXComponent {
 			return;
 		}
 		const {mask, outer} = this.refs;
-		const {animation, maskOpacity, maskColor} = this.props;
+		const {animation, maskColor} = this.props;
+		const maskOpacity = this.getMaskOpacity();
 		
 		container.style.opacity = '';
 		if (mask) {
-			mask.style.opacity = '';
+			mask.style.opacity = maskOpacity;
 			if (maskColor && typeof maskColor == 'string') {
 				mask.style.backgroundColor = maskColor;
 			}
@@ -123,8 +124,7 @@ class ModalComponent extends UIEXComponent {
 						container.style.transform = 'scale(1) rotateX(0deg)';
 						container.style.opacity = '1';
 						if (mask) {
-							let o = getNumberOrNull(maskOpacity, DEFAULT_MASK_OPACITY);
-							mask.style.opacity = o / 10;
+							mask.style.opacity = maskOpacity;
 						}
 					}, 100);
 				});
@@ -134,6 +134,10 @@ class ModalComponent extends UIEXComponent {
 				this.initPosition();
 			});
 		}
+	}
+
+	getMaskOpacity() {
+		return getNumericProp(this.props.maskOpacity, DEFAULT_MASK_OPACITY, 0, 10) / 10;
 	}
 
 	animateHiding(isAction = false) {
@@ -219,12 +223,11 @@ class ModalComponent extends UIEXComponent {
 	}
 
 	addClassNames(add) {
-		const {expandable, animation, maskOpacity, expanded, withoutPortal, header, footer} = this.props;
+		const {expandable, animation, expanded, withoutPortal, header, footer} = this.props;
 		add('expandable', expandable);
 		add('shown', this.state.isOpen);
 		add('expanded', expanded);
 		add('animation-' + animation, animation);
-		add('opacity-' + maskOpacity, maskOpacity);
 		add('without-portal', withoutPortal);
 		add('without-header', !header);
 		add('without-footer', !footer);

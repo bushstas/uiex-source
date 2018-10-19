@@ -47,7 +47,7 @@ export class CellGroup extends UIEXComponent {
 				}
 			}
 		}
-		return this.cachedRowStyle;		
+		return this.cachedRowStyle;
 	}
 
 	initRendering() {

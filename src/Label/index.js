@@ -11,8 +11,16 @@ export class Label extends UIEXComponent {
 	static displayName = 'Label';
 
 	addClassNames(add) {
-		add('removable', this.props.removable);
-		add('with-gradient', this.props.gradient);
+		const {removable, gradient, color, onClick} = this.props;
+		add('removable', removable);
+		add('with-gradient', gradient);
+		if (color) {
+			add('colored');
+			if (onClick) {
+				add('color-hover');
+			}
+			add('color-' + color);
+		}
 	}
 
 	getCustomProps() {

@@ -184,13 +184,6 @@ export const getComponentClassName = (component) => {
 	add('active', active);
 	add('block', block);
 	add('hidden', hidden);
-	if (color) {
-		add('colored');
-		if (onClick) {
-			add('color-hover');
-		}
-		add('color-' + color);
-	}
 	if (component.isAlignable()) {
 		add('align-' + align, align);
 		add('valign-' + valign, valign);

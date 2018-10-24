@@ -1,10 +1,58 @@
 import React from 'react';
 
+export const isObject = (v) => {
+	return v instanceof Object;
+}
+
+export const isArray = (v) => {
+	return v instanceof Array;
+}
+
+export const mergeStyleProps = (...objects) => {
+	const styles = {};
+	for (let i = 0; i < objects.length; i++) {
+		if (!isObject(objects[i])) {
+			continue;
+		}
+		const keys = Object.keys(objects[i]);
+		for (let j = 0; j < keys.length; j++) {
+			const item = objects[i][keys[j]];
+			if (item != null && item !== '') {
+				styles[keys[j]] = item;
+			}
+		}
+	}
+	return Object.keys(styles).length === 0 ? null : styles;
+}
+
+export const getStyleObjectFromString = (str) => {
+	if (!str) {
+		return null;
+	}
+	const parts = str.split(';');
+	const style = {};
+	for (let i = 0; i < parts.length; i++) {
+		const p = parts[i].split(':');
+		if (p[1]) {
+			let kp = p[0].trim().split('-');
+			const kp2 = kp;
+			kp = kp[0];
+			if (kp2.length > 1) {				
+				for (let j = 1; j < kp2.length; j++) {
+					kp += ucfirst(kp2[j]);
+				}
+			}
+			style[kp] = p[1].trim();
+		}
+	}
+	return style;
+}
+
 export const mapChildren = (children, renderChild) => {
 	const ch = [];
 	for (let i = 0; i < children.length; i++) {
 		const child = renderChild(children[i], i, children);
-		if (child instanceof Array) {
+		if (isArray(child)) {
 			let child2 = mapChildren(child, renderChild);
 			if (child2) {
 				ch.push(child2);	
@@ -134,7 +182,7 @@ export const showImproperChildError = (child, parent) => {
 	}
 	let expectedChildren = parent.getExpectedChildren();
 	const expected = typeof expectedChildren == 'string' ? 'The only expected child' : 'Expected children';
-	if (expectedChildren instanceof Array) {
+	if (isArray(expectedChildren)) {
 		expectedChildren = expectedChildren.join(', ');
 	}
 	console.error('Improper ' + childType + ' child "' + child + '" in ' + parent.constructor.name + '. ' + expected + ': ' + expectedChildren);
@@ -142,7 +190,7 @@ export const showImproperChildError = (child, parent) => {
 
 export const showProperChildMaxCountError  = (child, parent) => {
 	let expectedChildren = parent.getExpectedChildren();
-	if (expectedChildren instanceof Array) {
+	if (isArray(expectedChildren)) {
 		expectedChildren = expectedChildren.join(', ');
 	}
 	const maxCount = parent.getProperChildMaxCount();

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {registerContext, unregisterContext, withStateMaster} from './state-master';
+import {registerContext, unregisterContext} from './state-master';
 import {UIEXAnimatedPropTypes} from './UIEXComponentPropTypes';
 import {
 	showImproperChildError,
@@ -12,7 +12,10 @@ import {
 	propsChanged,
 	cacheProps,
 	popupQueue,
-	ucfirst
+	ucfirst,
+	getStyleObjectFromString,
+	isObject,
+	mergeStyleProps
 } from './utils';
 import {FORM_BUTTON_DISPLAY} from './consts';
 
@@ -24,27 +27,35 @@ export class UIEXComponent extends React.PureComponent {
 	}
 	
 	getStyle(name) {
+		const theme = this.getTheme();
+		const key = name + 'CachedStyle';
 		const propKey = name + 'Style';
 		const cachedPropKey = name + 'StyleCachedProp';
-		const key = name + 'CachedStyle';
-		const additionalStyles = this.getAdditionalStyle(name);
-		if (this[cachedPropKey] !== this.props[propKey] || additionalStyles) {
+		const customStyleMethod = 'get' + ucfirst(name) + 'Style';
+		let customStyles;
+		if (typeof this[customStyleMethod] == 'function') {
+			customStyles = this[customStyleMethod]();
+		}
+		if (
+			this[key] === undefined ||
+			this[cachedPropKey] !== this.props[propKey] ||
+			isObject(customStyles) ||
+			this.isCachedPropsChanged('theme', name)
+		) {
 			this[cachedPropKey] = this.props[propKey];
-			this[key] = null;
-			const defaultStyle = this.getDefaultStyle(name);
-			if (this.props[propKey] instanceof Object || defaultStyle instanceof Object || additionalStyles) {
-				this[key] = {
-					...defaultStyle,
-					...this.props[propKey],
-					...additionalStyles
-				};
-			}
+			this[key] = mergeStyleProps(
+				this.getDefaultStyle(name),
+				this.getThemeStyle(theme, name),
+				this.props[propKey],
+				customStyles
+			);
 		}
 		return this[key];
 	}
 
 	getMainStyle() {
-		const {style, fontSize} = this.props;
+		let {style} = this.props;
+		const theme = this.getTheme();
 		const isWithPropStyle = this.isWithPropStyle();
 		const width = this.getWidthProp();
 		const height = this.getHeightProp();
@@ -53,26 +64,32 @@ export class UIEXComponent extends React.PureComponent {
 			this.initCustomStyles();
 		}
 		if (
+			this.cachedMainStyle === undefined ||
 			isCustomStyleChanged ||
 			(isWithPropStyle && this.cachedStyle != style) ||
 			this.cachedWidth != width ||
-			this.cachedHeight != height ||
-			this.cachedFontSize != fontSize
+			this.cachedHeight != height || 
+			this.cachedTheme != theme
 		) {
 			let newStyle = mergeObjects(this.getDefaultStyle());
+			if (theme) {
+				newStyle = mergeObjects(this.getThemeStyle(theme), newStyle);
+			}
 			if (isWithPropStyle) {
+				if (typeof style == 'string') {
+					style = getStyleObjectFromString(style);
+				}
 				newStyle = mergeObjects(style, newStyle);
 			}
-			newStyle = addStyleProperty(fontSize, 'fontSize', newStyle);
 			newStyle = addStyleProperty(width, 'width', newStyle);
 			newStyle = addStyleProperty(height, 'height', newStyle);
 			newStyle = mergeObjects(this.getCustomStyle(), newStyle);
 			
+			this.cachedTheme = theme;
 			this.cachedStyle = style;
 			this.cachedWidth = width;
 			this.cachedHeight = height;
-			this.cachedFontSize = fontSize;
-			this.cachedMainStyle = newStyle;
+			this.cachedMainStyle = newStyle || null;
 		}
 		return this.cachedMainStyle;
 	}
@@ -224,9 +241,34 @@ export class UIEXComponent extends React.PureComponent {
 	}
 
 	getDefaultStyle(name = 'main') {
-		if (this.constructor.defaultStyles instanceof Object) {
-			return this.constructor.defaultStyles[name];
+		if (isObject(this.constructor.defaultStyles)) {
+			let style = this.constructor.defaultStyles[name];
+			if (typeof style == 'string') {
+				style = getStyleObjectFromString(style);
+			}
+			if (isObject(style)) {
+				return style;
+			}
 		}
+	}
+
+	getThemeStyle(theme, name = 'main') {
+		if (this.constructor.themes instanceof Object && this.constructor.themes[theme]) {
+			if (this.constructor.themes[theme] instanceof Object) {
+				let style = this.constructor.themes[theme][name];
+				if (typeof style == 'string') {
+					style = getStyleObjectFromString(style);
+				}
+				if (style instanceof Object) {
+					return style;
+				}
+			}
+		}
+	}
+
+	getTheme() {
+		const {theme} = this.props;
+		return !!theme ? theme : (isObject(this.constructor.defaultProps) ? this.constructor.defaultProps.theme : null);
 	}
 
 	isProperChild(child) {
@@ -352,25 +394,23 @@ export class UIEXComponent extends React.PureComponent {
 		return this.props.uncontrolled ? this.state[name] : this.props[name];
 	}
 
-	cacheProps(list) {
+	cacheProps(list, name = '') {
 		this.cachedProps = this.cachedProps || {};
 		for (let i = 0; i < list.length; i++) {
-			this.cachedProps[list[i]] = this.props[list[i]];
+			const key = (!!name ? name + '_' : '') + list[i];
+			this.cachedProps[key] = this.props[list[i]];
 		}
 	}
 
-	isCachedPropsChanged(list) {
+	isCachedPropsChanged(list, name = '') {
 		this.cachedProps = this.cachedProps || {};
 		if (!(list instanceof Array)) {
-			if (this.props[list] !== this.cachedProps[list]) {
-				this.cacheProps([list]);
-				return true;
-			}
-			return false;
+			list = [list];
 		}
 		for (let i = 0; i < list.length; i++) {
-			if (this.props[list[i]] !== this.cachedProps[list[i]]) {
-				this.cacheProps(list);
+			const key = (!!name ? name + '_' : '') + list[i];
+			if (this.props[list[i]] !== this.cachedProps[key]) {
+				this.cacheProps(list, name);
 				return true;
 			}
 		}
@@ -379,10 +419,8 @@ export class UIEXComponent extends React.PureComponent {
 
 	initRendering() {}
 	addChildProps() {}
-	getStyleNames() {}
 	addClassNames() {}
 	initCustomStyles() {}
-	getAdditionalStyle() {}
 }
 
 

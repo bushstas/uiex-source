@@ -3,5 +3,6 @@ import {UIEXComponentPropTypes} from '../UIEXComponentPropTypes';
 import {PROPTYPE} from '../consts';
 
 export const SpinnerPropTypes = {
-	...UIEXComponentPropTypes
+	...UIEXComponentPropTypes,
+	type: PROPTYPE.SPINNER_TYPES
 }

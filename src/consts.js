@@ -22,6 +22,7 @@ export const DRAG_POSITION_X = ['left', 'center', 'right', 'left-out', 'right-ou
 export const DRAG_POSITION_Y = ['top', 'center', 'bottom', 'top-out', 'bottom-out', 'top-in-out', 'bottom-in-out'];
 export const DISPLAY_TIME = ['left-out', 'left-in', 'right-out', 'right-in', 'top', 'bottom'];
 export const BOX_SECTION_VIEWS = ['header', 'large', 'small'];
+export const SPINNER_TYPES = ['ring', 'dual-ring', 'roller'];
 
 const ARRAY_INPUT_TYPE = PropTypes.oneOf(ARRAY_INPUT_TYPES);
 const ARRAY_OF_STRNUMS = PropTypes.arrayOf(
@@ -48,6 +49,10 @@ const OPTION_SHAPE = PropTypes.shape({
 const STRING_ARRAY = PropTypes.arrayOf(PropTypes.string);
 
 export const PROPTYPE = {
+	STYLE: PropTypes.oneOfType([
+		PropTypes.object,
+		PropTypes.string
+	]),
 	REACT_NODES: PropTypes.oneOfType([
 		PropTypes.arrayOf(PropTypes.node),
 		PropTypes.node]
@@ -86,6 +91,7 @@ export const PROPTYPE = {
 		PropTypes.array,
 		PropTypes.object
 	]),
+	SPINNER_TYPES: PropTypes.oneOf(SPINNER_TYPES),
 	BOX_SECTION_VIEWS: PropTypes.oneOf(BOX_SECTION_VIEWS),
 	DISPLAY_TIME: PropTypes.oneOf(DISPLAY_TIME),
 	DRAG_LIMITS: PropTypes.oneOf(DRAG_LIMITS),

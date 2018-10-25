@@ -119,7 +119,7 @@ export class UIEXComponent extends React.PureComponent {
 					key: child.key || idx
 				};
 				if (isProperChild) {
-					if (!this.filterChild(child)) {
+					if (!this.filterChild(child, idx)) {
 						return null;
 					}
 					const maxCount = this.getProperChildMaxCount();

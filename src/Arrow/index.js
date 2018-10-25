@@ -83,12 +83,15 @@ export class Arrow extends UIEXComponent {
 				height = size;					
 			break;
 		}
-		return {
+		const style = {
 			width,
 			height,
-			backgroundColor: color,
 			clipPath: 'polygon(' + this.getClipPath(direction, clipped, figured, thickness, figuredDepth) + ')'
 		};
+		if (color) {
+			style.backgroundColor = color;
+		}
+		return style;
 	}
 
 	handleClick = (e) => {
@@ -101,6 +104,7 @@ export class Arrow extends UIEXComponent {
 			this.fire('disabledClick', value);
 		}
 	}
+
 	getWidthProp() {
 		return null;
 	}

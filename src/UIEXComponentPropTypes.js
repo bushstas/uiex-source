@@ -7,7 +7,7 @@ export const UIEXComponentPropTypes = {
     tagName: PropTypes.string,
     width: PROPTYPE.STRNUM,
     height: PROPTYPE.STRNUM,
-    style: PropTypes.object,
+    style: PROPTYPE.STYLE,
     disabled: PropTypes.bool,
     align: PROPTYPE.ALIGN,
     valign: PROPTYPE.VALIGN,

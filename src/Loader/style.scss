@@ -1,22 +1,32 @@
 .uiex-loader {
-    position: relative;
-    height: 200px;
+    position: relative;    
+    min-height: 50px;
+    display: block;
 
-    .uiex-loader-spinner-area {
+    .uiex-loader-mask {
         position: absolute;
-        width: 100%;
-        height: 100%;    
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    &.uiex-overlayed {
-        position: absolute;
-        width: auto;
-        height: auto;
         left: 0;
         top: 0;
         right: 0;
         bottom: 0;
+        opacity: 0.8;
+        background-color: #fff;
+    }
+
+    .uiex-loader-spinner-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .uiex-loader-text {
+        margin-bottom: 10px;
+        font-size: 14px;
     }
 }

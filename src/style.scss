@@ -1,11 +1,15 @@
 @import "./variables";
 
 #uiex-modal-root {
-	position: relative;
+	position: absolute;
+	left: 0;
+	top: 0;
 	z-index: 1000;
 }
 #uiex-popup-root {
-	position: relative;
+	position: absolute;
+	left: 0;
+	top: 0;
 	z-index: 1100;
 }
 

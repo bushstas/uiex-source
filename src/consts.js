@@ -23,6 +23,13 @@ export const DRAG_POSITION_Y = ['top', 'center', 'bottom', 'top-out', 'bottom-ou
 export const DISPLAY_TIME = ['left-out', 'left-in', 'right-out', 'right-in', 'top', 'bottom'];
 export const BOX_SECTION_VIEWS = ['header', 'large', 'small'];
 export const SPINNER_TYPES = ['ring', 'dual-ring', 'roller'];
+export const TOOLTIP_TYPES = ['simple', 'round', 'triangle', 'square'];
+export const TOOLTIP_POSITIONS = [
+	'right-above', 'right-top', 'right-center', 'right-bottom', 'right-under',
+	'left-above', 'left-top', 'left-center', 'left-bottom', 'left-under',
+	'bottom-before', 'bottom-left', 'bottom-center', 'bottom-right', 'bottom-after',
+	'top-before', 'top-left', 'top-center', 'top-right', 'top-after'
+];
 
 const ARRAY_INPUT_TYPE = PropTypes.oneOf(ARRAY_INPUT_TYPES);
 const ARRAY_OF_STRNUMS = PropTypes.arrayOf(
@@ -91,6 +98,8 @@ export const PROPTYPE = {
 		PropTypes.array,
 		PropTypes.object
 	]),
+	TOOLTIP_TYPES: PropTypes.oneOf(TOOLTIP_TYPES),
+	TOOLTIP_POSITIONS: PropTypes.oneOf(TOOLTIP_POSITIONS),
 	SPINNER_TYPES: PropTypes.oneOf(SPINNER_TYPES),
 	BOX_SECTION_VIEWS: PropTypes.oneOf(BOX_SECTION_VIEWS),
 	DISPLAY_TIME: PropTypes.oneOf(DISPLAY_TIME),

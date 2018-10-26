@@ -671,6 +671,7 @@ export class UIEXPopup extends UIEXComponent {
 			if (animation) {
 				main.style.transition = 'opacity .' + this.getSpeed() + 's';
 			}
+			this.handlePopupShown();
 			this.timeout = setTimeout(() => main.style.opacity = '1', 0);
 		});
 	}
@@ -717,6 +718,8 @@ export class UIEXPopup extends UIEXComponent {
 	getDelay() {
 		return this.getSpeed() * 100;
 	}
+
+	handlePopupShown() {}
 }
 
 export class UIEXBoxContainer extends UIEXPopup {

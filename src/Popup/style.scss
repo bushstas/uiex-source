@@ -1,3 +1,5 @@
+@import '../_templates.scss';
+
 .uiex-popup {
     display: none;
 
@@ -7,5 +9,18 @@
 
     &.uiex-nowrap {
         white-space: nowrap;
+    }
+    &.uiex-animation-fade {
+        @extend %animation-fade;
+    }
+    &.uiex-animation-float,
+    &.uiex-animation-fall {
+        @extend %animation-move-fade;
+    }
+    &.uiex-animation-perspective-top,
+    &.uiex-animation-perspective-bottom,
+    &.uiex-animation-scale-down,
+    &.uiex-animation-scale-up {
+        @extend %animation-transform-fade;
     }
 }

@@ -22,7 +22,7 @@ export class Tooltip extends UIEXComponent {
 	constructor(props) {
 		super(props);
 		this.state = {
-			popupShown: false
+			popupShown: props.popupShown
 		};
 		this.tooltipRef = React.createRef();
 	}
@@ -87,10 +87,8 @@ export class Tooltip extends UIEXComponent {
 			position,
 			popupStyle,
 			popupWidth,
-			animation,
-			popupShown
+			animation
 		} = this.props;
-		const {hintShown} = this.state;
 		const text = this.getText();
 		const TagName = this.getTagName(); 
 		return (
@@ -108,13 +106,14 @@ export class Tooltip extends UIEXComponent {
 				</div>
 				<Popup
 					className={this.getClassName('popup')}
-					isOpen={popupShown}
+					isOpen={this.getProp('popupShown')}
 					target={this.tooltipRef.current}
 					nowrap={nowrap}
 					position={position}
 					animation={animation}
 					width={popupWidth}
 					style={popupStyle}
+					inPortal
 				>
 					{children}
 				</Popup>
@@ -128,8 +127,7 @@ export class Tooltip extends UIEXComponent {
 			const delay = getNumericProp(this.props.delay, 0, 0, MAX_DELAY);
 			clearTimeout(this.timeout);
 			this.timeout = setTimeout(() => {
-				this.fire('togglePopup', true);
-				//this.setState({popupShown: true});
+				this.firePropChange('togglePopup', 'popupShown', [true], true);
 			}, delay);
 		}
 	}
@@ -138,8 +136,7 @@ export class Tooltip extends UIEXComponent {
 		const {popupFrozen, disabled} = this.props;
 		if (!popupFrozen && !disabled) {
 			clearTimeout(this.timeout);
-			this.fire('togglePopup', false);
-			//this.setState({popupShown: false});
+			this.firePropChange('togglePopup', 'popupShown', [false], false);
 		}
 	}
 }

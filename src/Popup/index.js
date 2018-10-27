@@ -10,9 +10,6 @@ const SIDE_MARGIN = 12;
 export class Popup extends UIEXPopup {
 	static propTypes = PopupPropTypes;
 	static displayName = 'Popup';
-	static defaultProps = {
-		inPortal: true
-	};
 
 	addClassNames(add) {
 		super.addClassNames(add);

@@ -15,7 +15,10 @@ import {
 	ucfirst,
 	getStyleObjectFromString,
 	isObject,
-	mergeStyleProps
+	mergeStyleProps,
+	preAnimate,
+	animate,
+	animateBack
 } from './utils';
 import {FORM_BUTTON_DISPLAY} from './consts';
 
@@ -385,9 +388,8 @@ export class UIEXComponent extends React.PureComponent {
 	firePropChange(eventName, propName, args, propValue) {
 		if (this.props.uncontrolled) {
 			this.setState({[propName]: propValue});
-		} else {
-			this.fire(eventName, ...args);
 		}
+		this.fire(eventName, ...args);
 	}
 
 	getProp(name) {
@@ -544,6 +546,11 @@ export class UIEXForm extends UIEXComponent {
 
 
 const ROOT_ID = 'uiex-popup-root';
+const ANIMATION_OPTIONS = {
+	margin: 10,
+	scaleUp: 0.9,
+	scaleDown: 1.1
+};
 export class UIEXPopup extends UIEXComponent {
 
 	componentDidMount() {
@@ -553,10 +560,12 @@ export class UIEXPopup extends UIEXComponent {
 	}
 
 	addClassNames(add) {
+		const {animation} = this.props;
 		const {shown, outY, outX} = this.state;
 		add('shown', shown);
 		add('vertically-out', outY);
 		add('horizontally-out', outX);
+		add('animation-' + animation, animation);
 	}
 
 	componentDidUpdate(prevProps) {
@@ -631,13 +640,16 @@ export class UIEXPopup extends UIEXComponent {
 	}
 	
 	getRootElement() {
-		let root = document.getElementById(ROOT_ID);
-		if (!root) {
-			root = document.createElement('div');
-			root.id = ROOT_ID;
-			document.body.appendChild(root);
+		if (!this.root) {
+			let root = document.getElementById(ROOT_ID);
+			if (!root) {
+				root = document.createElement('div');
+				root.id = ROOT_ID;
+				document.body.appendChild(root);
+			}
+			this.root = root;
 		}
-		return root;
+		return this.root;
 	}
 
 	getPositionState() {
@@ -664,31 +676,30 @@ export class UIEXPopup extends UIEXComponent {
 		this.addBodyClickHandler();
 		const {main} = this.refs;
 		main.style.position = this.getPopupPosition();
-		const {animation} = this.props;
 		const positionState = this.getPositionState();
-		main.style.opacity = '0';		
-		this.setState({shown: true, ...positionState}, () => {
-			if (animation) {
-				main.style.transition = 'opacity .' + this.getSpeed() + 's';
-			}
-			this.handlePopupShown();
-			this.timeout = setTimeout(() => main.style.opacity = '1', 0);
-		});
+		const {animation} = this.props;
+		preAnimate(main, this.getRootElement(), animation);
+		setTimeout(() => {
+			this.setState({shown: true, ...positionState}, () => {
+				this.handlePopupShown();
+				animate(main, this.getRootElement(), animation, ANIMATION_OPTIONS);
+			});
+		}, 100);
 	}
 
 	hidePopup() {
 		clearTimeout(this.timeout);
 		this.removeBodyClickHandler();
 		const {main} = this.refs;
-		main.style.opacity = '0';
 		const {animation} = this.props;
+		animateBack(main, animation, ANIMATION_OPTIONS);
 		const delay = animation ? this.getDelay() : 0;
 		this.timeout = setTimeout(() => {
-			main.style.position = '';		
-			main.style.display = '';
-			main.style.opacity = '';
-			main.style.transition = '';
-			this.setState({shown: false, outY: false, outX: false});
+			this.setState({
+				shown: false,
+				outY: false,
+				outX: false
+			});
 		}, delay + 100);
 		
 	}

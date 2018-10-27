@@ -1,3 +1,5 @@
+@import '../_templates.scss';
+
 .uiex-modal {
     display: none;
     position: fixed;
@@ -16,16 +18,16 @@
     	&.uiex-animation-fade {
             .uiex-modal-mask,
             .uiex-modal-container {
-                transition: opacity 0.2s ease-out;
+                @extend %animation-fade;
             }
         }
         &.uiex-animation-float,
         &.uiex-animation-fall {
             .uiex-modal-mask {
-                transition: opacity 0.2s ease-out;   
+                @extend %animation-fade;
             }
             .uiex-modal-container {
-                transition: margin-top 0.2s, opacity 0.2s ease-out;
+                @extend %animation-move-fade;
             }
         }
         &.uiex-animation-perspective-top,
@@ -33,10 +35,10 @@
         &.uiex-animation-scale-down,
         &.uiex-animation-scale-up {
             .uiex-modal-mask {
-                transition: opacity 0.2s ease-out;   
+                @extend %animation-fade;
             }
             .uiex-modal-container {
-                transition: transform 0.2s, opacity 0.2s ease-out;
+                @extend %animation-transform-fade;
             }
         }
     }

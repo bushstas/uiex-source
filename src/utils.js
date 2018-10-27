@@ -497,3 +497,72 @@ export const removeFromArray = (arr, items) => {
 	}
 	return arr;
 }
+
+const getPerspectiveOrigin = (element) => {
+	const {top, left, width, height} = element.getBoundingClientRect();
+	const {innerWidth, innerHeight} = window;
+	const x = left + width / 2;
+	const y = top + height / 2;
+	const px = Math.round(x * 100 / innerWidth);
+	const py = Math.round(y * 100 / innerHeight);
+	return `${px}% ${py}%`;
+}
+
+export const preAnimate = (element, parent, animation, options = {}) => {
+	element.style.opacity = '';
+	element.style.marginTop = '';
+	element.style.transform = '';
+	if (animation) {
+		element.style.opacity = '0';
+		if (animation == 'perspective-top' || animation == 'perspective-bottom') {
+			parent.style.perspective = (options.perspective || 1500) + 'px';
+		} else {
+			parent.style.perspective = '';
+		}
+	}
+}
+
+const applyAnimation = (element, animation, options) => {
+	const margin = options.margin || 50;
+	if (animation == 'fall') {
+		element.style.marginTop = `-${margin}px`;
+	} else if (animation == 'float') {
+		element.style.marginTop = `${margin}px`;
+	} else if (animation == 'scale-up') {
+		const scale = options.scaleUp || 0.5;
+		element.style.transform = `scale(${scale})`;
+	} else if (animation == 'scale-down') {
+		const scale = options.scaleDown || 2;
+		element.style.transform = `scale(${scale})`;
+	} else if (animation == 'perspective-top') {
+		element.style.transform = 'rotateX(-60deg)';
+	} else if (animation == 'perspective-bottom') {
+		element.style.transform = 'rotateX(60deg)';
+	}
+}
+
+export const animate = (element, parent, animation, options = {}) => {
+	setTimeout(() => {
+		if (animation == 'perspective-top' || animation == 'perspective-bottom') {
+			parent.style.perspectiveOrigin = getPerspectiveOrigin(element);
+		} else {
+			parent.style.perspectiveOrigin = '';
+		}
+	}, 50);
+	applyAnimation(element, animation, options);
+	setTimeout(() => {
+		if (animation == 'fall' || animation == 'float') {
+			element.style.marginTop = '0px';
+		} else if (animation == 'scale-up' || animation == 'scale-down') {
+			element.style.transform = 'scale(1) rotateX(0deg)';
+		} else if (animation == 'perspective-top' || animation == 'perspective-bottom') {
+			element.style.transform = 'rotateX(0deg)';
+		}		
+		element.style.opacity = '1';
+	}, 100);
+}
+
+export const animateBack = (element, animation, options = {}) => {
+	element.style.opacity = '0';
+	applyAnimation(element, animation, options);
+}

@@ -1,0 +1,9 @@
+%animation-fade {
+    transition: opacity 0.2s ease-out;
+}
+%animation-move-fade {
+    transition: margin-top 0.2s, opacity 0.2s ease-out;
+}
+%animation-transform-fade {
+    transition: transform 0.2s, opacity 0.2s ease-out;
+}

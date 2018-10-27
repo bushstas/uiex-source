@@ -5,7 +5,16 @@ import {UIEXComponent} from '../UIEXComponent';
 import {Icon} from '../Icon';
 import {Draggable, DragHandleArea} from '../Draggable';
 import {ModalPropTypes} from './proptypes';
-import {replace, getNumberOrNull, addClass, removeClass, getNumericProp} from '../utils';
+import {
+	replace,
+	getNumberOrNull,
+	addClass,
+	removeClass,
+	getNumericProp,
+	preAnimate,
+	animate,
+	animateBack
+} from '../utils';
 
 import '../style.scss';
 import './style.scss';
@@ -82,51 +91,26 @@ class ModalComponent extends UIEXComponent {
 		const {mask, outer} = this.refs;
 		const {animation, maskColor} = this.props;
 		const maskOpacity = this.getMaskOpacity();
-		
-		container.style.opacity = '';
 		if (mask) {
 			mask.style.opacity = maskOpacity;
 			if (maskColor && typeof maskColor == 'string') {
 				mask.style.backgroundColor = maskColor;
 			}
 		}
-		container.style.marginTop = '';
-		container.style.transform = '';
-		
+		preAnimate(container, outer, animation);
 		if (animation) {
-			container.style.opacity = '0';
 			if (mask) {
 				mask.style.opacity = '0';
-			}
-			if (animation == 'perspective-top' || animation == 'perspective-bottom') {
-				outer.style.perspective = '1500px';
-			} else {
-				outer.style.perspective = '';
 			}
 			setTimeout(() => {
 				this.setState({isOpen: true}, () => {
 					this.initPosition();
-					if (animation == 'fall') {
-						container.style.marginTop = '-50px';
-					} else if (animation == 'float') {
-						container.style.marginTop = '50px';
-					} else if (animation == 'scale-up') {
-						container.style.transform = 'scale(0.5)';
-					} else if (animation == 'scale-down') {
-						container.style.transform = 'scale(2)';
-					} else if (animation == 'perspective-top') {
-						container.style.transform = 'rotateX(-60deg)';
-					} else if (animation == 'perspective-bottom') {
-						container.style.transform = 'rotateX(60deg)';
-					}
-					setTimeout(() => {
-						container.style.marginTop = '0px';
-						container.style.transform = 'scale(1) rotateX(0deg)';
-						container.style.opacity = '1';
-						if (mask) {
+					animate(container, outer, animation);
+					if (mask) {
+						setTimeout(() => {
 							mask.style.opacity = maskOpacity;
-						}
-					}, 100);
+						}, 100);
+					}
 				});
 			}, 10);
 		} else {
@@ -134,10 +118,6 @@ class ModalComponent extends UIEXComponent {
 				this.initPosition();
 			});
 		}
-	}
-
-	getMaskOpacity() {
-		return getNumericProp(this.props.maskOpacity, DEFAULT_MASK_OPACITY, 0, 10) / 10;
 	}
 
 	animateHiding(isAction = false) {
@@ -148,23 +128,10 @@ class ModalComponent extends UIEXComponent {
 		const {mask} = this.refs;
 		const {animation} = this.props;
 		if (animation) {
-			container.style.opacity = '0';
 			if (mask) {
 				mask.style.opacity = '0';
 			}
-			if (animation == 'fall') {
-				container.style.marginTop = '-50px';
-			} else if (animation == 'float') {
-				container.style.marginTop = '50px';
-			} else if (animation == 'scale-up') {
-				container.style.transform = 'scale(0.5)';
-			} else if (animation == 'scale-down') {
-				container.style.transform = 'scale(2)';
-			} else if (animation == 'perspective-top') {
-				container.style.transform = 'rotateX(-60deg)';
-			} else if (animation == 'perspective-bottom') {
-				container.style.transform = 'rotateX(60deg)';
-			}
+			animateBack(container, animation);
 			setTimeout(() => {
 				this.setState({isOpen: false}, () => {
 					if (isAction) {
@@ -178,6 +145,10 @@ class ModalComponent extends UIEXComponent {
 				this.fireClose();
 			}
 		}
+	}
+
+	getMaskOpacity() {
+		return getNumericProp(this.props.maskOpacity, DEFAULT_MASK_OPACITY, 0, 10) / 10;
 	}
 
 	fireClose() {

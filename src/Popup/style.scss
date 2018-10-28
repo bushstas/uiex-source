@@ -23,4 +23,8 @@
     &.uiex-animation-scale-up {
         @extend %animation-transform-fade;
     }
+
+    .uiex-popup-inner {
+        position: relative;
+    }
 }

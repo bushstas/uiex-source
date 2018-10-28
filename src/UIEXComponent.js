@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {Renderer} from './Renderer';
 import {registerContext, unregisterContext} from './state-master';
 import {UIEXAnimatedPropTypes} from './UIEXComponentPropTypes';
 import {
@@ -18,7 +19,8 @@ import {
 	mergeStyleProps,
 	preAnimate,
 	animate,
-	animateBack
+	animateBack,
+	addToClassName
 } from './utils';
 import {FORM_BUTTON_DISPLAY} from './consts';
 
@@ -333,7 +335,7 @@ export class UIEXComponent extends React.PureComponent {
 		return true;
 	}
 
-	getClassName(cn, add = null) {
+	getClassName(cn, ...add) {
 		let classNames;
 		if (cn instanceof Array) {
 			classNames = [];
@@ -344,7 +346,14 @@ export class UIEXComponent extends React.PureComponent {
 		} else {
 			classNames = this.getNativeClassName() + '-' + cn;
 		}
-		return classNames + (add && typeof add == 'string' ? ' ' + add : '');
+		if (add.length > 0) {
+			for (let i = 0; i < add.length; i++) {
+				if (add[i]) {
+					classNames = addToClassName(add[i], classNames);
+				}
+			}
+		}
+		return classNames;
 	}
 
 	isAlignable() {

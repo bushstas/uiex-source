@@ -51,11 +51,12 @@
             right: 0 !important;
             top: 0 !important;
             bottom: 0 !important;
-    		border-radius: 0;
-    		border: 0;
+    		border-radius: 0 !important;
+    		border: 0 !important;
             margin: 0 !important;
             width: auto !important;
             height: auto !important;
+            max-height: none !important;
 
             .uiex-modal-header {
                 border-radius: 0;
@@ -136,7 +137,7 @@
             border-top-right-radius: 3px;
         }
     }
-    &.uiex-without-footer {
+    &.uiex-without-footer:not(.uiex-expanded) {
         .uiex-modal-body {
             border-bottom-left-radius: 3px;
             border-bottom-right-radius: 3px;

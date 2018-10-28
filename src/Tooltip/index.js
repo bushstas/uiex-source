@@ -87,10 +87,17 @@ export class Tooltip extends UIEXComponent {
 			position,
 			popupStyle,
 			popupWidth,
-			animation
+			animation,
+			transparent,
+			popupColor
 		} = this.props;
 		const text = this.getText();
-		const TagName = this.getTagName(); 
+		const TagName = this.getTagName();
+		const className = this.getClassName(
+			'popup',
+			transparent ? 'uiex-transparent' : '',
+			popupColor ? `uiex-color-${popupColor}` : ''
+		);
 		return (
 			<TagName {...this.getProps()}>
 				<div 
@@ -105,7 +112,7 @@ export class Tooltip extends UIEXComponent {
 					{text}
 				</div>
 				<Popup
-					className={this.getClassName('popup')}
+					className={className}
 					isOpen={this.getProp('popupShown')}
 					target={this.tooltipRef.current}
 					nowrap={nowrap}

@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Renderer} from './Renderer';
 import {registerContext, unregisterContext} from './state-master';
 import {UIEXAnimatedPropTypes} from './UIEXComponentPropTypes';
 import {
@@ -389,6 +388,10 @@ export class UIEXComponent extends React.PureComponent {
 		const eventPropName = 'on' + ucfirst(eventName);
 		const hasHandler = typeof this.props[eventPropName] == 'function';
 		if (hasHandler) {
+			const {renderedFromObject} = this.props;
+			if (renderedFromObject instanceof Object) {
+				args.push(renderedFromObject);
+			}
 			this.props[eventPropName].apply(this, args);
 		}
 		return hasHandler;

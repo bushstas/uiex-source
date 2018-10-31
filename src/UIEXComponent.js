@@ -133,7 +133,7 @@ export class UIEXComponent extends React.PureComponent {
 				return null;
 			}
 			if (isValidElement) {
-				if (child.props.hidden) {
+				if (child.props.skipped) {
 					return null;
 				}
 				const props = {
@@ -202,6 +202,9 @@ export class UIEXComponent extends React.PureComponent {
 	}
 
 	render() {
+		if (this.props.skipped) {
+			return null;
+		}
 		this.initRendering();
 		return this.renderInternal();
 	}
@@ -334,7 +337,10 @@ export class UIEXComponent extends React.PureComponent {
 		return true;
 	}
 
-	getClassName(cn, ...add) {
+	getClassName(cn = null, ...add) {
+		if (!cn) {
+			return this.getNativeClassName();
+		}
 		let classNames;
 		if (cn instanceof Array) {
 			classNames = [];
@@ -388,9 +394,9 @@ export class UIEXComponent extends React.PureComponent {
 		const eventPropName = 'on' + ucfirst(eventName);
 		const hasHandler = typeof this.props[eventPropName] == 'function';
 		if (hasHandler) {
-			const {renderedFromObject} = this.props;
-			if (renderedFromObject instanceof Object) {
-				args.push(renderedFromObject);
+			const {sourceObject} = this.props;
+			if (sourceObject instanceof Object) {
+				args.push(sourceObject);
 			}
 			this.props[eventPropName].apply(this, args);
 		}

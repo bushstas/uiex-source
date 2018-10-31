@@ -12,7 +12,7 @@ export const ArrowPropTypes = {
 	figuredDepth: PROPTYPE.STRNUM,
 	clipped: PropTypes.bool,
 	figured: PropTypes.bool,
-	color: PROPTYPE.COLORS,
+	color: PropTypes.string,
 	onClick: PropTypes.func,
 	onDisabledClick: PropTypes.func
 }

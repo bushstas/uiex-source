@@ -21,6 +21,9 @@ export class Popup extends UIEXPopup {
 	}
 
 	setPositionByTarget(target) {
+		if (target instanceof Object && target.current instanceof Element) {
+			target = target.current;
+		}
 		if (target instanceof Element) {
 			const {main} = this.refs;
 			const {left, top, width, height} = target.getBoundingClientRect();
@@ -71,6 +74,36 @@ export class Popup extends UIEXPopup {
 				case 'left-bottom':
 					y = top;
 					x = left - ownWidth - SIDE_MARGIN;
+				break;
+
+				case 'bottom-right':
+					y = top + height + SIDE_MARGIN;
+					x = left;
+				break;
+
+				case 'bottom-center':
+					y = top + height + SIDE_MARGIN;
+					x = left + width / 2 - ownWidth / 2;
+				break;
+
+				case 'bottom-left':
+					y = top + height + SIDE_MARGIN;
+					x = left + width - ownWidth;
+				break;
+
+				case 'top-right':
+					y = top - ownHeight - SIDE_MARGIN;
+					x = left;
+				break;
+
+				case 'top-center':
+					y = top - ownHeight - SIDE_MARGIN;
+					x = left + width / 2 - ownWidth / 2;
+				break;
+
+				case 'top-left':
+					y = top - ownHeight - SIDE_MARGIN;
+					x = left + width - ownWidth;
 				break;
 
 				default:

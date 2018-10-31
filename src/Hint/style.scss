@@ -1,0 +1,121 @@
+.uiex-hint {
+    &.uiex-with-arrow {
+        opacity: 0.3;
+        .uiex-arrow-outer {
+            position: absolute;
+            right: 100%;
+            top: 12px;
+        }
+    }
+    &.uiex-position-right-above {
+        .uiex-arrow-outer {
+            top: 100%;
+            margin-right: -8px;
+            margin-top: -8px;
+        }
+    }
+    &.uiex-position-right-top {
+        .uiex-arrow-outer {
+            bottom: 12px;
+            top: auto;
+        }
+    }
+    &.uiex-position-right-center {
+        .uiex-arrow-outer {
+            top: 50%;
+            margin-top: -7px;
+        }
+    }
+    &.uiex-position-right-under {
+        .uiex-arrow-outer {
+            top: auto;
+            bottom: 100%;
+            margin-right: -8px;
+            margin-bottom: -8px;
+        }
+    }
+    &.uiex-position-left-above {
+        .uiex-arrow-outer {
+            right: auto;
+            left: 100%;
+            top: 100%;
+            margin-left: -8px;
+            margin-top: -8px;
+        }
+    }
+    &.uiex-position-left-top {
+        .uiex-arrow-outer {
+            bottom: 12px;
+            left: 100%;
+            right: auto;
+            top: auto;
+        }
+    }
+    &.uiex-position-left-center {
+        .uiex-arrow-outer {
+            left: 100%;
+            right: auto;
+            top: 50%;
+            margin-top: -7px;
+        }
+    }
+    &.uiex-position-left-bottom {
+        .uiex-arrow-outer {
+            left: 100%;
+            right: auto;
+        }
+    }
+    &.uiex-position-left-under {
+        .uiex-arrow-outer {
+            top: auto;
+            bottom: 100%;
+            left: 100%;
+            right: auto;
+            margin-left: -8px;
+            margin-bottom: -8px;
+        }
+    }
+    &.uiex-position-bottom-right {
+        .uiex-arrow-outer {
+            top: auto;
+            bottom: 100%;
+            left: 12px;
+            right: auto;
+        }
+    }
+    &.uiex-position-bottom-center {
+        .uiex-arrow-outer {
+            top: auto;
+            bottom: 100%;
+            right: 50%;
+            margin-right: -7px;
+        }
+    }
+    &.uiex-position-bottom-left {
+        .uiex-arrow-outer {
+            top: auto;
+            bottom: 100%;
+            right: 12px;
+        }
+    }
+    &.uiex-position-top-right {
+        .uiex-arrow-outer {
+            top: 100%;
+            left: 12px;
+            right: auto;
+        }
+    }
+    &.uiex-position-top-center {
+        .uiex-arrow-outer {
+            top: 100%;
+            right: 50%;
+            margin-right: -7px;
+        }
+    }
+    &.uiex-position-top-left {
+        .uiex-arrow-outer {
+            top: 100%;
+            right: 12px;
+        }
+    }
+}

@@ -27,9 +27,42 @@ export const TOOLTIP_TYPES = ['simple', 'round', 'triangle', 'square'];
 export const TOOLTIP_POSITIONS = [
 	'right-above', 'right-top', 'right-center', 'right-bottom', 'right-under',
 	'left-above', 'left-top', 'left-center', 'left-bottom', 'left-under',
-	'bottom-before', 'bottom-left', 'bottom-center', 'bottom-right', 'bottom-after',
-	'top-before', 'top-left', 'top-center', 'top-right', 'top-after'
+	'bottom-left', 'bottom-center', 'bottom-right',
+	'top-left', 'top-center', 'top-right'
 ];
+
+export const COLOR_HEXES = {
+	black: '#333',
+	gray: '#d1d1d1',
+	white: '#fff',
+	red: '#e60614',
+	blue: '#4a90e4',
+	green: '#53bb44',
+	yellow: '#f9e622',
+	orange: '#ffab32'
+};
+
+export const TEXT_COLOR_HEXES = {
+	black: '#fff',
+	gray: '#111',
+	white: '#333',
+	red: '#fff',
+	blue: '#fff',
+	green: '#fff',
+	yellow: '#3d3e00',
+	orange: '#4a2600'
+};
+
+export const BORDER_COLOR_HEXES = {
+	black: '#000',
+	gray: '#aaa',
+	white: '#eee',
+	red: '#fff',
+	blue: '#fff',
+	green: '#fff',
+	yellow: '#3d3e00',
+	orange: '#4a2600'
+};
 
 const ARRAY_INPUT_TYPE = PropTypes.oneOf(ARRAY_INPUT_TYPES);
 const ARRAY_OF_STRNUMS = PropTypes.arrayOf(

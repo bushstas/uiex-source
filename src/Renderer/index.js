@@ -36,7 +36,7 @@ export class Renderer extends React.PureComponent {
 		if (componentsMap[type]) {
 			type = componentsMap[type];
 			props.uncontrolled = true;
-			props.renderedFromObject = child;
+			props.sourceObject = child;
 		}
 		return React.createElement(type, props, this.renderChildren(children));
 	}

@@ -1,6 +1,6 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
-import {Popup} from '../Popup';
+import {Hint} from '../Hint';
 import {TooltipPropTypes} from './proptypes';
 import {getNumericProp} from '../utils';
 
@@ -11,7 +11,6 @@ const DEFAULT_SIZE = 22;
 const MIN_SIZE = 18;
 const MAX_SIZE = 60;
 const RATIO = .64;
-const MAX_DELAY = 2000;
 const DEFAULT_TEXT = '?';
 
 export class Tooltip extends UIEXComponent {
@@ -21,9 +20,6 @@ export class Tooltip extends UIEXComponent {
 
 	constructor(props) {
 		super(props);
-		this.state = {
-			popupShown: props.popupShown
-		};
 		this.tooltipRef = React.createRef();
 	}
 
@@ -37,13 +33,6 @@ export class Tooltip extends UIEXComponent {
 		return {
 			width: size,
 			height: size
-		};
-	}
-
-	getCustomProps() {
-		return {
-			onMouseEnter: this.handleMouseEnter,
-			onMouseLeave: this.handleMouseLeave
 		};
 	}
 
@@ -82,22 +71,28 @@ export class Tooltip extends UIEXComponent {
 
 	renderInternal() {
 		const {
+			popupShown,
+			uncontrolled,
+			height,
 			children,
 			nowrap,
 			position,
 			popupStyle,
 			popupWidth,
 			animation,
-			transparent,
-			popupColor
+			transparency,
+			popupColorTheme,
+			popupColor,
+			textColor,
+			popupFrozen,
+			disabled,
+			delay,
+			withArrow,
+			withBorder,
+			withShadow
 		} = this.props;
 		const text = this.getText();
 		const TagName = this.getTagName();
-		const className = this.getClassName(
-			'popup',
-			transparent ? 'uiex-transparent' : '',
-			popupColor ? `uiex-color-${popupColor}` : ''
-		);
 		return (
 			<TagName {...this.getProps()}>
 				<div 
@@ -111,39 +106,36 @@ export class Tooltip extends UIEXComponent {
 				>
 					{text}
 				</div>
-				<Popup
-					className={className}
-					isOpen={this.getProp('popupShown')}
-					target={this.tooltipRef.current}
-					nowrap={nowrap}
+				<Hint
+					isOpen={popupShown}
+					target={this.tooltipRef}
 					position={position}
 					animation={animation}
 					width={popupWidth}
+					height={height}
 					style={popupStyle}
-					inPortal
+					nowrap={nowrap}
+					transparency={transparency}
+					colorTheme={popupColorTheme}
+					color={popupColor}
+					textColor={textColor}
+					uncontrolled={uncontrolled}
+					isFrozen={popupFrozen}
+					disabled={disabled}
+					delay={delay}
+					withArrow={withArrow}
+					withBorder={withBorder}
+					withShadow={withShadow}
+					withMouseEventHandlers
+					onToggleShown={this.handleHintToggleShown}
 				>
 					{children}
-				</Popup>
+				</Hint>
 			</TagName>
 		)
 	}
 
-	handleMouseEnter = () => {
-		const {popupShown, disabled} = this.props;
-		if (!popupShown && !disabled) {
-			const delay = getNumericProp(this.props.delay, 0, 0, MAX_DELAY);
-			clearTimeout(this.timeout);
-			this.timeout = setTimeout(() => {
-				this.firePropChange('togglePopup', 'popupShown', [true], true);
-			}, delay);
-		}
-	}
-
-	handleMouseLeave = () => {
-		const {popupFrozen, disabled} = this.props;
-		if (!popupFrozen && !disabled) {
-			clearTimeout(this.timeout);
-			this.firePropChange('togglePopup', 'popupShown', [false], false);
-		}
+	handleHintToggleShown = (shown) => {
+		this.firePropChange('togglePopup', 'popupShown', [shown], shown);
 	}
 }

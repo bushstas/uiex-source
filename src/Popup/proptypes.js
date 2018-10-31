@@ -9,6 +9,7 @@ const COORD = PropTypes.oneOfType([
 
 export const PopupPropTypes = {
 	...UIEXComponentPropTypes,
+	target: PropTypes.object,
 	isOpen: PropTypes.bool,
 	queueName: PropTypes.string,
 	inPortal: PropTypes.bool,

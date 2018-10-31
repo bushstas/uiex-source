@@ -2,23 +2,20 @@ import PropTypes from 'prop-types';
 import {UIEXComponentPropTypes} from '../UIEXComponentPropTypes';
 import {PROPTYPE} from '../consts';
 
-export const TooltipPropTypes = {
+export const HintPropTypes = {
 	...UIEXComponentPropTypes,
-	type: PROPTYPE.TOOLTIP_TYPES,
+	target: PropTypes.object,
 	position: PROPTYPE.TOOLTIP_POSITIONS,
-	size: PROPTYPE.STRNUM,
-	text: PropTypes.string,
 	transparency: PROPTYPE.STRNUM,
-	delay: PROPTYPE.STRNUM,
-	popupWidth: PROPTYPE.STRNUM,
-	popupColorTheme: PROPTYPE.COLORS,
-	popupColor: PropTypes.string,
+	colorTheme: PROPTYPE.COLORS,
+	bgColor: PropTypes.string,
 	animation: PROPTYPE.MODAL_ANIMATION,
-	popupShown: PropTypes.bool,
-	popupFrozen: PropTypes.bool,
+	isOpen: PropTypes.bool,
+	isFrozen: PropTypes.bool,
 	nowrap: PropTypes.bool,
 	withArrow: PropTypes.bool,
 	withBorder: PropTypes.bool,
 	withShadow: PropTypes.bool,
+	withMouseEventHandlers: PropTypes.bool,
 	popupStyle: PropTypes.object
 }

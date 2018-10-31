@@ -14,6 +14,7 @@ export const UIEXComponentPropTypes = {
     float: PROPTYPE.FLOAT,
     block: PropTypes.bool,
     hidden: PropTypes.bool,
+    skipped: PropTypes.bool,
     vertical: PropTypes.bool
 }
 

@@ -7,9 +7,6 @@
         display: block;
     }
 
-    &.uiex-nowrap {
-        white-space: nowrap;
-    }
     &.uiex-animation-fade {
         @extend %animation-fade;
     }

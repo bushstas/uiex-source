@@ -1,0 +1,51 @@
+.uiex-text-block {
+    position: relative;
+    display: block;
+    line-height: 18px;
+    font-size: 14px;
+    font-weight: normal;
+    white-space: normal;
+    font-style: normal;
+    text-align: left;
+
+    .uiex-text-block-background {
+    	position: absolute;
+    	left: 0;
+    	top: 0;
+    	right: 0;
+    	bottom: 0;
+    }
+
+    .uiex-text-block-content {
+    	position: relative;
+    }
+
+    &.uiex-bold {
+    	font-weight: bold;
+    }
+
+    &.uiex-italic {
+    	font-style: italic;
+    }
+
+    &.uiex-nowrap {
+    	white-space: nowrap;
+    }
+
+    &.uiex-justify {
+    	text-align: justify;
+    }
+
+    &.uiex-noselect {
+    	user-select: none;
+    	-moz-user-select: none;
+    }
+
+    &.uiex-ellipsis {
+    	.uiex-text-block-content {
+	    	overflow: hidden;
+	    	text-overflow: ellipsis;
+	    	white-space: nowrap;
+	    }
+    }
+}

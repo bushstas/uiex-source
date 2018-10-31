@@ -64,6 +64,14 @@ export const mapChildren = (children, renderChild) => {
 	return ch.length == 0 ? null : ch;
 }
 
+export const getMergedClassName = (...classNames) => {
+	let className;
+	for (let i = 0; i < classNames.length; i++) {
+		className = addToClassName(classNames[i], className);
+	}
+	return className;
+};
+
 export const addToClassName = (classNameToAdd, className = undefined) => {
 	if (classNameToAdd && typeof classNameToAdd == 'string') {
 		if (!className || typeof className != 'string') {
@@ -161,7 +169,7 @@ export const getNumberInPxOrPercent = (n) => {
 		if (!i) {
 			return n;
 		}
-		return i + 'px';
+		return `${i}px`;
 	}
 	return '';
 }

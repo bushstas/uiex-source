@@ -1,0 +1,47 @@
+.uiex-label {
+    display: inline-flex;
+    height: 22px;
+    position: relative;
+    vertical-align: top;
+    border-radius: 5px;
+    padding: 0 8px 1px 8px;
+    font-size: 75%;
+    font-weight: 700;
+	align-items: center;
+	justify-content: center;
+	background-color: #f1f1f1;	
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	box-sizing: border-box;
+	user-select: none;
+	margin-left: 7px;
+
+	&:last-child {
+		margin-right: 0;
+	}
+    
+    &.uiex-removable {
+    	padding-right: 24px;
+    }
+    
+    .uiex-label-content {
+    	display: block;
+		overflow: hidden;
+    	white-space: nowrap;
+    	text-overflow: ellipsis;
+    }
+    .uiex-label-close {
+		display: block;
+		box-sizing: border-box;
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 22px;
+		bottom: 0;
+		padding-top: 2px;
+		padding-left: 4px;
+		z-index: 2;
+		cursor: pointer;
+	}
+}

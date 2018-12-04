@@ -15,7 +15,10 @@
 	z-index: 1100;
 	pointer-events: none;
 }
-
+.uiex-no-select {
+	user-select: none;
+	-moz-user-select: none;
+}
 .uiex-scrollable {
 	&::-webkit-scrollbar {
 		width: 7px;

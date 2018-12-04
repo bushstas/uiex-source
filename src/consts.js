@@ -23,6 +23,7 @@ export const DRAG_POSITION_Y = ['top', 'center', 'bottom', 'top-out', 'bottom-ou
 export const DISPLAY_TIME = ['left-out', 'left-in', 'right-out', 'right-in', 'top', 'bottom'];
 export const BOX_SECTION_VIEWS = ['header', 'large', 'small'];
 export const SPINNER_TYPES = ['ring', 'dual-ring', 'roller'];
+export const AXIS = ['vertical', 'horizontal'];
 export const TOOLTIP_TYPES = ['simple', 'round', 'triangle', 'square'];
 export const TOOLTIP_POSITIONS = [
 	'right-above', 'right-top', 'right-center', 'right-bottom', 'right-under',
@@ -131,6 +132,7 @@ export const PROPTYPE = {
 		PropTypes.array,
 		PropTypes.object
 	]),
+	AXIS: PropTypes.oneOf(AXIS),
 	TOOLTIP_TYPES: PropTypes.oneOf(TOOLTIP_TYPES),
 	TOOLTIP_POSITIONS: PropTypes.oneOf(TOOLTIP_POSITIONS),
 	SPINNER_TYPES: PropTypes.oneOf(SPINNER_TYPES),

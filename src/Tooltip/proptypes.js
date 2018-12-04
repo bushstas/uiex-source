@@ -11,6 +11,9 @@ export const TooltipPropTypes = {
 	transparency: PROPTYPE.STRNUM,
 	delay: PROPTYPE.STRNUM,
 	popupWidth: PROPTYPE.STRNUM,
+	popupBorder: PropTypes.string,
+	popupShadow: PropTypes.string,
+	textColor: PropTypes.string,
 	popupColorTheme: PROPTYPE.COLORS,
 	popupColor: PropTypes.string,
 	animation: PROPTYPE.MODAL_ANIMATION,
@@ -18,7 +21,5 @@ export const TooltipPropTypes = {
 	popupFrozen: PropTypes.bool,
 	nowrap: PropTypes.bool,
 	withArrow: PropTypes.bool,
-	withBorder: PropTypes.bool,
-	withShadow: PropTypes.bool,
 	popupStyle: PropTypes.object
 }

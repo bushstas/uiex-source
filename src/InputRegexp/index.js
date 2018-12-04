@@ -31,13 +31,30 @@ export class InputRegexp extends Input {
 			let v;
 			try {
 				v = new RegExp(value);
-				this.fireChangeValidity(true, v);
 			} catch(e) {
-				this.fireChangeValidity(false, value);
 				return value;
 			}
 			return v;
 		}
 		return value;
+	}
+
+	isValueValid(value) {
+		const {required} = this.props;
+		if (value || required) {
+			if (value == null) {
+				value = '';
+			}
+			if (!value && required) {
+				return false;
+			}
+			try {
+				value = new RegExp(value);
+			} catch(e) {
+				return false;
+			}
+			return true;
+		}
+		return null;
 	}
 }

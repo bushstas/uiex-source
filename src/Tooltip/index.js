@@ -88,8 +88,8 @@ export class Tooltip extends UIEXComponent {
 			disabled,
 			delay,
 			withArrow,
-			withBorder,
-			withShadow
+			popupBorder,
+			popupShadow
 		} = this.props;
 		const text = this.getText();
 		const TagName = this.getTagName();
@@ -124,8 +124,8 @@ export class Tooltip extends UIEXComponent {
 					disabled={disabled}
 					delay={delay}
 					withArrow={withArrow}
-					withBorder={withBorder}
-					withShadow={withShadow}
+					border={popupBorder}
+					boxShadow={popupShadow}
 					withMouseEventHandlers
 					onToggleShown={this.handleHintToggleShown}
 				>

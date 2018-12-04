@@ -1,13 +1,14 @@
 .uiex-text-block {
     position: relative;
     display: block;
-    line-height: 18px;
     font-size: 14px;
     font-weight: normal;
     white-space: normal;
     font-style: normal;
     text-align: left;
+    border: none !important;
 
+    .uiex-text-block-border,
     .uiex-text-block-background {
     	position: absolute;
     	left: 0;

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Input} from '../Input';
-import {regexEscape, replace, propsChanged} from '../utils';
+import {regexEscape, replace, isString} from '../utils';
 import {InputPhonePropTypes} from './proptypes';
 
 import '../style.scss';
@@ -14,17 +14,9 @@ export class InputPhone extends Input {
 	static isControl = true;
 	static displayName = 'InputPhone';
 
-	componentDidUpdate(prevProps) {
-		super.componentDidUpdate(prevProps);
-		let {onChange, name, value} = this.props;
-		if (value && propsChanged(prevProps, this.props, PROPS_LIST)) {
-			if (typeof onChange == 'function') {
-				const newValue = this.filterValue(this.getWithoutCode(value));
-				if (newValue != value) {
-					onChange(newValue, name);
-				}
-			}
-		}
+	constructor(props) {
+		super(props);
+		this.propsList = PROPS_LIST;
 	}
 
 	addClassNames(add) {
@@ -36,7 +28,7 @@ export class InputPhone extends Input {
 	renderAdditionalContent() {
 		let {code} = this.props;
 		if (code) {
-			if (typeof code == 'string') {
+			if (isString(code)) {
 				code = code.trim();
 			}
 			return (
@@ -49,19 +41,19 @@ export class InputPhone extends Input {
 
 	getCustomInputProps() {
 		const {mask} = this.props;
-		if (typeof mask == 'string') {
+		if (isString(mask)) {
 			return {
 				maxLength: mask.trim().length
 			}
 		}
 	}
 
-	getValue() {
-		let value = this.getWithoutCode(super.getValue());
-		return this.getMaskedValue(value);
+	transformIntoProperValue(value) {
+		return this.getMaskedValue(this.getWithoutCode(value));
 	}
 
-	filterValue(value) {		
+	filterValue(value) {
+		value = super.filterValue(value);
 		const {numeric} = this.props;
 		return numeric ? replace(/[^\d]/g, '', this.getWithCode(value)) : this.getWithCode(this.getMaskedValue(value));
 	}
@@ -69,7 +61,7 @@ export class InputPhone extends Input {
 	getMaskedValue(value) {
 		let properValue = value;
 		let {mask} = this.props;
-		if (typeof mask == 'string') {
+		if (isString(mask)) {
 			value = replace(/[^\d]/g, '', value);
 			mask = mask.trim();
 			const l = mask.length;
@@ -130,10 +122,13 @@ export class InputPhone extends Input {
 		return '';
 	}
 
-	checkValidity(value, props = this.props) {
-		let {withCode, required, code, numeric, numericCode, mask} = props;
+	isValueValid(value) {
+		let {withCode, required, code, numeric, numericCode, mask} = this.props;
 		if (value || required) {
-			if (typeof mask != 'string') {
+			if (value == null) {
+				value = '';
+			}
+			if (!isString(mask)) {
 				mask = '';
 			}
 			let {length} = !!numeric && !!mask ? replace(/[^\da-z]/ig, '', mask) : mask;
@@ -147,11 +142,8 @@ export class InputPhone extends Input {
 					length += String(code).length;
 				}
 			}
-			const isValid = value.length == length;
-			if (isValid === false && this.isValid == null) {
-				return;
-			}
-			this.fireChangeValidity(isValid, value);
+			return value.length == length;
 		}
+		return null;
 	}
 }

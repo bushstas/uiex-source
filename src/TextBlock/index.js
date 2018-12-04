@@ -19,7 +19,7 @@ export class TextBlock extends UIEXComponent {
 	static propTypes = TextBlockPropTypes;
 	static displayName = 'TextBlock';
 	static className = 'text-block';
-	static propsToCheck = ['fontSize', 'lineHeight', 'textColor', 'padding', 'margin', 'border', 'borderRadius', 'boxShadow', 'textShadow'];
+	static propsToCheck = ['fontSize', 'lineHeight', 'textColor', 'padding', 'margin', 'textShadow'];
 
 	addClassNames(add) {
 		const {bold, italic, noselect, justify, nowrap, withEllipsis} = this.props;
@@ -38,8 +38,6 @@ export class TextBlock extends UIEXComponent {
 			textColor,
 			padding,
 			margin,
-			border,
-			borderRadius,
 			boxShadow,
 			textShadow
 		} = this.props;	
@@ -61,15 +59,6 @@ export class TextBlock extends UIEXComponent {
 		if (margin != null) {
 			style.margin = getNumberInPxOrPercent(margin);
 		}
-		if (borderRadius != null) {
-			style.borderRadius = getNumberInPxOrPercent(borderRadius);
-		}
-		if (border != null) {
-			style.border = border;
-		}
-		if (boxShadow != null) {
-			style.boxShadow = boxShadow;
-		}
 		if (textShadow != null) {
 			style.textShadow = textShadow;
 		}
@@ -77,7 +66,7 @@ export class TextBlock extends UIEXComponent {
 	}
 
 	getBgStyle() {
-		let {bgColor, borderRadius} = this.props;
+		let {bgColor, borderRadius, boxShadow} = this.props;
 		const transparency = this.getTransparency();
 		const style = this.cachedStyle || {};
 		if (!bgColor || typeof bgColor != 'string') {
@@ -86,16 +75,21 @@ export class TextBlock extends UIEXComponent {
 		if (!borderRadius) {
 			borderRadius = style.borderRadius;
 		}
+		if (!boxShadow) {
+			boxShadow = style.boxShadow;
+		}
 		if (
 			!this.cachedBgStyle ||
 			bgColor != this.cachedBgStyle.backgroundColor ||
 			transparency != this.cachedBgStyle.opacity ||
+			boxShadow != this.cachedBgStyle.boxShadow ||
 			borderRadius != this.cachedBgStyle.borderRadius
 		) {
 			this.cachedBgStyle = {
 				backgroundColor: bgColor,
 				opacity: transparency,
-				borderRadius
+				borderRadius: getNumberInPxOrPercent(borderRadius),
+				boxShadow
 			};
 		}
 		return this.cachedBgStyle;
@@ -113,16 +107,52 @@ export class TextBlock extends UIEXComponent {
 		return getNumericProp(this.props.lineHeight, DEFAULT_LINE_HEIGHT, MIN_LINE_HEIGHT, MAX_LINE_HEIGHT);
 	}
 
+	getBorderOpacity() {
+		return getNumericProp(this.props.borderOpacity, MAX_TRANSPARENCY, MIN_TRANSPARENCY, MAX_TRANSPARENCY) / 10;
+	}
+
+	getBorderStyle() {
+		let {border, borderRadius} = this.props;
+		const borderOpacity = this.getBorderOpacity();
+		const style = this.cachedStyle || {};
+		if (!border || typeof border != 'string') {
+			border = style.border;
+		}
+		if (!borderRadius) {
+			borderRadius = style.borderRadius;
+		}
+		if (
+			!this.cachedBorderStyle ||
+			border != this.cachedBorderStyle.border ||
+			borderOpacity != this.cachedBorderStyle.opacity ||
+			borderRadius != this.cachedBorderStyle.borderRadius
+		) {
+			this.cachedBorderStyle = {
+				border,
+				opacity: borderOpacity,
+				borderRadius: getNumberInPxOrPercent(borderRadius)
+			};
+		}
+		return this.cachedBorderStyle;
+	}
+
 	renderInternal() {
 		let {children} = this.props;
 		const props = this.getProps();
-		const TagName = this.getTagName(); 
+		const TagName = this.getTagName();
+		const borderStyle = this.getBorderStyle();
 		return (
 			<TagName {...props}>				
-				<div 
+				<div
 					className={this.getClassName('background')}
 					style={this.getBgStyle()}
 				/>
+				{borderStyle &&
+					<div
+						className={this.getClassName('border')}
+						style={borderStyle}
+					/>
+				}
 				<div className={this.getClassName('content')}>
 					{children}
 				</div>

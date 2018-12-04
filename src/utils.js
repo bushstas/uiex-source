@@ -1,11 +1,27 @@
 import React from 'react';
 
 export const isObject = (v) => {
-	return v instanceof Object;
+	return v instanceof Object && !isArray(v) && !isFunction(v);
 }
 
 export const isArray = (v) => {
 	return v instanceof Array;
+}
+
+export const isString = (v) => {
+	return typeof v == 'string';
+}
+
+export const isNumber = (v) => {
+	return typeof v == 'number';
+}
+
+export const isBoolean = (v) => {
+	return typeof v == 'boolean';
+}
+
+export const isFunction = (v) => {
+	return typeof v == 'function';
 }
 
 export const mergeStyleProps = (...objects) => {

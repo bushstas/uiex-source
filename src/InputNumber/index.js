@@ -1,8 +1,7 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
 import {Input} from '../Input';
 import {Arrow} from '../Arrow';
-import {getNumberOrNull, replace, propsChanged} from '../utils';
+import {getNumberOrNull, replace, isString, isNumber, isFunction} from '../utils';
 import {InputNumberPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -10,35 +9,29 @@ import './style.scss';
 
 const PROPS_LIST = ['positive', 'negative', 'decimal', 'toFixed', 'minValue', 'maxValue', 'valueWithMeasure'];
 const ADD_STEP = 1;
-
-class InputNumberComponent extends Input {
+	
+export class InputNumber extends Input {
 	static propTypes = InputNumberPropTypes;
 	static className = 'input';
 	static isControl = true;
 	static displayName = 'InputNumber';
 
-	componentDidUpdate(prevProps) {
-		let {onChange, name, value} = this.props;
-		if (value && propsChanged(prevProps, this.props, PROPS_LIST)) {
-			if (typeof onChange == 'function') {
-				const newValue = this.filterValue(value);
-				if (newValue != value) {
-					onChange(newValue, name);
-				}
-			}
-		}
+	constructor(props) {
+		super(props);
+		this.propsList = PROPS_LIST;
 	}
 
 	addClassNames(add) {
 		const {measure, withoutControls} = this.props;
 		super.addClassNames(add);
 		add('number-input');
-		add('with-measure', measure && typeof measure == 'string');
+		add('with-measure', measure && isString(measure));
 		add('without-controls', withoutControls);
 	}
 
 	renderAdditionalInnerContent() {
-		let {disabled, withoutControls, value, positive, negative, readOnly} = this.props;
+		let value = this.getProp('value');
+		let {disabled, withoutControls, positive, negative, readOnly} = this.props;
 		const content = [];
 		const data = this.getMeasure();
 		if (data) {
@@ -95,8 +88,8 @@ class InputNumberComponent extends Input {
 		return [measure, !disabled];
 	}
 
-	getValue() {
-		return this.getProperValue(super.getValue(), true);
+	getProperIncomingValue(value) {
+		return this.getProperValue(value, true);
 	}
 
 	filterValue(value) {
@@ -108,7 +101,7 @@ class InputNumberComponent extends Input {
 				value = this.correctValue(value);
 				this.useAutoCorrection = false;
 			}
-			if (valueWithMeasure && measure && typeof measure == 'string') {
+			if (valueWithMeasure && measure && isString(measure)) {
 				value += measure;
 			}
 		}
@@ -116,30 +109,30 @@ class InputNumberComponent extends Input {
 	}
 
 	correctValue(value) {
-		if (typeof value != 'number') {
+		if (!isNumber(value)) {
 			return value;
 		}
 		let {maxValue, minValue} = this.props;
-		if (typeof maxValue == 'string') {
+		if (isString(maxValue)) {
 			maxValue = getNumberOrNull(maxValue);
 		}
-		if (typeof minValue == 'string') {
+		if (isString(minValue)) {
 			minValue = getNumberOrNull(minValue);
 		}
-		if (typeof maxValue == 'number') {
+		if (isNumber(maxValue)) {
 			value = Math.min(maxValue, value);
 		}
-		if (typeof minValue == 'number') {
+		if (isNumber(minValue)) {
 			value = Math.max(minValue, value);
 		}
 		return value;
 	}
 
 	handleMeasureClick = () => {
-		const {measures, onChangeMeasure, name, disabled} = this.props;
+		const {measures, name, disabled} = this.props;
 		const i = measures.indexOf(this.props.measure);
 		let measure;
-		if (!disabled && typeof onChangeMeasure == 'function') {
+		if (!disabled) {
 			let idx = 0;
 			measure = measures[idx];
 			if (i >= 0 && measures[i + 1]) {
@@ -147,7 +140,7 @@ class InputNumberComponent extends Input {
 				idx = i + 1;
 			}
 			if (measure) {
-				onChangeMeasure(measure, idx, name);
+				this.firePropChange('changeMeasure', 'measure', [measure, idx, name], measure);
 			}
 		}
 	}
@@ -177,9 +170,10 @@ class InputNumberComponent extends Input {
 	}
 
 	changeValue(add) {
-		let {disabled, name, value, onChange, negative, positive, decimal, addStep} = this.props;
-		addStep = getNumberOrNull(addStep) || ADD_STEP;
-		if (!disabled && typeof onChange == 'function') {			
+		let value = this.getProp('value');
+		let {disabled, negative, positive, decimal, addStep} = this.props;
+		if (!disabled) {
+			addStep = getNumberOrNull(addStep) || ADD_STEP;
 			value = this.getProperValue(value);
 			if (negative && positive) {
 				positive = false;
@@ -199,18 +193,18 @@ class InputNumberComponent extends Input {
 			} else if (dec) {
 				value = Number(value.toString() + '.' + dec).toFixed(toFixed);
 			}
-			value = this.filterValue(String(value));
-			onChange(value, name);
+			this.fireChange(value);
 		}
 	}
 	
 	blurHandler() {
 		super.blurHandler();
-		let {correctionOnBlur, value, onChange, name} = this.props;
+		let value = this.getProp('value');
+		let {correctionOnBlur} = this.props;
 		const oldValue = value;
 		value = this.getProperValue(value);
 		let isChanged = value !== oldValue;
-		if (value && correctionOnBlur && typeof onChange == 'function') {
+		if (value && correctionOnBlur) {
 			const correctedValue = this.correctValue(value);
 			if (correctedValue != value) {
 				isChanged = true;
@@ -218,19 +212,19 @@ class InputNumberComponent extends Input {
 			}
 		}
 		if (isChanged) {
-			onChange(value, name);
+			this.fireChange(value);
 		}
 	}
 
 	getProperValue(value, canBeString = false) {
-		if ((!value && value !== 0) || (typeof value != 'string' && typeof value != 'number')) {
+		if ((!value && value !== 0) || (!isNumber(value) && !isString(value))) {
 			return '';
 		}
 		let {negative, positive, decimal} = this.props;
 		if (negative && positive) {
 			positive = false;
 		}
-		if (typeof value == 'number') {
+		if (isNumber(value)) {
 			value = String(value);
 		}
 		if (canBeString && value === '-0') {
@@ -262,28 +256,28 @@ class InputNumberComponent extends Input {
 			value = numValue;
 		}
 		if (withMinus) {		
-			if (typeof value == 'number') {
+			if (isNumber(value)) {
 				value *= -1;
 			} else {
 				value = '-' + value;
 			}
-			if (dec && typeof dec == 'number') {
+			if (dec && isNumber(dec)) {
 				dec *= -1;
 			}
 		}
 		if (dec != null) {
-			if (typeof dec == 'number' && typeof value == 'string') {
+			if (isNumber(dec) && isString(value)) {
 				value += '.' + dec.toString().split('.')[1];
-			} else if (typeof dec == 'string') {
+			} else if (isString(dec)) {
 				value += '.' + dec;
 			} else {
 				value = (value + dec).toFixed(decLength);
 			}
 		}
-		if (typeof value == 'string' && withMinus && value.charAt(0) != '-') {
+		if (isString(value) && withMinus && value.charAt(0) != '-') {
 			value = '-' + value;
 		}
-		return typeof value == 'number' || typeof value == 'string' ? value : '';
+		return isNumber(value) || isString(value) ? value : '';
 	}
 
 	getProperDecimal(dec) {
@@ -291,11 +285,11 @@ class InputNumberComponent extends Input {
 			let {toFixed} = this.props;
 			if (toFixed === 0 || toFixed === '0') {
 				toFixed = 1;
-			} else if (typeof toFixed == 'string') {
+			} else if (isString(toFixed)) {
 				toFixed = getNumberOrNull(toFixed);
 			}
-			if (typeof toFixed == 'number') {
-				if (typeof dec == 'number') {
+			if (isNumber(toFixed)) {
+				if (isNumber(dec)) {
 					dec = dec.toString();
 					const parts = dec.split('.');
 					if (parts[1] != null) {
@@ -317,5 +311,3 @@ class InputNumberComponent extends Input {
 		this.changeValue(-1);
 	}
 }
-
-export const InputNumber = withStateMaster(InputNumberComponent, PROPS_LIST, null, Input);

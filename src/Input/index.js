@@ -1,11 +1,13 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {Icon} from '../Icon';
-import {getNumber, regexEscape, addStyleProperty} from '../utils';
+import {getNumber, regexEscape, isString, isNumber, isFunction, isArray, isBoolean, propsChanged} from '../utils';
 import {InputPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
+
+const PROPS_LIST = ['validating', 'value', 'required', 'minLength'];
 
 export class Input extends UIEXComponent {
 	static propTypes = InputPropTypes;
@@ -19,45 +21,24 @@ export class Input extends UIEXComponent {
 		this.handleBlur = this.blurHandler.bind(this);
 		this.handleClick = this.clickHandler.bind(this);
 		this.handleChange = this.inputHandler.bind(this);
-		this.isValid = null;
-
-		if (props.uncontrolled) {
-			this.state = {
-				value: props.value
-			};
-			if (props.validating) {
-				this.isValid = this.isValueValid(props.value);
-				this.state.valid = this.isValid;
-			}
-		}
 	}
 
 	componentDidMount() {
-		const {validating, uncontrolled} = this.props;
-		if (!uncontrolled && validating) {
-			this.checkValidity(this.props.value);
+		const {initialValue} = this.props;
+		if (initialValue) {
+			const value = this.parseInitialValue(initialValue);
+			return this.fireChange(value);
 		}
+		this.checkValidity();
 	}
 
 	componentDidUpdate(prevProps) {
-		const {uncontrolled, validating, value, required, minLength, pattern} = this.props;
-		if (!uncontrolled && validating) {
-			if (value !== prevProps.value) {
-				return this.checkValidity(value);
-			}
+		const value = this.getProp('value');
+		if (value && isArray(this.propsList) && propsChanged(prevProps, this.props, this.propsList)) {
+			return this.fireChange(value);
 		}
-		if (
-			validating && (
-				validating !== prevProps.validating ||
-				required !== prevProps.required ||
-				minLength !== prevProps.minLength ||
-				pattern !== prevProps.pattern
-			)
-		) {
-			return this.checkValidity(this.getProp('value'));
-		}
-		if (prevProps.validating !== validating) {
-			this.fireChangeValidity(null);
+		if (propsChanged(prevProps, this.props, PROPS_LIST)) {
+			this.checkValidity();
 		}
 	}
 
@@ -71,6 +52,14 @@ export class Input extends UIEXComponent {
 		add('valid', valid === true);
 		add('invalid', valid === false);
 		add('focused', this.state.focused);
+	}
+
+	initRendering() {
+		this.value = this.getValue();
+		this.valueLength = 0;
+		if (isString(this.value) || isNumber(this.value)) {
+			this.valueLength = this.value.toString().length;
+		}
 	}
 
 	renderInternal() {
@@ -91,23 +80,17 @@ export class Input extends UIEXComponent {
 	renderInput() {
 		let {type} = this.props;
 		const {name, placeholder, textarea, maxLength} = this.props;
-		if (!type || typeof type != 'string') {
+		if (!type || !isSting(type)) {
 			type = 'text';
 		}
 		const TagName = !textarea ? 'input' : 'textarea';
-		const customInputProps = this.getCustomInputProps();
-		const value = this.getValue();
-		if (typeof value == 'string' || typeof value == 'number') {
-			this.valueLength = value.toString().length;
-		} else {
-			this.valueLength = 0;
-		}
+		const customInputProps = this.getCustomInputProps();		
 		return (
 			<TagName 
 				ref="input"
 				type={!textarea ? type : null}
 				name={name}
-				value={value}
+				value={this.value}
 				placeholder={placeholder}
 				maxLength={maxLength}
 				autoComplete="off"
@@ -125,11 +108,13 @@ export class Input extends UIEXComponent {
 
 	getValue() {
 		let value = this.getProp('value');
-		let {defaultValue} = this.props;
 		if (value == null) {
-			value = defaultValue || '';
+			value = this.getProperDefaultValue();
 		}
-		return value;
+		if (!value && value !== 0) {
+			return '';
+		}
+		return this.getProperIncomingValue(value);
 	}
 
 	isClearable() {
@@ -180,29 +165,25 @@ export class Input extends UIEXComponent {
 		}
 	}
 
-	fireChange() {
-		const {name, uncontrolled, validating} = this.props;
-		const value = this.filterValue(this.refs.input.value);
-		if (uncontrolled) {
-			this.setState({
-				value,
-				valid: validating ? this.isValueValid(value) : null
-			})	
+	fireChange(value = this.refs.input.value) {
+		const {name} = this.props;
+		if (value !== '') {
+			value = this.getProperOutcomingValue(value);
 		}
-		this.fire('change', value, name);
+		this.firePropChange('change', 'value', [value, name], value);		
 	}
 
 	isValueValid(value) {
 		let {pattern, required, minLength} = this.props;
 		let isValid = true;
-		if (pattern && typeof pattern == 'string') {
+		if (pattern && isString(pattern)) {
 			if (pattern == '^') {
 				pattern = null;
 			} else {
 				pattern = new RegExp(regexEscape(pattern));
 			}
 		}
-		if (value && (pattern instanceof RegExp || typeof pattern == 'function')) {
+		if (value && (pattern instanceof RegExp || isFunction(pattern))) {
 			if (pattern instanceof RegExp) {
 				isValid = pattern.test(value);
 			} else {
@@ -225,15 +206,19 @@ export class Input extends UIEXComponent {
 		return isValid;
 	}
 
-	checkValidity(value) {
-		this.fireChangeValidity(this.isValueValid(value));
-	}
-
-	fireChangeValidity(isValid) {
-		if (isValid !== this.isValid) {
-			const {name, value} = this.props;
-			this.isValid = isValid;
-			this.firePropChange('changeValidity', 'valid', [isValid, value, name], isValid);
+	checkValidity(value = this.props.value) {
+		let currentValid = this.getProp('valid');
+		const {name} = this.props;
+		if (this.props.validating) {
+			const valid = this.isValueValid(value);			
+			if (currentValid === undefined) {
+				currentValid = null;
+			}		
+			if (valid !== currentValid) {
+				this.firePropChange('changeValidity', 'valid', [valid, value, name], valid);
+			}
+		} else if (isBoolean(currentValid)) {
+			this.firePropChange('changeValidity', 'valid', [null, value, name], null);
 		}
 	}
 
@@ -263,8 +248,9 @@ export class Input extends UIEXComponent {
 			}
 			this.fire('blur', value, name);
 			this.setState({focused: false});
-			if (value === '') {
-				this.fire('change', this.getProperDefaultValue(), name);
+			const defaultValue = this.getProperDefaultValue();
+			if (value === '' && defaultValue) {
+				this.fireChange(defaultValue);
 			}
 		}
 	}
@@ -277,16 +263,10 @@ export class Input extends UIEXComponent {
 	}
 
 	handleClear = () => {
-		const {name, disabled, readOnly, uncontrolled, validating} = this.props;
+		const {name, disabled, readOnly} = this.props;
 		if (!disabled && !readOnly) {
-			const value = this.getProperDefaultValue();
-			if (uncontrolled) {
-				this.setState({
-					value,
-					valid: validating ? this.isValueValid(value) : null
-				})	
-			}
-			this.fire('change', value, name);
+			const defaultValue = this.getProperDefaultValue();
+			this.fireChange(defaultValue);
 			this.fire('clear', name);
 		}
 	}
@@ -306,9 +286,9 @@ export class Input extends UIEXComponent {
 			break;
 
 			case 'Escape':
-				this.blur();					
-				this.fire('change', this.valueBeforeFocus, name);
+				this.blur();
 				this.handleEscape();
+				this.fireChange(this.valueBeforeFocus);		
 			break;
 		}
 	}
@@ -326,7 +306,7 @@ export class Input extends UIEXComponent {
 		if (value == null) {
 			value = '';
 		}
-		if (typeof customFilter == 'function') {
+		if (isFunction(customFilter)) {
 			return customFilter(value);
 		}
 		return value;
@@ -334,6 +314,18 @@ export class Input extends UIEXComponent {
 
 	getProperDefaultValue() {
 		return this.props.defaultValue || '';
+	}
+
+	parseInitialValue(value) {
+		return value;
+	}
+
+	getProperIncomingValue(value) {
+		return this.filterValue(value);
+	}
+
+	getProperOutcomingValue(value) {
+		return this.filterValue(value);
 	}
 
 	getCustomInputProps() {}

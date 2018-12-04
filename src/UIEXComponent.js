@@ -411,7 +411,7 @@ export class UIEXComponent extends React.PureComponent {
 	}
 
 	getProp(name) {
-		return this.props.uncontrolled ? this.state[name] : this.props[name];
+		return this.props.uncontrolled && this.state && this.state[name] !== undefined ? this.state[name] : this.props[name];
 	}
 
 	cacheProps(list, name = '') {

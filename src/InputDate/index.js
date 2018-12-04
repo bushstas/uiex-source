@@ -1,14 +1,16 @@
 import React from 'react';
 import {Input} from '../Input';
 import {Icon} from '../Icon';
-import {getNumberOrNull, replace, propsChanged} from '../utils';
+import {isNumber, isString, replace, getNumericProp} from '../utils';
 import {InputDatePropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
 
-const PROPS_LIST = ['yearFirst', 'past', 'future', 'withTime', 'delimiter', 'minYear', 'maxYear', 'periodFrom', 'periodTo'];
+const PROPS_LIST = ['yearFirst', 'past', 'future', 'withTime', 'delimiter', 'minYear', 'maxYear', 'periodFrom', 'periodTo', 'isTimestamp', 'inSeconds'];
 const DEFAULT_DELIMITER = '.';
+const MAX_YEAR = 2050;
+const MIN_YEAR = 1900;
 
 export class InputDate extends Input {
 	static propTypes = InputDatePropTypes;
@@ -16,23 +18,16 @@ export class InputDate extends Input {
 	static isControl = true;
 	static displayName = 'InputDate';
 
+	constructor(props) {
+		super(props);
+		this.propsList = PROPS_LIST;
+	}
+
 	addClassNames(add) {
 		super.addClassNames(add);
 		add('date-input');
 		const {withoutIcon} = this.props;
 		add('without-icon', withoutIcon);
-	}
-
-	componentDidUpdate(prevProps) {
-		let {onChange, name, value} = this.props;
-		if (value && propsChanged(prevProps, this.props, PROPS_LIST)) {
-			if (typeof onChange == 'function') {
-				const newValue = this.filterValue(value);
-				if (newValue != value) {
-					onChange(newValue, name);
-				}
-			}
-		}
 	}
 
 	renderAdditionalInnerContent() {
@@ -49,7 +44,7 @@ export class InputDate extends Input {
 	getCustomInputProps() {
 		const {delimiter, withTime} = this.props;
 		let delimiterLength = 2;
-		if (delimiter && typeof delimiter == 'string') {
+		if (delimiter && isString(delimiter)) {
 			delimiterLength = delimiter.length * 2;
 		}
 		if (withTime) {
@@ -61,7 +56,7 @@ export class InputDate extends Input {
 
 	getDelimiter() {
 		let {delimiter} = this.props;
-		if (!delimiter || typeof delimiter != 'string') {
+		if (!delimiter || !isString(delimiter)) {
 			delimiter = DEFAULT_DELIMITER;
 		} else {
 			if (delimiter.length > 1) {
@@ -76,6 +71,18 @@ export class InputDate extends Input {
 
 	filterValue(value) {
 		value = super.filterValue(value);
+		if (isNumber(value)) {
+			const len = Math.abs(value).toString().length;
+			if (len == 10 || len == 13) {
+				if (len == 10) {
+					value *= 1000;
+				}
+				value = this.getDateFromTimestamp(value, this.isWithTime);
+				this.isWithTime = null;
+			} else {
+				value = value.toString();
+			}
+		}
 		let {withTime, yearFirst} = this.props;
 		const delimiter = this.getDelimiter();
 		let mask;
@@ -105,13 +112,13 @@ export class InputDate extends Input {
 					break;
 				}
 			}
-		}	
+		}
 		return properValue;
 	}
 
 	getProperDateValue(value) {
 		const {yearFirst} = this.props;
-		if (typeof value != 'string') {
+		if (!isString(value)) {
 			value = '';
 		}
 		const originalValue = value;
@@ -156,20 +163,13 @@ export class InputDate extends Input {
 	}
 
 	getProperDateValues(values) {
-		let {yearFirst, minYear, maxYear, past, future, withTime, periodFrom, periodTo} = this.props;
+		const {yearFirst, past, future, withTime, periodFrom, periodTo} = this.props;
+		const minYear = getNumericProp(this.props.minYear, MIN_YEAR, MIN_YEAR, MAX_YEAR);
+		const maxYear = getNumericProp(this.props.maxYear, MAX_YEAR, MIN_YEAR, MAX_YEAR);
 		let {year, month, day, hour, minute} = values;
 		if ((yearFirst && !year) || (!yearFirst && !day)) {
 			return '';
 		}
-		
-		minYear = getNumberOrNull(minYear);
-		if (typeof minYear != 'number') {
-			minYear = 1900;
-		}
-		if (typeof maxYear != 'number') {
-			maxYear = 2050;
-		}
-		maxYear = getNumberOrNull(maxYear);
 		if (month) {
 			if (~~month > 12) {
 				month = '12';
@@ -189,10 +189,10 @@ export class InputDate extends Input {
 			}
 		}
 		if (year && year.length == 4) {
-			if (typeof minYear == 'number') {
+			if (isNumber(minYear)) {
 				year = Math.max(minYear, ~~year);
 			}
-			if (typeof maxYear == 'number') {
+			if (isNumber(maxYear)) {
 				year = Math.min(maxYear, ~~year);
 			}
 			year = String(year);
@@ -206,14 +206,13 @@ export class InputDate extends Input {
 				} else if (future) {
 					d = this.validateFuture(data);
 				}
-				year = d.year;
-				month = d.month;
-				day = d.day;
-				hour = d.hour;
-				minute = d.minute;
+				year = String(d.year);
+				month = String(d.month);
+				day = String(d.day);
+				hour = String(d.hour);
+				minute = String(d.minute);
 			}
 		}
-
 		let value;
 		year = year || '';
 		month = month || '';
@@ -231,16 +230,29 @@ export class InputDate extends Input {
 				value += minute;
 			}
 		}
+		this.cachedDateParts = {
+			year,
+			month,
+			day,
+			hour,
+			minute
+		};
 		return value;
 	}
 
 	validatePeriod(data) {
 		const {periodFrom, periodTo} = this.props;
 		if (periodFrom) {
-			data = this.validateFuture(data, periodFrom);
+			const validated = this.validateFuture(data, periodFrom);
+			if (validated) {
+				data = validated;
+			}
 		}
 		if (periodTo) {
-			data = this.validatePast(data, periodTo);
+			const validated = this.validatePast(data, periodTo);
+			if (validated) {
+				data = validated;
+			}
 		}
 		return data;
 	}
@@ -248,6 +260,9 @@ export class InputDate extends Input {
 	validatePast(data, dateStr = null) {
 		let {year, month, day, hour, minute} = data;
 		const date = this.getDate(dateStr);
+		if (!date) {
+			return null;
+		}
 		if (~~year > date.y) {
 			year = date.y;
 		}
@@ -277,6 +292,9 @@ export class InputDate extends Input {
 	validateFuture(data, dateStr = null) {
 		let {year, month, day, hour, minute} = data;
 		const date = this.getDate(dateStr);
+		if (!date) {
+			return null;
+		}
 		if (~~year < date.y) {
 			year = date.y;
 		}
@@ -303,15 +321,43 @@ export class InputDate extends Input {
 		return {year, month, day, hour, minute};
 	}
 
-	getDate(dateStr) {
-		const date = dateStr ? new Date(dateStr) : new Date();
+	getProperOutcomingValue(value) {
+		value = this.filterValue(value);
+		let {withTime, isTimestamp, inSeconds} = this.props;
+		this.isWithTime = null;
+		if (isTimestamp) {
+			const {year, month, day, hour, minute} = this.cachedDateParts;
+			let isProper = year.length == 4 && month.length == 2 && day.length == 2;
+			if (withTime && isProper) {
+				isProper = isString(hour) && isString(minute) &&
+						hour.length == 2 && minute.length == 2;
+				if (!hour && !minute) {
+					isProper = true;
+					withTime = false;
+				}
+			}
+			this.isWithTime = withTime;
+			if (isProper) {
+				const date = `${year}-${month}-${day}`;
+				const timestamp = new Date(`${date}${withTime ? ` ${hour}:${minute}`: ''}`).getTime();
+				return inSeconds ? timestamp / 1000 : timestamp;
+			}
+		}
+		return value;
+	}
+
+	getDate(stamp = null) {
+		const date = stamp ? new Date(stamp) : new Date();
+		if (Number.isNaN(date.getTime())) {
+			return null;
+		}
 		return {
 			y: date.getFullYear(),
 			m: date.getMonth() + 1,
 			d: date.getDate(),
 			h: date.getHours(),
 			n: date.getMinutes()
-		}
+		};
 	}
 
 	getProper(v) {
@@ -321,15 +367,109 @@ export class InputDate extends Input {
 		return v;
 	}
 
-	checkValidity(value, props = this.props) {
-		const {withTime, required} = props;
-		if (value || required) {			
-			const length = withTime ? 16 : 10;
-			const isValid = value.length == length;
-			if (isValid === false && this.isValid == null) {
-				return;
+	isValueValid(value) {
+		const {withTime, required} = this.props;
+		if (value || required) {
+			if (value == null) {
+				value = '';
 			}
-			this.fireChangeValidity(isValid, value);
+			if (isNumber(value)) {
+				value = this.value;
+			}
+			const length = withTime ? 16 : 10;
+			return value.length == length;
 		}
+		return null;
+	}
+
+	getDateFromTimestamp(timestamp, isWithTime = true) {
+		let {d, m, y, h, n} = this.getDate(timestamp);
+		d = this.getProper(d);
+		m = this.getProper(m);
+		h = this.getProper(h);
+		n = this.getProper(n);
+		let value;
+		if (isWithTime !== false) {
+			value = `${d}.${m}.${y} ${h}:${n}`;
+		} else {
+			value = `${d}.${m}.${y}`;
+		}
+		return value;
+	}
+
+	parseInitialValue(value) {
+		if (isString(value)) {
+			const {withTime: isWithTime} = this.props;
+			let date = (new Date()).getTime();
+			let timestamp, withTime;
+			switch (value) {
+				case 'now':
+				case 'today':
+					timestamp = date;
+					withTime = isWithTime || value == 'now';
+				break;
+
+				case 'yesterday':
+					timestamp = date - 86400000;
+				break;
+
+				case 'tomorrow':
+					timestamp = date + 86400000;
+				break;
+
+				default:
+					value = value.replace(/\s/g, '').replace(/^([\+\-])(\d+)([a-z]+)$/, "$1 $2 $3");
+					const parts = value.split(' ');
+					if (parts.length == 3) {
+						let m;
+						const num = Number(parts[1]);
+						if (num && !Number.isNaN(num)) {
+							switch (parts[2]) {
+								case 's':
+								case 'sec':
+								case 'second':
+								case 'seconds':
+									m = 1000;
+								break;
+								
+								case 'min':
+								case 'minute':
+								case 'minutes':
+									m = 60000;
+								break;
+								
+								case 'h':
+								case 'hour':
+								case 'hours':
+									m = 3600000;
+								break;
+
+								case 'd':
+								case 'day':
+								case 'days':
+									m = 86400000;
+								break;
+
+								case 'm':
+								case 'month':
+								case 'months':
+									m = 86400000 * 30;
+								break;
+
+								case 'y':
+								case 'year':
+								case 'years':
+									m = 86400000 * 365;
+								break;
+							}
+						}
+						timestamp = date + m * num * (parts[0] == '-' ? -1 : 1);
+					} else {
+						return null;
+					}
+			}
+			return this.getDateFromTimestamp(timestamp, withTime);
+		}
+		return value;
 	}
 }

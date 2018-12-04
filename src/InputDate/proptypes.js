@@ -4,14 +4,16 @@ import {PROPTYPE} from '../consts';
 
 export const InputDatePropTypes = {
 	...InputPropTypes,
-	delimiter: PropTypes.string,
 	yearFirst: PropTypes.bool,
-	withTime: PropTypes.bool,
-	minYear: PROPTYPE.STRNUM,
-	maxYear: PROPTYPE.STRNUM,
 	past: PropTypes.bool,
 	future: PropTypes.bool,
 	withoutIcon: PropTypes.bool,
+	isTimestamp: PropTypes.bool,
+	inSeconds: PropTypes.bool,
+	withTime: PropTypes.bool,
+	delimiter: PropTypes.string,
+	minYear: PROPTYPE.STRNUM,
+	maxYear: PROPTYPE.STRNUM,
 	periodFrom: PropTypes.string,
 	periodTo: PropTypes.string
 }

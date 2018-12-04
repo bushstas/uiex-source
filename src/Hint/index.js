@@ -15,6 +15,7 @@ const DEFAULT_TEXT_COLOR = '#FFF';
 const MAX_DELAY = 2000;
 const ARROW_SIZE = 15;
 const ARROW_LENGTH_RATIO = 100;
+const DEFAULT_BORDER_OPACITY = 4;
 
 export class Hint extends UIEXComponent {
 	static propTypes = HintPropTypes;
@@ -77,19 +78,16 @@ export class Hint extends UIEXComponent {
 	}
 
 	getTextColor() {
-		let textColor = '';
-		let {colorTheme} = this.props;
-		if (colorTheme) {
-			textColor = TEXT_COLOR_HEXES[colorTheme];
-		}
+		let {colorTheme, textColor} = this.props;
 		if (!textColor) {
-			textColor = DEFAULT_TEXT_COLOR;
+			if (colorTheme) {
+				textColor = TEXT_COLOR_HEXES[colorTheme];
+			}
+			if (!textColor) {
+				textColor = DEFAULT_TEXT_COLOR;
+			}
 		}
 		return textColor;
-	}
-
-	getBorder() {
-		const {withBorder} = this.props;
 	}
 
 	getPopupClassName() {
@@ -162,7 +160,9 @@ export class Hint extends UIEXComponent {
 			width,
 			animation,
 			transparency,
-			withArrow
+			withArrow,
+			border,
+			boxShadow
 		} = this.props;
 		const bgColor = this.getBgColor();
 		return (
@@ -188,6 +188,9 @@ export class Hint extends UIEXComponent {
 					lineHeight={16}
 					textColor={this.getTextColor()}
 					bgColor={bgColor}
+					border={border}
+					boxShadow={boxShadow}
+					borderOpacity={DEFAULT_BORDER_OPACITY}
 					borderRadius={3}
 					padding="6px 10px"
 					height={height}

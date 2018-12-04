@@ -11,6 +11,14 @@ export class Popup extends UIEXPopup {
 	static propTypes = PopupPropTypes;
 	static displayName = 'Popup';
 
+	componentDidUpdate(prevProps) {
+		const {position, isOpen} = this.props;
+		if (isOpen && prevProps.position !== position) {
+			return this.showPopup();
+		}
+		super.componentDidUpdate(prevProps);
+	}
+
 	addClassNames(add) {
 		super.addClassNames(add);
 		add('nowrap', this.props.nowrap);

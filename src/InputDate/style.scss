@@ -26,4 +26,18 @@
 			}
 		}
 	}
+	&.uiex-valid {
+		.uiex-input-date-icon {
+			.uiex-icon {
+				color: #609600;
+			}
+		}
+	}
+	&.uiex-invalid {
+		.uiex-input-date-icon {
+			.uiex-icon {
+				color: #f53535;
+			}
+		}
+	}
 }

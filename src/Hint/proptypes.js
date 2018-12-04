@@ -9,13 +9,15 @@ export const HintPropTypes = {
 	transparency: PROPTYPE.STRNUM,
 	colorTheme: PROPTYPE.COLORS,
 	bgColor: PropTypes.string,
+	textColor: PropTypes.string,
+	border: PropTypes.string,
+	boxShadow: PropTypes.string,
 	animation: PROPTYPE.MODAL_ANIMATION,
 	isOpen: PropTypes.bool,
 	isFrozen: PropTypes.bool,
 	nowrap: PropTypes.bool,
 	withArrow: PropTypes.bool,
-	withBorder: PropTypes.bool,
-	withShadow: PropTypes.bool,
 	withMouseEventHandlers: PropTypes.bool,
-	popupStyle: PropTypes.object
+	popupStyle: PropTypes.object,
+	onToggleShown: PropTypes.func
 }

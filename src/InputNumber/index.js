@@ -249,6 +249,8 @@ export class InputNumber extends Input {
 			}
 			dec = this.getProperDecimal(dec);
 			value = parts[0];
+		} else {
+			value = value.split('.')[0];
 		}
 		value = replace(/[^\d]/g, '', value);
 		const numValue = Number(value);

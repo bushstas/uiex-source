@@ -11,6 +11,8 @@ export const CellGroupPropTypes = {
 	rowMargin: PROPTYPE.STRNUM,
 	sideShrink: PropTypes.bool,
 	cellAlign: PROPTYPE.CELL_ALIGN,
+	cellTextAlign: PROPTYPE.CELL_ALIGN,
+	cellTextValign: PROPTYPE.CELL_ALIGN,
 	cellHeight: PROPTYPE.STRNUM,
 	cellMinHeight: PROPTYPE.STRNUM,
 	cellAutoHeight: PropTypes.bool

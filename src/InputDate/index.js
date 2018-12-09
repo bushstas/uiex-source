@@ -1,7 +1,9 @@
 import React from 'react';
 import {Input} from '../Input';
 import {Icon} from '../Icon';
-import {isNumber, isString, replace, getNumericProp} from '../utils';
+import {DatePicker} from '../DatePicker';
+import {Popup} from '../Popup';
+import {isNumber, isString, replace, getNumericProp, getDate} from '../utils';
 import {InputDatePropTypes} from './proptypes';
 
 import '../style.scss';
@@ -39,6 +41,37 @@ export class InputDate extends Input {
 				</div>
 			)
 		}
+	}
+
+	renderAdditionalContent() {
+		const {
+			withPicker,
+			pickerFromSunday,
+			pickerYearFirst,
+			pickerDayNames,
+			pickerMonthNames
+		} = this.props;
+		const pickerShown = this.getProp('pickerShown');
+		if (withPicker) {
+			return (
+				<Popup
+					ref="popup"
+					isOpen={pickerShown}
+					onCollapse={this.handlePopupCollapse}
+				>
+					<DatePicker 
+						value={this.value}
+						fromSunday={pickerFromSunday}
+						yearFirst={pickerYearFirst}
+						dayNames={pickerDayNames}
+						uncontrolled
+						monthNames={pickerMonthNames}
+						onChange={this.handlePickerChange}
+					/>
+				</Popup>
+			);
+		}
+		return null;
 	}
 
 	getCustomInputProps() {
@@ -347,17 +380,7 @@ export class InputDate extends Input {
 	}
 
 	getDate(stamp = null) {
-		const date = stamp ? new Date(stamp) : new Date();
-		if (Number.isNaN(date.getTime())) {
-			return null;
-		}
-		return {
-			y: date.getFullYear(),
-			m: date.getMonth() + 1,
-			d: date.getDate(),
-			h: date.getHours(),
-			n: date.getMinutes()
-		};
+		return getDate(stamp);
 	}
 
 	getProper(v) {
@@ -450,6 +473,12 @@ export class InputDate extends Input {
 									m = 86400000;
 								break;
 
+								case 'w':
+								case 'week':
+								case 'weeks':
+									m = 86400000 * 7;
+								break;
+
 								case 'm':
 								case 'month':
 								case 'months':
@@ -471,5 +500,37 @@ export class InputDate extends Input {
 			return this.getDateFromTimestamp(timestamp, withTime);
 		}
 		return value;
+	}
+
+	handlePickerChange = () => {
+
+	}
+
+	handlePopupCollapse = () => {
+
+	}
+
+	clickHandler() {
+		const {disabled, readOnly, withPicker} = this.props;
+		if (withPicker && !disabled && !readOnly) {
+			super.clickHandler();
+			this.fireShowPicker(true);
+		}
+	}
+
+	handlePopupCollapse = () => {
+		this.fireShowPicker(false);
+	}
+
+	handleEnter() {
+		this.handlePopupCollapse();
+	}
+
+	handleEscape() {
+		this.handlePopupCollapse();
+	}
+
+	fireShowPicker(pickerShown) {
+		this.firePropChange('showPicker', 'pickerShown', [pickerShown, this.props.name], pickerShown);
 	}
 }

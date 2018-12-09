@@ -1,0 +1,50 @@
+.uiex-calendar {
+	.uiex-calendar-header {
+		height: 36px;
+		background-color: #555;
+		color: #fff;
+		display: flex;
+		align-items: center;
+		border-radius: 3px 3px 0 0;
+		box-sizing: border-box;
+		padding-bottom: 4px;
+
+		.uiex-calendar-year {
+			width: 40%;
+		}
+		.uiex-calendar-month {
+			flex-grow: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			.uiex-calendar-month-name {
+				line-height: 10px;
+				width: 120px;
+			}
+			.uiex-arrow {
+				opacity: 0.7;
+				&:hover {
+					opacity: 1;
+				}
+			}
+		}
+	}
+	.uiex-calendar-table {
+		padding-bottom: 5px;
+		.uiex-calendar-table-head {
+			padding-top: 2px;
+			background-color: #eee;
+		}
+		.uiex-calendar-table-content {
+			.uiex-calendar-prev-month,
+			.uiex-calendar-next-month {
+				color: #aaa;
+			}
+		}
+	}
+	&.uiex-year-first {
+		.uiex-calendar-header {
+			flex-direction: row-reverse;
+		}
+	}
+}

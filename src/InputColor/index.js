@@ -3,12 +3,16 @@ import {Input} from '../Input';
 import {ColorPicker} from '../ColorPicker';
 import {Popup} from '../Popup';
 import {Icon} from '../Icon';
-import {replace} from '../utils';
+import {replace, isString} from '../utils';
 import {getColor} from '../color';
 import {InputColorPropTypes} from './proptypes';
+import {COLOR_NAMES} from './colors';
 
 import '../style.scss';
 import './style.scss';
+
+const PROPS_LIST = ['withoutHash'];
+const REGEX = /[^abcdef\d]/gi;
 
 export class InputColor extends Input {
 	static propTypes = InputColorPropTypes;
@@ -16,10 +20,15 @@ export class InputColor extends Input {
 	static isControl = true;
 	static displayName = 'InputColor';
 
+	constructor(props) {
+		super(props);
+		this.propsList = PROPS_LIST;
+	}
+
 	addClassNames(add) {
 		super.addClassNames(add);
 		const {pickerOnTop, fullWidthPicker} = this.props;
-		const pickerShown = this.getPickerShown();
+		const pickerShown = this.getProp('pickerShown');
 		add('input');
 		add('full-with-picker', fullWidthPicker);
 		add('picker-on-top', pickerOnTop);
@@ -27,26 +36,17 @@ export class InputColor extends Input {
 	}
 
 	getCustomInputProps() {
-		return {maxLength: 6}
+		return {maxLength: 6};
 	}
 
 	filterValue(value) {
 		value = super.filterValue(value);
 		const {withoutHash} = this.props;
-		return value ? (withoutHash ? '' : '#') + replace(/[^abcdef\d]/gi, '', value) : '';
-	}
-
-	getValue() {
-		const value = super.getValue();
-		if (value && typeof value == 'string') {
-			return replace(/^#+/, '', value).toUpperCase();
-		}
-		return '';
+		return value ? (withoutHash ? '' : '#') + replace(REGEX, '', value) : '';
 	}
 
 	getColorStyle() {
-		const {value, defaultValue} = this.props;
-		let color = value || defaultValue;
+		let color = this.value;
 		if (!this.cachedColorStyle || color != this.cachedColor) {
 			this.cachedColor = color;
 			color = getColor(replace(/^#+/, '', color));
@@ -61,7 +61,7 @@ export class InputColor extends Input {
 	renderAdditionalContent() {
 		const colorStyle = this.getColorStyle();
 		const {withoutPicker, presetColors} = this.props;
-		const pickerShown = this.getPickerShown();
+		const pickerShown = this.getProp('pickerShown');
 		return (
 			<div className={this.getClassName('functional')}>
 				<div className={this.getClassName('left-side')}>
@@ -80,7 +80,7 @@ export class InputColor extends Input {
 						onCollapse={this.handlePopupCollapse}
 					>
 						<ColorPicker 
-							value={this.getValue()}
+							value={this.value}
 							presetColors={presetColors}
 							hue={this.hue}
 							withoutInput
@@ -94,11 +94,11 @@ export class InputColor extends Input {
 	}
 
 	handlePickerChange = (value, colorData) => {
-		const {disabled, name, withoutHash} = this.props;
+		const {disabled, name} = this.props;
 		if (!disabled) {
 			this.hue = colorData.hsl instanceof Object ? colorData.hsl.h : null;
-			this.fire('change', (withoutHash ? '' : '#') + value, name);
-			this.fire('changePicker', (withoutHash ? '' : '#') + value, colorData, name);
+			this.fireChange(value);
+			this.fire('changePicker', this.getProperOutcomingValue(value), colorData, name);
 		}
 	}
 
@@ -143,26 +143,26 @@ export class InputColor extends Input {
 		this.handlePopupCollapse();
 	}
 
-	checkValidity(value, props = this.props) {
-		const {required} = props;
-		if (value || required) {
-			this.fireChangeValidity(this.isValidColor, value);
-		}
+	isValueValid(value) {
+		const {required} = this.props;
+		return value || required ? this.isValidColor : null;
 	}
 
-	getPickerShown() {
-		const {onShowPicker, pickerShown} = this.props;
-		if (typeof onShowPicker == 'function') {
-			return pickerShown;
+	getProperIncomingValue(value) {
+		if (value && isString(value)) {
+			return replace(REGEX, '', value).toUpperCase();
 		}
-		return this.state.pickerShown;
+		return '';
+	}
+
+	parseInitialValue(initialValue) {
+		if (COLOR_NAMES[initialValue]) {
+			return COLOR_NAMES[initialValue];
+		}
+		return '';
 	}
 
 	fireShowPicker(pickerShown) {
-		const {onShowPicker} = this.props;
-		if (typeof onShowPicker == 'function') {
-			return this.fire('showPicker', pickerShown);
-		}
-		this.setState({pickerShown});
+		this.firePropChange('showPicker', 'pickerShown', [pickerShown, this.props.name], pickerShown);
 	}
 }

@@ -54,7 +54,7 @@ export class UIEXComponent extends React.PureComponent {
 				customStyles
 			);
 		}
-		return this[key];
+		return this[key] || undefined;
 	}
 
 	getMainStyle() {
@@ -93,7 +93,7 @@ export class UIEXComponent extends React.PureComponent {
 			this.cachedStyle = style;
 			this.cachedWidth = width;
 			this.cachedHeight = height;
-			this.cachedMainStyle = newStyle || null;
+			this.cachedMainStyle = newStyle || undefined;
 		}
 		return this.cachedMainStyle;
 	}
@@ -226,7 +226,7 @@ export class UIEXComponent extends React.PureComponent {
 	}
 
 	getCustomStyle() {
-		return null;
+		return undefined;
 	}
 
 	renderInternal() {
@@ -275,7 +275,7 @@ export class UIEXComponent extends React.PureComponent {
 
 	getTheme() {
 		const {theme} = this.props;
-		return !!theme ? theme : (isObject(this.constructor.defaultProps) ? this.constructor.defaultProps.theme : null);
+		return !!theme ? theme : (isObject(this.constructor.defaultProps) ? this.constructor.defaultProps.theme : undefined);
 	}
 
 	isProperChild(child) {

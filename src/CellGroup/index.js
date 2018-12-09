@@ -113,7 +113,7 @@ export class CellGroup extends UIEXComponent {
 	}
 	
 	addChildProps(child, props, idx) {
-		let {cellMargin, sideShrink, cellHeight, cellAlign, cellMinHeight, height} = this.props;
+		let {cellMargin, sideShrink, cellHeight, cellAlign, cellTextAlign, cellTextValign, cellMinHeight, height} = this.props;
 		sideShrink = sideShrink || cellAlign == 'center';
 		const {isNewRow, totalCellSize, previosTotalSize, width, shift, isFirst, isLast} = this.getChildSize(child, idx, this.totalCellSize, true);
 		props.width = width;
@@ -144,7 +144,13 @@ export class CellGroup extends UIEXComponent {
 			props.leftMargin = shift * 100 / this.columns + '%';
 		}
 
-		let {className} = child.props;
+		let {className, align, valign} = child.props;
+		if (!align) {
+			props.align = cellTextAlign;
+		}
+		if (!valign) {
+			props.valign = cellTextValign;
+		}
 		props.className = addToClassName(className);
 		if (!sideShrink) {
 			if (isFirst && !shift) {

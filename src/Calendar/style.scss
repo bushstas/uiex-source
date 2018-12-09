@@ -40,11 +40,27 @@
 			.uiex-calendar-next-month {
 				color: #aaa;
 			}
+			.uiex-active {
+				background-color: #555;
+				color: #fff;
+				border-radius: 2px;
+			}
 		}
 	}
 	&.uiex-year-first {
 		.uiex-calendar-header {
 			flex-direction: row-reverse;
+		}
+	}
+	.uiex-calendar-day {
+		width: 100%;
+		height: 100%;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		&:hover {
+			background-color: #f1f1f1;
 		}
 	}
 }

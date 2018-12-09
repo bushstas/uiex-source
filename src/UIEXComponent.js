@@ -405,7 +405,11 @@ export class UIEXComponent extends React.PureComponent {
 
 	firePropChange(eventName, propName, args, propValue) {
 		if (this.props.uncontrolled) {
-			this.setState({[propName]: propValue});
+			if (isObject(propValue)) {
+				this.setState(propValue);	
+			} else {
+				this.setState({[propName]: propValue});
+			}
 		}
 		this.fire(eventName, ...args);
 	}

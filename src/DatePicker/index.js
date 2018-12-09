@@ -40,17 +40,15 @@ export class DatePicker extends UIEXComponent {
 		)
 	}
 
-	handlePickDay = (day) => {
-		this.firePropChange('pickDay', 'day', [day], day);
+	handlePickDay = (day, month, year) => {
+		this.firePropChange('pickDay', null, [day, month, year], {day, month, year});
 	}
 
-	handlePickMonth = (month) => {
-		this.setState({month});
-		this.firePropChange('pickMonth', 'month', [month], month);
+	handlePickMonth = (month, year) => {
+		this.firePropChange('pickMonth', null, [month, year], {month, year});
 	}
 
 	handlePickYear = (year) => {
-		this.setState({year});
 		this.firePropChange('pickYear', 'year', [year], year);
 	}
 

@@ -20,11 +20,12 @@ export class Calendar extends UIEXComponent {
 	}
 
 	initRendering() {
-		let {fromSunday, month, year} = this.props;
-		if (!month || !year) {
+		let {fromSunday, month, year, day} = this.props;
+		if (!month || !year || !day) {
 			const today = getDate(this.props.date); 
 			month = month || today.m;
 			year = year || today.y;
+			day = day || today.d;
 		}
 		const firstDayDate = getDate(`${year}-${month}-01`);
 		let start;
@@ -34,6 +35,7 @@ export class Calendar extends UIEXComponent {
 			start = firstDayDate.wd - (fromSunday ? 0 : 1);
 		}
 
+		this.day = day;
 		this.month = month;
 		this.year = year;
 		this.monthDaysCount = getDaysInMonth(this.year, month);
@@ -41,11 +43,9 @@ export class Calendar extends UIEXComponent {
 
 		const lastDayDate = getDate(`${year}-${month}-${this.monthDaysCount}`);
 		this.nextMonthDaysCount = 7 - lastDayDate.wd;
-		console.log({
-			firstDayDate,
-			lastDayDate,
-			nextMonthDaysCount: this.nextMonthDaysCount
-		})
+		this.nextMonth = month < 12 ? month + 1 : 1;
+		this.nextYear = this.nextMonth == 1 ? this.year + 1 : this.year;
+
 		this.prevYear = year;
 		if (month > 1) {
 			this.prevMonth = month - 1;
@@ -54,6 +54,7 @@ export class Calendar extends UIEXComponent {
 			this.prevYear = year - 1;
 		}
 		this.prevMonth = month > 1 ? month - 1 : 12;
+		this.prevYear = this.prevMonth == 12 ? this.year - 1 : this.year;
 		this.prevMonthDaysCount = getDaysInMonth(this.prevYear, this.prevMonth);
 		this.prevMonthStartDay = this.prevMonthDaysCount - start + 1;
 	}
@@ -104,7 +105,7 @@ export class Calendar extends UIEXComponent {
 					</CellGroup>
 					<CellGroup
 						columns="7"
-						cellHeight="30"
+						cellHeight="36"
 						cellTextAlign="center"
 						cellTextValign="center"
 						className={this.getClassName('table-content')}
@@ -132,7 +133,7 @@ export class Calendar extends UIEXComponent {
 		const cells = [];
 		if (this.prevMonthStartDay > 0) {
 			for (let i = this.prevMonthStartDay; i <= this.prevMonthDaysCount; i++) {
-				cells.push(this.renderDayCell(i, 'prev', 'prev-month'));
+				cells.push(this.renderDayCell(i, 'prev'));
 			}
 		}
 		for (let i = 1; i <= this.monthDaysCount; i++) {
@@ -140,19 +141,46 @@ export class Calendar extends UIEXComponent {
 		}
 		if (this.nextMonthDaysCount > 0 && this.nextMonthDaysCount < 7) {
 			for (let i = 1; i <= this.nextMonthDaysCount; i++) {
-				cells.push(this.renderDayCell(i, 'next', 'next-month'));
+				cells.push(this.renderDayCell(i, 'next'));
 			}
 		}
 		return cells;
 	}
 
-	renderDayCell(day, month, className = null) {
+	renderDayCell(day, month) {
+		let m, y;
+		const className = `${month}-month`;
+		let active;
+		switch (month) {
+			case 'prev':
+				m = this.prevMonth;
+				y = this.prevYear;
+			break;
+
+			case 'next':
+				m = this.nextMonth;
+				y = this.nextYear;
+			break;
+
+			default:
+				m = this.month;
+				y = this.year;
+				active = day == this.day;
+		}
 		return (
 			<Cell
-				key={`${month}_${day}`}
-				className={className ? this.getClassName(className) : undefined}
+				key={`${y}_${m}_${day}`}
+				className={this.getClassName(className)}
 			>
-				{day}
+				<CalendarDay
+					day={day}
+					month={m}
+					year={y}
+					active={active}
+					onClick={this.handleDayPick}
+				>
+					{day}
+				</CalendarDay>
 			</Cell>
 		);
 	}
@@ -175,8 +203,8 @@ export class Calendar extends UIEXComponent {
 		return DEFAULT_MONTH_NAMES[idx];
 	}
 
-	handleDayPick = (value) => {
-
+	handleDayPick = ({day, month, year}) => {
+		this.firePropChange('pickDay', 'month', [day, month, year], {day, month, year});
 	}
 
 	handleChange = (name, value) => {
@@ -184,20 +212,38 @@ export class Calendar extends UIEXComponent {
 	}
 
 	handlePickPrevMonth = () => {
-		const month = this.month > 1 ? this.month - 1 : 12;
-		this.firePropChange('pickMonth', 'month', [month], month);
-		if (month == 12) {
-			const year = this.year - 1;
-			this.firePropChange('pickYear', 'year', [year], year);
-		}
+		const month = this.prevMonth;
+		const year = this.prevYear;
+		this.firePropChange('pickMonth', null, [month, year], {month, year});
 	}
 
 	handlePickNextMonth = () => {
-		const month = this.month < 12 ? this.month + 1 : 1;
-		this.firePropChange('pickMonth', 'month', [month], month);
-		if (month == 1) {
-			const year = this.year + 1;
-			this.firePropChange('pickYear', 'year', [year], year);
+		const month = this.nextMonth;
+		const year = this.nextYear;
+		this.firePropChange('pickMonth', null, [month, year], {month, year});
+	}
+}
+
+class CalendarDay extends UIEXComponent {
+	static displayName = 'CalendarDay';
+	static className = 'calendar-day';
+
+	getCustomProps() {
+		return {
+			onClick: this.handleClick
 		}
+	}
+
+	handleClick = () => {
+		const {day, month, year} = this.props;
+		this.fire('click', {day, month, year});
+	}
+
+	renderInternal() {
+		return (
+			<div {...this.getProps()}>
+				{this.props.children}
+			</div>
+		);
 	}
 }

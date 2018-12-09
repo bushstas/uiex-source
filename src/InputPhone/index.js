@@ -42,20 +42,29 @@ export class InputPhone extends Input {
 	getCustomInputProps() {
 		const {mask} = this.props;
 		if (isString(mask)) {
-			return {
-				maxLength: mask.trim().length
-			}
+			const maxLength = mask.trim().length;
+			return {maxLength}
 		}
 	}
 
-	transformIntoProperValue(value) {
-		return this.getMaskedValue(this.getWithoutCode(value));
+	getProperIncomingValue(value) {
+		if (value == null || value === '') {
+			return '';
+		}
+		if (value === this.outcomingValue && this.addedCode) {
+			const regex = new RegExp(`^${regexEscape(this.addedCode)}`);
+			value = replace(regex, '', value);
+		} else {
+			value = this.getWithoutCode(value);
+		}
+		return this.getMaskedValue(value);
 	}
 
-	filterValue(value) {
-		value = super.filterValue(value);
+	getProperOutcomingValue(value) {
 		const {numeric} = this.props;
-		return numeric ? replace(/[^\d]/g, '', this.getWithCode(value)) : this.getWithCode(this.getMaskedValue(value));
+		value = super.filterValue(value);
+		this.addedCode = '';
+		return this.getWithCode(numeric ? replace(/[^\d]/g, '', value) : this.getMaskedValue(value));
 	}
 
 	getMaskedValue(value) {
@@ -91,35 +100,32 @@ export class InputPhone extends Input {
 			code = numericCode;
 		}
 		if (withCode && code) {
-			value = code + value;
+			this.addedCode = code;
+			value = `${code}${value}`;
 		}
 		return value;
 	}
 
 	getWithoutCode(value) {
-		let {numeric, code, withCode, numericCode} = this.props;
-		if (withCode) {
-			if (numeric && numericCode) {
-				code = numericCode;
-			}
-			if (code) {
-				code = regexEscape(code);
-				if (numeric) {
-					code = replace(/[^\d]/g, '', code);
+		if (isString(value)) {
+			value = value.replace(/\s/g, '');
+			let {numeric, code, withCode, numericCode} = this.props;
+			if (withCode) {
+				if (numeric && numericCode) {
+					code = numericCode;
 				}
-				const regex = new RegExp('^' + code);
-				return replace(regex, '', value);
+				if (isString(code)) {
+					code = code.replace(/\s/g, '');
+				} else {
+					code = code.toString();
+				}
+				if (code) {
+					const regex = new RegExp(`^${regexEscape(code)}`);
+					value = replace(regex, '', value);
+				}
 			}
 		}
 		return value;
-	}
-
-	getProperDefaultValue() {
-		const {defaultValue} = this.props;
-		if (defaultValue) {
-			return this.getMaskedValue(defaultValue);
-		}
-		return '';
 	}
 
 	isValueValid(value) {

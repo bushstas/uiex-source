@@ -41,6 +41,36 @@ export const mergeStyleProps = (...objects) => {
 	return Object.keys(styles).length === 0 ? null : styles;
 }
 
+export const getDate = (stamp = null) => {
+	if (stamp && !isString(stamp) && !isNumber(stamp)) {
+		stamp = null;
+	}
+	const date = stamp ? new Date(stamp) : new Date();
+	if (Number.isNaN(date.getTime())) {
+		return null;
+	}
+	return {
+		y: date.getFullYear(),
+		m: date.getMonth() + 1,
+		d: date.getDate(),
+		h: date.getHours(),
+		n: date.getMinutes(),
+		wd: date.getDay()
+	};
+}
+
+export const getDaysInMonth = (year, month) => {
+    const now = new Date;
+    month = typeof month != undefined ? month
+            : (typeof year != undefined ? year : now.getMonth() + 1);
+
+    year = typeof month != undefined && typeof year != undefined ? year
+            : now.getFullYear();
+
+    now.setFullYear(year, month, 0);
+    return now.getDate();
+}
+
 export const getStyleObjectFromString = (str) => {
 	if (!str) {
 		return null;

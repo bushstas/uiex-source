@@ -4,6 +4,7 @@ import {PROPTYPE} from '../consts';
 
 export const InputColorPropTypes = {
 	...InputPropTypes,
+	initialValue: PropTypes.string,
 	withoutPicker: PropTypes.bool,
 	withoutHash: PropTypes.bool,
 	fullWidthPicker: PropTypes.bool,

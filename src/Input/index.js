@@ -7,7 +7,7 @@ import {InputPropTypes} from './proptypes';
 import '../style.scss';
 import './style.scss';
 
-const PROPS_LIST = ['validating', 'value', 'required', 'minLength'];
+const PROPS_LIST = ['validating', 'value', 'required', 'minLength', 'uncontrolled'];
 
 export class Input extends UIEXComponent {
 	static propTypes = InputPropTypes;
@@ -27,7 +27,9 @@ export class Input extends UIEXComponent {
 		const {initialValue} = this.props;
 		if (initialValue) {
 			const value = this.parseInitialValue(initialValue);
-			return this.fireChange(value);
+			if (value) {
+				return this.fireChange(value);
+			}
 		}
 		this.checkValidity();
 	}
@@ -101,6 +103,7 @@ export class Input extends UIEXComponent {
 				onBlur={this.handleBlur}
 				onKeyUp={this.handleKeyUp}
 				onClick={this.handleClick}
+				onPaste={this.handlePaste}
 				{...customInputProps}
 			/>
 		)	
@@ -110,9 +113,6 @@ export class Input extends UIEXComponent {
 		let value = this.getProp('value');
 		if (value == null) {
 			value = this.getProperDefaultValue();
-		}
-		if (!value && value !== 0) {
-			return '';
 		}
 		return this.getProperIncomingValue(value);
 	}
@@ -165,12 +165,24 @@ export class Input extends UIEXComponent {
 		}
 	}
 
+	handlePaste = () => {
+		this.outcomingValue = '';
+		this.pasted = true;
+	}
+
 	fireChange(value = this.refs.input.value) {
-		const {name} = this.props;
-		if (value !== '') {
-			value = this.getProperOutcomingValue(value);
+		if (this.pasted) {
+			this.pasted = false;
+			value = this.getProperIncomingValue(value);
 		}
-		this.firePropChange('change', 'value', [value, name], value);		
+		const {name, uncontrolled} = this.props;
+		if (value !== '') {
+			value = this.outcomingValue = this.getProperOutcomingValue(value);
+		}
+		this.firePropChange('change', 'value', [value, name], value);
+		if (uncontrolled) {
+			this.checkValidity(value);
+		}
 	}
 
 	isValueValid(value) {
@@ -206,7 +218,7 @@ export class Input extends UIEXComponent {
 		return isValid;
 	}
 
-	checkValidity(value = this.props.value) {
+	checkValidity(value = this.getProp('value')) {
 		let currentValid = this.getProp('valid');
 		const {name} = this.props;
 		if (this.props.validating) {
@@ -223,8 +235,8 @@ export class Input extends UIEXComponent {
 	}
 
 	focusHandler() {
-		const {name, focusStyle, disabled, readOnly, value} = this.props;
-		this.valueBeforeFocus = value;
+		const {name, focusStyle, disabled, readOnly} = this.props;
+		this.valueBeforeFocus = this.value;
 		if (!disabled && !readOnly) {
 			if (focusStyle instanceof Object) {
 				const {input} = this.refs;
@@ -232,7 +244,7 @@ export class Input extends UIEXComponent {
 					input.style[k] = focusStyle[k];
 				}
 			}
-			this.fire('focus', this.refs.input.value, name);
+			this.fire('focus', this.value, name);
 			this.setState({focused: true});
 		}
 	}
@@ -321,6 +333,12 @@ export class Input extends UIEXComponent {
 	}
 
 	getProperIncomingValue(value) {
+		if (value == null) {
+			return '';
+		}
+		if (value === '' || value === this.outcomingValue) {
+			return value;
+		}
 		return this.filterValue(value);
 	}
 

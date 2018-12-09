@@ -97,6 +97,35 @@
 			box-sizing: border-box !important;
 			height: 100% !important;
 			overflow: auto;
+			display: flex;
+		}
+	}
+	&.uiex-valign-center {
+		.uiex-cell-content {
+			.uiex-cell-content-inner {
+				align-items: center;
+			}
+		}
+	}
+	&.uiex-valign-bottom {
+		.uiex-cell-content {
+			.uiex-cell-content-inner {
+				align-items: flex-end;
+			}
+		}
+	}
+	&.uiex-align-center {
+		.uiex-cell-content {
+			.uiex-cell-content-inner {
+				justify-content: center;
+			}
+		}
+	}
+	&.uiex-align-right {
+		.uiex-cell-content {
+			.uiex-cell-content-inner {
+				justify-content: flex-end;
+			}
 		}
 	}
 }

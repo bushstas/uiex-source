@@ -98,7 +98,7 @@ export class InputColor extends Input {
 		if (!disabled) {
 			this.hue = colorData.hsl instanceof Object ? colorData.hsl.h : null;
 			this.fireChange(value);
-			this.fire('changePicker', this.getProperOutcomingValue(value), colorData, name);
+			this.fire('pick', this.getProperOutcomingValue(value), colorData, name);
 		}
 	}
 
@@ -112,15 +112,6 @@ export class InputColor extends Input {
 			this.refs.input.focus();
 			this.refs.input.click();
 		}
-	}
-
-	inputHandler() {
-		const {name, disabled, readOnly} = this.props;
-		if (!disabled && !readOnly) {
-			const value = this.filterValue(this.refs.input.value);
-			this.fire('input', value, name);
-		}
-		super.inputHandler();
 	}
 
 	clickHandler() {

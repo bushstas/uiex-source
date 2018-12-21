@@ -66,7 +66,7 @@ export class InputDate extends Input {
 						dayNames={pickerDayNames}
 						uncontrolled
 						monthNames={pickerMonthNames}
-						onChange={this.handlePickerChange}
+						onPick={this.handlePickDate}
 					/>
 				</Popup>
 			);
@@ -502,17 +502,15 @@ export class InputDate extends Input {
 		return value;
 	}
 
-	handlePickerChange = () => {
-
-	}
-
-	handlePopupCollapse = () => {
-
+	handlePickDate = (value, day, month, year) => {
+		this.fireChange(value);
+		this.fire('pick', value, {day, month, year}, this.props.name);
+		setTimeout(this.handlePopupCollapse, 0);
 	}
 
 	clickHandler() {
-		const {disabled, readOnly, withPicker} = this.props;
-		if (withPicker && !disabled && !readOnly) {
+		const {disabled, readOnly, withPicker, pickerShown} = this.props;
+		if (!pickerShown && withPicker && !disabled && !readOnly) {
 			super.clickHandler();
 			this.fireShowPicker(true);
 		}

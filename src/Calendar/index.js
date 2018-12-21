@@ -2,7 +2,7 @@ import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {CellGroup, Cell} from '../CellGroup';
 import {Arrow} from '../Arrow';
-import {isArray, getDate, getDaysInMonth} from '../utils';
+import {isArray, isObject, getDate, getDaysInMonth} from '../utils';
 import {CalendarPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -14,19 +14,30 @@ const DEFAULT_MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'Ju
 export class Calendar extends UIEXComponent {
 	static propTypes = CalendarPropTypes;
 	static displayName = 'Calendar';
+	
+	constructor(props) {
+		super(props);
+		this.state = {};
+	}
 
 	addClassNames(add) {
 		add('year-first', this.props.yearFirst);
 	}
 
 	initRendering() {
-		let {fromSunday, month, year, day} = this.props;
-		if (!month || !year || !day) {
-			const today = getDate(this.props.date); 
-			month = month || today.m;
-			year = year || today.y;
-			day = day || today.d;
+		const {fromSunday} = this.props;
+		let {month, year} = this.state;
+		const date = this.getProp('date');
+		let today = getDate(date);
+		if (!isObject(today)) {
+			today = getDate();
 		}
+		month = month || today.m;
+		year = year || today.y;
+		const day = today.d;
+		this.dateMonth = today.m;
+		this.dateYear = today.y;
+		
 		const firstDayDate = getDate(`${year}-${month}-01`);
 		let start;
 		if (!firstDayDate.wd) {
@@ -165,7 +176,7 @@ export class Calendar extends UIEXComponent {
 			default:
 				m = this.month;
 				y = this.year;
-				active = day == this.day;
+				active = this.isActive(day);
 		}
 		return (
 			<Cell
@@ -177,12 +188,17 @@ export class Calendar extends UIEXComponent {
 					month={m}
 					year={y}
 					active={active}
-					onClick={this.handleDayPick}
+					onClick={this.handleClickDay}
 				>
 					{day}
 				</CalendarDay>
 			</Cell>
 		);
+	}
+
+	isActive(day) {
+		const {month, year} = this.state;
+		return day == this.day && (!month || this.dateMonth == month) && (!year || this.dateYear == year);
 	}
 
 	getDayNames() {
@@ -203,24 +219,39 @@ export class Calendar extends UIEXComponent {
 		return DEFAULT_MONTH_NAMES[idx];
 	}
 
-	handleDayPick = ({day, month, year}) => {
-		this.firePropChange('pickDay', 'month', [day, month, year], {day, month, year});
-	}
-
-	handleChange = (name, value) => {
-		this.fire('change', name, value);
+	handleClickDay = ({day, month, year}) => {
+		this.setState({
+			month: null,
+			year: null
+		}, () => {
+			this.handlePickDate(day, month, year);
+		});
 	}
 
 	handlePickPrevMonth = () => {
-		const month = this.prevMonth;
-		const year = this.prevYear;
-		this.firePropChange('pickMonth', null, [month, year], {month, year});
+		this.setState({
+			month: this.prevMonth,
+			year: this.prevYear
+		});
 	}
 
 	handlePickNextMonth = () => {
-		const month = this.nextMonth;
-		const year = this.nextYear;
-		this.firePropChange('pickMonth', null, [month, year], {month, year});
+		this.setState({
+			month: this.nextMonth,
+			year: this.nextYear
+		});
+	}
+
+	handlePickDate(day, month, year) {
+		const date = `${year}-${this.getProper(month)}-${this.getProper(day)}`;
+		this.firePropChange('pickDate', 'date', [date, day, month, year], date);
+	}
+
+	getProper(v) {
+		if (v < 10) {
+			v = '0' + v;
+		}
+		return v;
 	}
 }
 

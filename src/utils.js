@@ -45,6 +45,18 @@ export const getDate = (stamp = null) => {
 	if (stamp && !isString(stamp) && !isNumber(stamp)) {
 		stamp = null;
 	}
+	if (stamp && isString(stamp)) {
+		const parts = stamp.trim().split(/[^\d]+/);
+		if (parts.length != 3 && parts.length != 5) {
+			return null;
+		}
+		if (parts[0].length != 4) {
+			stamp = `${parts[2]}-${parts[1]}-${parts[0]}`;
+			if (isString(parts[3])) {
+				stamp = `${stamp} ${parts[3]}:${parts[4]}`;
+			}
+		}
+	}
 	const date = stamp ? new Date(stamp) : new Date();
 	if (Number.isNaN(date.getTime())) {
 		return null;

@@ -21,5 +21,8 @@ export const InputDatePropTypes = {
 	pickerFromSunday: PropTypes.bool,
 	pickerYearFirst: PropTypes.bool,
 	pickerDayNames: PROPTYPE.STRING_ARRAY,
-	pickerMonthNames: PROPTYPE.STRING_ARRAY
+	pickerMonthNames: PROPTYPE.STRING_ARRAY,
+	onPick: PropTypes.func,
+	onInput: PropTypes.func,
+	onShowPicker: PropTypes.func
 }

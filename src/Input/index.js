@@ -161,6 +161,7 @@ export class Input extends UIEXComponent {
 	inputHandler() {
 		const {disabled, readOnly} = this.props;
 		if (!disabled && !readOnly) {
+			this.inputed = true;
 			this.fireChange();
 		}
 	}
@@ -182,6 +183,10 @@ export class Input extends UIEXComponent {
 		this.firePropChange('change', 'value', [value, name], value);
 		if (uncontrolled) {
 			this.checkValidity(value);
+		}
+		if (this.inputed) {
+			this.inputed = false;
+			this.fire('input', value, name);
 		}
 	}
 

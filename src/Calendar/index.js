@@ -142,23 +142,30 @@ export class Calendar extends UIEXComponent {
 
 	renderDays() {
 		const cells = [];
+		let idx = 0;
 		if (this.prevMonthStartDay > 0) {
 			for (let i = this.prevMonthStartDay; i <= this.prevMonthDaysCount; i++) {
-				cells.push(this.renderDayCell(i, 'prev'));
+				cells.push(this.renderDayCell(i, 'prev', idx));
+				idx++;
 			}
 		}
 		for (let i = 1; i <= this.monthDaysCount; i++) {
-			cells.push(this.renderDayCell(i, 'current'));
+			cells.push(this.renderDayCell(i, 'current', idx));
+			idx++;
+			if (idx == 7) {
+				idx = 0;
+			}
 		}
 		if (this.nextMonthDaysCount > 0 && this.nextMonthDaysCount < 7) {
 			for (let i = 1; i <= this.nextMonthDaysCount; i++) {
-				cells.push(this.renderDayCell(i, 'next'));
+				cells.push(this.renderDayCell(i, 'next', idx));
+				idx++;
 			}
 		}
 		return cells;
 	}
 
-	renderDayCell(day, month) {
+	renderDayCell(day, month, idx) {
 		let m, y;
 		const className = `${month}-month`;
 		let active;
@@ -178,6 +185,8 @@ export class Calendar extends UIEXComponent {
 				y = this.year;
 				active = this.isActive(day);
 		}
+		const marked = this.isDayMarked(idx);
+		const disabled = marked && this.props.markedDaysDisabled;
 		return (
 			<Cell
 				key={`${y}_${m}_${day}`}
@@ -188,12 +197,19 @@ export class Calendar extends UIEXComponent {
 					month={m}
 					year={y}
 					active={active}
+					marked={marked}
+					disabled={disabled}
 					onClick={this.handleClickDay}
 				>
 					{day}
 				</CalendarDay>
 			</Cell>
 		);
+	}
+
+	isDayMarked(idx) {
+		const {markedDays} = this.props;
+		return isArray(markedDays) && markedDays.indexOf(idx) > -1;
 	}
 
 	isActive(day) {
@@ -259,9 +275,15 @@ class CalendarDay extends UIEXComponent {
 	static displayName = 'CalendarDay';
 	static className = 'calendar-day';
 
+	addClassNames(add) {
+		add('marked', this.props.marked);
+	}
+
 	getCustomProps() {
-		return {
-			onClick: this.handleClick
+		if (!this.props.disabled) {
+			return {
+				onClick: this.handleClick
+			}
 		}
 	}
 

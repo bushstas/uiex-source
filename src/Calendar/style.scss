@@ -39,6 +39,9 @@
 			.uiex-calendar-prev-month,
 			.uiex-calendar-next-month {
 				color: #aaa;
+				.uiex-calendar-day.uiex-marked {
+					color: rgb(240, 151, 151);
+				}
 			}
 			.uiex-active {
 				background-color: #555;
@@ -61,6 +64,15 @@
 		justify-content: center;
 		&:hover {
 			background-color: #f1f1f1;
+		}
+		&.uiex-marked {
+			color: red;
+		}
+		&.uiex-disabled {
+			cursor: default;
+			&:hover {
+				background-color: transparent;
+			}
 		}
 	}
 }

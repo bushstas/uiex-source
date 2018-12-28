@@ -236,6 +236,10 @@ export const regexEscape = (str) => {
 	return replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&', str);
 }
 
+export const showError = (error) => {
+	console.error(error);
+}
+
 export const showImproperChildError = (child, parent) => {
 	let childType = 'text';
 	if (React.isValidElement(child)) {

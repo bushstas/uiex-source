@@ -18,16 +18,20 @@ export class DatePicker extends UIEXComponent {
 			dayNames,
 			monthNames,
 			fromSunday,
-			yearFirst
+			yearFirst,
+			markedDays,
+			markedDaysDisabled
 		} = this.props;
 		return (
 			<TagName {...this.getProps()}>
 				<Calendar
 					date={value}
+					markedDays={markedDays}
 					dayNames={dayNames}
 					monthNames={monthNames}
 					yearFirst={yearFirst}
 					fromSunday={fromSunday}
+					markedDaysDisabled={markedDaysDisabled}
 					onPickDate={this.handlePickDate}
 				/>
 			</TagName>

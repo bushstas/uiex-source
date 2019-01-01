@@ -171,12 +171,6 @@ export class SelectObject extends UIEXComponent {
 		return items;
 	}
 
-	renderOption = (value, i) => {
-		return (
-			<SelectObjectOption key={i} value={value}/>
-		)
-	}
-
 	handleClick = (e) => {
 		e.stopPropagation();
 		const {value, name, disabled, readOnly} = this.props;
@@ -223,9 +217,4 @@ export class SelectObject extends UIEXComponent {
 		const {options} = this.props;
 		return options instanceof Array & options.length > 0;
 	}
-}
-
-
-export class SelectObjectOption extends UIEXComponent {
-	
 }

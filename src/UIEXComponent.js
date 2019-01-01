@@ -631,10 +631,9 @@ export class UIEXPopup extends UIEXComponent {
 				if (queueName) {
 					popupQueue.removeObjectFromQueue(queueName, this);
 				}
-				const {onCollapse} = this.props;
-				if (typeof onCollapse == 'function') {
-					onCollapse();
-				}
+				setTimeout(() => {
+					this.fire('collapse');
+				}, 100);
 				this.removeBodyClickHandler();
 			}
 		}
@@ -698,13 +697,15 @@ export class UIEXPopup extends UIEXComponent {
 		this.addBodyClickHandler();
 		const {main} = this.refs;
 		main.style.position = this.getPopupPosition();
-		const positionState = this.getPositionState();
 		const {animation} = this.props;
 		preAnimate(main, this.getRootElement(), animation);
 		setTimeout(() => {
-			this.setState({shown: true, ...positionState}, () => {
-				this.handlePopupShown();
-				animate(main, this.getRootElement(), animation, ANIMATION_OPTIONS);
+			this.setState({shown: true}, () => {
+				const positionState = this.getPositionState();
+				this.setState(positionState, () => {
+					this.handlePopupShown();
+					animate(main, this.getRootElement(), animation, ANIMATION_OPTIONS);
+				});
 			});
 		}, 100);
 	}

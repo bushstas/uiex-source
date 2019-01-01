@@ -12,6 +12,8 @@ export const DatePickerPropTypes = {
 	monthNames: PROPTYPE.STRING_ARRAY,
 	yearFirst: PropTypes.bool,
 	fromSunday: PropTypes.bool,
+	markedDays: PROPTYPE.NUMBER_ARRAY,
+	markedDaysDisabled: PropTypes.bool,
 	onChange: PropTypes.func,
 	onPickDay: PropTypes.func,
 	onPickMonth: PropTypes.func,

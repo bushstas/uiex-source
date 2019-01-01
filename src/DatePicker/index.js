@@ -13,46 +13,32 @@ export class DatePicker extends UIEXComponent {
 
 	renderInternal() {
 		const TagName = this.getTagName();
-		const {day, month, year} = this.state;
+		const value = this.getProp('value');
 		const {
-			value,
 			dayNames,
 			monthNames,
 			fromSunday,
-			yearFirst
+			yearFirst,
+			markedDays,
+			markedDaysDisabled
 		} = this.props;
 		return (
 			<TagName {...this.getProps()}>
 				<Calendar
 					date={value}
+					markedDays={markedDays}
 					dayNames={dayNames}
 					monthNames={monthNames}
-					day={day}
-					month={month}
-					year={year}
 					yearFirst={yearFirst}
 					fromSunday={fromSunday}
-					onPickDay={this.handlePickDay}
-					onPickMonth={this.handlePickMonth}
-					onPickYear={this.handlePickYear}
+					markedDaysDisabled={markedDaysDisabled}
+					onPickDate={this.handlePickDate}
 				/>
 			</TagName>
 		)
 	}
 
-	handlePickDay = (day, month, year) => {
-		this.firePropChange('pickDay', null, [day, month, year], {day, month, year});
-	}
-
-	handlePickMonth = (month, year) => {
-		this.firePropChange('pickMonth', null, [month, year], {month, year});
-	}
-
-	handlePickYear = (year) => {
-		this.firePropChange('pickYear', 'year', [year], year);
-	}
-
-	fireChange = (value) => {
-		this.firePropChange('change', 'value', [value], value);
+	handlePickDate = (date, day, month, year) => {
+		this.firePropChange('pick', 'value', [date, day, month, year], date);
 	}
 }

@@ -3,7 +3,7 @@ import {Input} from '../Input';
 import {Icon} from '../Icon';
 import {DatePicker} from '../DatePicker';
 import {Popup} from '../Popup';
-import {isNumber, isString, replace, getNumericProp, getDate} from '../utils';
+import {isNumber, isString, replace, getNumericProp, getDate, isObject, showError} from '../utils';
 import {InputDatePropTypes} from './proptypes';
 
 import '../style.scss';
@@ -44,34 +44,41 @@ export class InputDate extends Input {
 	}
 
 	renderAdditionalContent() {
-		const {
-			withPicker,
-			pickerFromSunday,
-			pickerYearFirst,
-			pickerDayNames,
-			pickerMonthNames
-		} = this.props;
 		const pickerShown = this.getProp('pickerShown');
-		if (withPicker) {
+		if (this.props.withPicker) {
 			return (
 				<Popup
 					ref="popup"
 					isOpen={pickerShown}
 					onCollapse={this.handlePopupCollapse}
 				>
-					<DatePicker 
-						value={this.value}
-						fromSunday={pickerFromSunday}
-						yearFirst={pickerYearFirst}
-						dayNames={pickerDayNames}
-						uncontrolled
-						monthNames={pickerMonthNames}
-						onChange={this.handlePickerChange}
-					/>
+					{this.renderDatePicker()}
 				</Popup>
 			);
 		}
 		return null;
+	}
+
+	renderDatePicker() {
+		const {datePicker} = this.props;
+		if (datePicker) {
+			if (React.isValidElement(datePicker) && isObject(datePicker) && datePicker.type == DatePicker) {
+				return React.cloneElement(datePicker, {
+					uncontrolled: true,
+					value: this.value,
+					onPick: this.handlePickDate
+				});
+			} else {
+				showError('The datePicker property is not an instance of DatePicker');
+			}
+		}
+		return (
+			<DatePicker 
+				value={this.value}
+				uncontrolled
+				onPick={this.handlePickDate}
+			/>
+		);
 	}
 
 	getCustomInputProps() {
@@ -502,17 +509,15 @@ export class InputDate extends Input {
 		return value;
 	}
 
-	handlePickerChange = () => {
-
-	}
-
-	handlePopupCollapse = () => {
-
+	handlePickDate = (value, day, month, year) => {
+		this.fireChange(value);
+		this.fire('pick', value, {day, month, year}, this.props.name);
+		setTimeout(this.handlePopupCollapse, 0);
 	}
 
 	clickHandler() {
-		const {disabled, readOnly, withPicker} = this.props;
-		if (withPicker && !disabled && !readOnly) {
+		const {disabled, readOnly, withPicker, pickerShown} = this.props;
+		if (!pickerShown && withPicker && !disabled && !readOnly) {
 			super.clickHandler();
 			this.fireShowPicker(true);
 		}

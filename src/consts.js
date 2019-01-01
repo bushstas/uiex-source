@@ -90,14 +90,15 @@ const OPTION_SHAPE = PropTypes.shape({
 const STRING_ARRAY = PropTypes.arrayOf(PropTypes.string);
 
 export const PROPTYPE = {
+	NUMBER_ARRAY: PropTypes.arrayOf(PropTypes.number),
 	STYLE: PropTypes.oneOfType([
 		PropTypes.object,
 		PropTypes.string
 	]),
 	REACT_NODES: PropTypes.oneOfType([
 		PropTypes.arrayOf(PropTypes.node),
-		PropTypes.node]
-	), 
+		PropTypes.node
+	]), 
 	STRNUM: PropTypes.oneOfType([
 		PropTypes.string,
 		PropTypes.number

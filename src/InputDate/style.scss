@@ -40,4 +40,24 @@
 			}
 		}
 	}
+	.uiex-popup {
+		position: absolute;
+		top: 100%;
+		margin-top: 2px;
+		left: 0;
+		z-index: 100;
+		.uiex-color-picker {
+			border-color: #888;
+		}
+		&.uiex-vertically-out {
+			top: auto;
+			bottom: 100%;
+			margin-top: 0;
+			margin-bottom: 2px;
+		}
+		&.uiex-horizontally-out {
+			left: auto;
+			right: 0;
+		}
+	}
 }

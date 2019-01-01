@@ -2,7 +2,7 @@ import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {ButtonGroup} from '../ButtonGroup';
 import {Button} from '../Button';
-import {getNumber} from '../utils';
+import {getNumber, isObject, isString} from '../utils';
 import {FormPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -15,10 +15,27 @@ export class Form extends UIEXComponent {
 	static properChildren = ['FormControl', 'FormControlGroup'];
 	static displayName = 'Form';
 
+	getControlValue = (name) => {
+		const data = this.getProp('data');
+		return isObject(data) ? data[name] : undefined;
+	}
+
+	getData = (name, value) => {
+		const data = this.getProp('data');
+		if (!isString(name)) {
+			return data;
+		}		
+		if (!isObject(data)) {
+			return {[name]: value};
+		}
+		return {...data, [name]: value};
+	}
+
 	addChildProps(child, props) {
 		const {type: control} = child;
 		switch (control.name) {
 			case 'FormControl':
+				props.valueGetter = this.getControlValue;
 				if (typeof child.props.onChange != 'function') {
 					props.onChange = this.handleChange;
 				}
@@ -28,6 +45,7 @@ export class Form extends UIEXComponent {
 				let {rowMargin = DEFAULT_LINE_MARGIN, columns, cellSize} = this.props;
 				const {columnsTiny, columnsSmall, columnsMiddle, columnsLarger, columnsLarge, columnsHuge, columnsGigantic} = this.props;
 				rowMargin = getNumber(rowMargin);
+				props.valueGetter = this.getControlValue;
 				if (rowMargin) {
 					props.rowMargin = rowMargin;
 				}
@@ -103,6 +121,7 @@ export class Form extends UIEXComponent {
 	}
 
 	handleChange = (name, value) => {
-		this.fire('change', name, value);
+		const data = this.getData(name, value);
+		this.firePropChange('change', null, [name, value, data], {data});
 	}
 }

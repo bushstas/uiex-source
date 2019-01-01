@@ -4,6 +4,7 @@ import {FormControlPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
+import { isFunction } from 'util';
 
 export class FormControl extends Cell {
 	static propTypes = FormControlPropTypes;
@@ -12,6 +13,11 @@ export class FormControl extends Cell {
 	static displayName = 'FormControl';
 
 	addChildProps(child, props) {
+		const {valueGetter} = this.props;
+		if (child.props.value === undefined && isFunction(valueGetter)) {
+			props.value = valueGetter(child.props.name);
+		}
+		console.log('=============== ' + child.props.name);
 		if (typeof child.props.onChange != 'function') {
 			props.onChange = this.handleChange;
 		}

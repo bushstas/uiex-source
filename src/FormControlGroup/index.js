@@ -20,6 +20,7 @@ export class FormControlGroup extends CellGroup {
 	addChildProps(child, props, idx) {
 		super.addChildProps(child, props, idx);
 		const {onChange, className} = child.props;
+		props.valueGetter = this.props.valueGetter;
 		props.className = addToClassName(className, props.className);
 		props.className = addToClassName('uiex-cell', props.className);
 		if (typeof onChange != 'function') {

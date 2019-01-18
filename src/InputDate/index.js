@@ -110,11 +110,10 @@ export class InputDate extends Input {
 	}
 
 	filterValue(value) {
-		value = super.filterValue(value);
 		if (isNumber(value)) {
 			const len = Math.abs(value).toString().length;
-			if (len == 10 || len == 13) {
-				if (len == 10) {
+			if (len >= 9) {
+				if (len < 12) {
 					value *= 1000;
 				}
 				value = this.getDateFromTimestamp(value, this.isWithTime);
@@ -153,7 +152,7 @@ export class InputDate extends Input {
 				}
 			}
 		}
-		return properValue;
+		return super.filterValue(properValue);
 	}
 
 	getProperDateValue(value) {

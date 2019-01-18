@@ -111,10 +111,33 @@ export class Input extends UIEXComponent {
 
 	getValue() {
 		let value = this.getProp('value');
-		if (value == null) {
+		if (value == null || value === '') {
 			value = this.getProperDefaultValue();
 		}
 		return this.getProperIncomingValue(value);
+	}
+
+	getProperIncomingValue(value) {
+		return this.filterValue(value);
+	}
+
+	getProperOutcomingValue(value) {
+		return this.filterValue(value);
+	}
+
+	filterValue(value) {
+		const {customFilter} = this.props;
+		if (value == null) {
+			value = '';
+		}
+		if (isFunction(customFilter)) {
+			return customFilter(value);
+		}
+		return value;
+	}
+
+	getProperDefaultValue() {
+		return this.props.defaultValue || '';
 	}
 
 	isClearable() {
@@ -318,37 +341,8 @@ export class Input extends UIEXComponent {
 		this.refs.input.blur();
 	}
 
-	filterValue(value) {
-		const {customFilter} = this.props;
-		if (value == null) {
-			value = '';
-		}
-		if (isFunction(customFilter)) {
-			return customFilter(value);
-		}
-		return value;
-	}
-
-	getProperDefaultValue() {
-		return this.props.defaultValue || '';
-	}
-
 	parseInitialValue(value) {
 		return value;
-	}
-
-	getProperIncomingValue(value) {
-		if (value == null) {
-			return '';
-		}
-		if (value === '' || value === this.outcomingValue) {
-			return value;
-		}
-		return this.filterValue(value);
-	}
-
-	getProperOutcomingValue(value) {
-		return this.filterValue(value);
 	}
 
 	getCustomInputProps() {}

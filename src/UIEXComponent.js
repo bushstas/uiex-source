@@ -140,6 +140,7 @@ export class UIEXComponent extends React.PureComponent {
 					key: child.key || idx
 				};
 				if (isProperChild) {
+					this.currentProperChildIdx++;
 					if (!this.filterChild(child, idx)) {
 						return null;
 					}
@@ -148,7 +149,6 @@ export class UIEXComponent extends React.PureComponent {
 						showProperChildMaxCountError(child, this);
 						return null;
 					}
-					this.currentProperChildIdx++;
 					this.properChildrenCount++;
 					const {
 						disabled,

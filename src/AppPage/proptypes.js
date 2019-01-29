@@ -8,5 +8,7 @@ export const AppPagePropTypes = {
 	path: PropTypes.string,
 	params: PropTypes.object,
 	indexPage: PropTypes.bool,
-	content: PROPTYPE.REACT_NODES
+	notFoundPage: PropTypes.bool,
+	content: PROPTYPE.REACT_NODES,
+	component: PropTypes.func
 }

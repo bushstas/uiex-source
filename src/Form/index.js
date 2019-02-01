@@ -122,6 +122,6 @@ export class Form extends UIEXComponent {
 
 	handleChange = (name, value) => {
 		const data = this.getData(name, value);
-		this.firePropChange('change', null, [name, value, data], {data});
+		this.firePropChange('change', null, [data, name, value], {data});
 	}
 }

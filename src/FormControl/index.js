@@ -17,7 +17,6 @@ export class FormControl extends Cell {
 		if (child.props.value === undefined && isFunction(valueGetter)) {
 			props.value = valueGetter(child.props.name);
 		}
-		console.log('=============== ' + child.props.name);
 		if (typeof child.props.onChange != 'function') {
 			props.onChange = this.handleChange;
 		}

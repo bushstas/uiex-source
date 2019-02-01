@@ -12,7 +12,6 @@ export class AppPage extends UIEXComponent {
 
 	renderInternal() {
 		let {content} = this.props;
-		console.log(this.props)
 		const TagName = this.getTagName(); 
 		return (
 			<TagName {...this.getProps()}>

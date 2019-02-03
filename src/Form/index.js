@@ -9,19 +9,53 @@ import '../style.scss';
 import './style.scss';
 
 const DEFAULT_LINE_MARGIN = 15;
+const registeredForms = {};
+
+export const change = (name, data) => {
+	if (isObject(registeredForms[name]) && isObject(data)) {
+		registeredForms[name].change(data);
+	}
+}
+
+const registerForm = (name, form) => {
+	if (!registeredForms[name]) {
+		registeredForms[name] = form;
+	}
+};
+
+const unregisterForm = (name) => {
+	if (registeredForms[name]) {
+		registeredForms[name] = null;
+		delete registeredForms[name];
+	}
+};
 
 export class Form extends UIEXComponent {
 	static propTypes = FormPropTypes;
 	static properChildren = ['FormControl', 'FormControlGroup'];
 	static displayName = 'Form';
 
+	constructor(props) {
+		super(props);
+		if (props.name && isString(props.name)) {
+			registerForm(props.name, this);
+		}
+	}
+
+	componentWillUnmount() {
+		unregisterForm(this.props.name);
+	}
+
 	getControlValue = (name) => {
 		const data = this.getProp('data');
 		return isObject(data) ? data[name] : undefined;
 	}
 
-	getData = (name, value) => {
+	getData = (name, value = null) => {
 		const data = this.getProp('data');
+		if (isObject(name)) {
+			return {...data, ...name};
+		}
 		if (!isString(name)) {
 			return data;
 		}		
@@ -118,6 +152,11 @@ export class Form extends UIEXComponent {
 			)
 		}
 		return null;
+	}
+
+	change = (data) => {
+		data = this.getData(data);
+		this.firePropChange('change', null, [data], {data});
 	}
 
 	handleChange = (name, value) => {

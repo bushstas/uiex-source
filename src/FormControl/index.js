@@ -39,7 +39,7 @@ export class FormControl extends Cell {
 		)
 	}
 
-	handleChange = (value, name) => {
+	handleChange = (value, name) => {alert(56)
 		this.fire('change', name, value);
 	}
 }

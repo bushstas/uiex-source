@@ -4,8 +4,12 @@ import {PROPTYPE} from '../consts';
 
 export const AppPropTypes = {
 	...UIEXComponentPropTypes,
-	page: PropTypes.string,
-	pageParams: PropTypes.object,
+	initialPage: PropTypes.string,
+	initialPageParams: PropTypes.object,
 	hashRouting: PropTypes.bool,
+	loaderView: PROPTYPE.REACT_NODES,
+	pageNotFoundView: PROPTYPE.REACT_NODES,
+	criticalErrorView: PROPTYPE.REACT_NODES,
+	indexPageName: PropTypes.string,
 	onChangePage: PropTypes.func
 }

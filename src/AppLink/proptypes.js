@@ -3,5 +3,6 @@ import {UIEXComponentPropTypes} from '../UIEXComponentPropTypes';
 import {PROPTYPE} from '../consts';
 
 export const AppLinkPropTypes = {
-	...UIEXComponentPropTypes
+	...UIEXComponentPropTypes,
+	isButton: PropTypes.bool
 }

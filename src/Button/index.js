@@ -1,6 +1,7 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {Icon} from '../Icon';
+import {isFunction} from '../utils';
 import {ButtonPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -63,8 +64,10 @@ export class Button extends UIEXComponent {
 	}
 
 	handleClick = (e) => {
-		e.stopPropagation();
-		const {value, disabled, href} = this.props;
+		const {value, disabled, href, onClick} = this.props;
+		if (isFunction(onClick)) {
+			e.stopPropagation();
+		}
 		if (!disabled) {
 			this.fire('click', value);
 		} else {

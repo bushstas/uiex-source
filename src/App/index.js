@@ -246,10 +246,7 @@ export class App extends UIEXComponent {
 		} else {
 			locationController.setApp(this);
 			if (!this.props.initialPage) {
-				const page = locationController.initCurrentLocation();
-				if (isObject(page) && (isNumber(page.page) || isString(page.page))) {
-					this.handleChangePage(page);
-				}
+				this.handleLocationChange();
 			} else {
 				locationController.navigateToPage(this.props.initialPage);
 			}
@@ -275,7 +272,10 @@ export class App extends UIEXComponent {
 	}
 
 	handleLocationChange = () => {
-
+		const page = locationController.initCurrentLocation();
+		if (isObject(page) && (isNumber(page.page) || isString(page.page))) {
+			this.handleChangePage(page);
+		}
 	}
 
 	filterChild(child) {
@@ -327,7 +327,7 @@ export class App extends UIEXComponent {
 
 	navigateToPage(page, path, params) {
 		if (isString(path)) {
-			this.replaceState(path);
+			this.replaceState(path, page);
 		}
 		this.handleChangePage({page, params});
 	}
@@ -343,8 +343,8 @@ export class App extends UIEXComponent {
 		}
 	}
 
-	replaceState(path) {
+	replaceState(path, page) {
 		const {hashRouting} = this.props;
-		window.history.pushState({}, '', (hashRouting ? '#' : '/') + path);
+		window.history.pushState({}, '', (hashRouting ? '#' : '/') + (path || page));
 	}
 }

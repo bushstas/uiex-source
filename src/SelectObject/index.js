@@ -5,10 +5,12 @@ import {Icon} from '../Icon';
 import {Modal} from '../Modal';
 import {JsonPreview} from '../JsonPreview';
 import {Radio} from '../Radio';
+import {isObject} from '../utils';
 import {SelectObjectPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
+
 
 export class SelectObject extends UIEXComponent {
 	static propTypes = SelectObjectPropTypes;
@@ -202,6 +204,9 @@ export class SelectObject extends UIEXComponent {
 	}
 
 	handleItemClick(data) {
+		if (isObject(data) && data.jsonPreviewInfo && data.value) {
+			data = data.value;
+		}
 		this.fire('change', data, this.props.name);
 		this.setState({focused: false});
 	}

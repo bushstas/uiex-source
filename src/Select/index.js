@@ -1,9 +1,9 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
-import {UIEXBoxContainer, UIEXComponent} from '../UIEXComponent';
+import {UIEXBoxContainer} from '../UIEXComponent';
 import {Input} from '../Input';
 import {Icon} from '../Icon';
 import {PopupMenu, PopupMenuItem} from '../PopupMenu';
+import {isFunction} from '../utils';
 import {SelectPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -11,14 +11,8 @@ import './style.scss';
 
 const PENDING_ERROR = [{title: 'Pending error', value: null}];
 const PENDING_PLACEHOLDER = 'Pending...';
-const INITIAL_STATE = {
-	focused: false,
-	placeholder: null
-};
 
-const PROPS_LIST = 'options';
-
-class SelectComponent extends UIEXBoxContainer {
+export class Select extends UIEXBoxContainer {
 	static propTypes = SelectPropTypes;
 	static className = 'select';
 	static properChildren = 'SelectOption';
@@ -26,24 +20,34 @@ class SelectComponent extends UIEXBoxContainer {
 	static isControl = true;
 	static displayName = 'Select';
 
-	static getDerivedStateFromProps({add, changed, nextProps}) {
-		if (changed) {
-			let {options} = nextProps;
-			if (typeof options == 'function') {
-				options = options();
-			} else if (options instanceof Promise) {
-				add('placeholder', this.getPendingPlaceholder());
-			}
-			add('options', options);
-		}
-	}
-
 	constructor(props) {
 		super(props);
 		this.selectHandler = this.handleSelect.bind(this);
 		this.selectByArrowHandler = this.handleSelectByArrow.bind(this);
 		this.enterHandler = this.handleEnter.bind(this);
 		this.clickHandler = this.handleClick.bind(this);
+		let {options} = props;
+		if (isFunction(options)) {
+			options = options();
+		}
+		this.state.options = options;
+		if (options instanceof Promise) {
+			this.state.placeholder = this.getPendingPlaceholder();
+		}
+	}
+
+	componentDidUpdate(prevProps) {
+		let {options} = this.props;
+		if (prevProps.options != options) {
+			if (isFunction(options)) {
+				options = options();
+			}
+			const newState = {options};
+			if (options instanceof Promise) {
+				newState.placeholder = this.getPendingPlaceholder();
+			}
+			this.setState(newState);
+		}
 	}
 
 	componentWillUnmount() {
@@ -384,9 +388,6 @@ class SelectComponent extends UIEXBoxContainer {
 		return false;
 	}
 }
-
-export const Select = withStateMaster(SelectComponent, PROPS_LIST, INITIAL_STATE, UIEXComponent);
-
 
 export class SelectOption extends PopupMenuItem {
 	static propTypes = PopupMenuItem.propTypes;

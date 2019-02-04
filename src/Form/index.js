@@ -2,23 +2,74 @@ import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {ButtonGroup} from '../ButtonGroup';
 import {Button} from '../Button';
-import {getNumber} from '../utils';
+import {getNumber, isObject, isString} from '../utils';
 import {FormPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
 
 const DEFAULT_LINE_MARGIN = 15;
+const registeredForms = {};
+
+export const change = (name, data) => {
+	if (isObject(registeredForms[name]) && isObject(data)) {
+		registeredForms[name].change(data);
+	}
+}
+
+const registerForm = (name, form) => {
+	if (!registeredForms[name]) {
+		registeredForms[name] = form;
+	}
+};
+
+const unregisterForm = (name) => {
+	if (registeredForms[name]) {
+		registeredForms[name] = null;
+		delete registeredForms[name];
+	}
+};
 
 export class Form extends UIEXComponent {
 	static propTypes = FormPropTypes;
 	static properChildren = ['FormControl', 'FormControlGroup'];
 	static displayName = 'Form';
 
+	constructor(props) {
+		super(props);
+		if (props.name && isString(props.name)) {
+			registerForm(props.name, this);
+		}
+	}
+
+	componentWillUnmount() {
+		unregisterForm(this.props.name);
+	}
+
+	getControlValue = (name) => {
+		const data = this.getProp('data');
+		return isObject(data) ? data[name] : undefined;
+	}
+
+	getData = (name, value = null) => {
+		const data = this.getProp('data');
+		if (isObject(name)) {
+			return {...data, ...name};
+		}
+		if (!isString(name)) {
+			return data;
+		}		
+		if (!isObject(data)) {
+			return {[name]: value};
+		}
+		return {...data, [name]: value};
+	}
+
 	addChildProps(child, props) {
 		const {type: control} = child;
 		switch (control.name) {
 			case 'FormControl':
+				props.valueGetter = this.getControlValue;
 				if (typeof child.props.onChange != 'function') {
 					props.onChange = this.handleChange;
 				}
@@ -28,6 +79,7 @@ export class Form extends UIEXComponent {
 				let {rowMargin = DEFAULT_LINE_MARGIN, columns, cellSize} = this.props;
 				const {columnsTiny, columnsSmall, columnsMiddle, columnsLarger, columnsLarge, columnsHuge, columnsGigantic} = this.props;
 				rowMargin = getNumber(rowMargin);
+				props.valueGetter = this.getControlValue;
 				if (rowMargin) {
 					props.rowMargin = rowMargin;
 				}
@@ -102,7 +154,13 @@ export class Form extends UIEXComponent {
 		return null;
 	}
 
+	change = (data) => {
+		data = this.getData(data);
+		this.firePropChange('change', null, [data], {data});
+	}
+
 	handleChange = (name, value) => {
-		this.fire('change', name, value);
+		const data = this.getData(name, value);
+		this.firePropChange('change', null, [data, name, value], {data});
 	}
 }

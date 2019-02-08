@@ -82,7 +82,7 @@ export class Input extends UIEXComponent {
 	renderInput() {
 		let {type} = this.props;
 		const {name, placeholder, textarea, maxLength} = this.props;
-		if (!type || !isSting(type)) {
+		if (!type || !isString(type)) {
 			type = 'text';
 		}
 		const TagName = !textarea ? 'input' : 'textarea';

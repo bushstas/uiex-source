@@ -10,14 +10,16 @@ export class FormControl extends Cell {
 	static propTypes = FormControlPropTypes;
 	static className = 'form-control';
 	static properChildrenSign = 'isControl';
+	static properChildrenMaxCount = 1;
 	static displayName = 'FormControl';
 
 	addChildProps(child, props) {
 		const {valueGetter} = this.props;
-		if (child.props.value === undefined && isFunction(valueGetter)) {
-			props.value = valueGetter(child.props.name);
+		const {value, name, onChange} = child.props;
+		if (value === undefined && isFunction(valueGetter)) {
+			props.value = valueGetter(name);			
 		}
-		if (typeof child.props.onChange != 'function') {
+		if (typeof onChange != 'function') {
 			props.onChange = this.handleChange;
 		}
 	}
@@ -39,7 +41,7 @@ export class FormControl extends Cell {
 		)
 	}
 
-	handleChange = (value, name) => {alert(56)
+	handleChange = (value, name) => {
 		this.fire('change', name, value);
 	}
 }

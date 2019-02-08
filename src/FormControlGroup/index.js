@@ -1,6 +1,6 @@
 import React from 'react';
 import {CellGroup} from '../CellGroup';
-import {addToClassName} from '../utils';
+import {addToClassName, isFunction} from '../utils';
 import {FormControlGroupPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -23,7 +23,7 @@ export class FormControlGroup extends CellGroup {
 		props.valueGetter = this.props.valueGetter;
 		props.className = addToClassName(className, props.className);
 		props.className = addToClassName('uiex-cell', props.className);
-		if (typeof onChange != 'function') {
+		if (!isFunction(onChange)) {
 			props.onChange = this.props.onChange;
 		}
 	}

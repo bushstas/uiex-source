@@ -1,5 +1,4 @@
 import React from 'react';
-import {withStateMaster} from '../state-master';
 import {UIEXComponent} from '../UIEXComponent';
 import {CellGroup, Cell} from '../CellGroup';
 import {getNumber, replace, getNumberOrNull} from '../utils';
@@ -36,7 +35,7 @@ export class Colors extends UIEXComponent {
 					cellHeight={colorHeight}
 					sideShrink
 				>
-					{colors instanceof Array && colors.map((value, idx) => {
+					{colors instanceof Array && colors.map((value) => {
 						const active = selectable && currentValue == value;
 						return (
 							<Cell key={value}>
@@ -66,16 +65,17 @@ export class Colors extends UIEXComponent {
 	}
 }
 
-const COLOR_PROPS_LIST = 'value';
-
-class ColorComponent extends UIEXComponent {
+export class Color extends UIEXComponent {
 	static propTypes = ColorPropTypes;
 	static displayName = 'Color';
 
-	static getDerivedStateFromProps({add, isChanged, nextProps}) {
-		if (isChanged('value') && typeof nextProps.value == 'string') {
-			add('bgColorStyle', {backgroundColor: '#' + replace(/^\#/, '', nextProps.value)});
-		}	
+	getBgStyle() {
+		const {value} = this.props;
+		if (value != this.chachedValue) {
+			this.chachedValue = value;
+			this.cachedBgStyle = {backgroundColor: value};
+		}
+		return this.cachedBgStyle;
 	}
 
 	getCustomProps() {
@@ -87,14 +87,15 @@ class ColorComponent extends UIEXComponent {
 	renderInternal() {
 		return (
 			<div {...this.getProps()}>
-				<div className={this.getClassName('bg')} style={this.state.bgColorStyle}/>
+				<div
+					className={this.getClassName('bg')}
+					style={this.getBgStyle()}
+				/>
 			</div>
 		)
 	}
 
 	handleClick = () => {
-		this.fire('select', replace(/^\#/, '', this.props.value));
+		this.fire('select', this.props.value);
 	}
 }
-
-const Color = withStateMaster(ColorComponent, COLOR_PROPS_LIST, null, UIEXComponent);

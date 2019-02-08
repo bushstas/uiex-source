@@ -10,5 +10,7 @@ export const FormPropTypes = {
 	rowMargin: PROPTYPE.STRNUM,
 	submit: PropTypes.string,
 	clear: PropTypes.string,
-	onChange: PropTypes.func
+	onChange: PropTypes.func,
+	onInitialize: PropTypes.func,
+	onReset: PropTypes.func
 }

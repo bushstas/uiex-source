@@ -2,33 +2,88 @@ import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {ButtonGroup} from '../ButtonGroup';
 import {Button} from '../Button';
-import {getNumber, isObject, isString} from '../utils';
+import {getNumber, isObject, isString, isFunction, isArray, isNumber} from '../utils';
 import {FormPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
 
 const DEFAULT_LINE_MARGIN = 15;
+const DEFAULT_PROP_NAME = 'form';
 const registeredForms = {};
+const subscribers = {};
 
 export const change = (name, data) => {
-	if (isObject(registeredForms[name]) && isObject(data)) {
-		registeredForms[name].change(data);
+	if ((isArray(registeredForms[name]) || isObject(registeredForms[name])) && isObject(data)) {
+		if (isArray(registeredForms[name])) {
+			registeredForms[name].forEach((form) => {
+				if (isObject(form)) {
+					form.change(data);
+				}
+			});
+		} else {
+			registeredForms[name].change(data);
+		}
 	}
 }
+
+export const subscribe = (name, component, propName) => {
+	if (registeredForms[name] && isObject(component) && isFunction(component.setState)) {
+		subscribers[name] = subscribers[name] || [];
+		subscribers[name].push([component, propName]);
+	}
+};
+
+export const unsubscribe = (name, component) => {
+	if (isArray(subscribers[name])) {
+		let index = null;
+		for (let i = 0; i < subscribers[name].length; i++) {
+			if (subscribers[name][i][0] == component) {
+				index = i;
+				break;
+			}
+		}
+		if (isNumber(index)) {
+			subscribers[name].splice(index, 1);
+		}
+	}
+};
 
 const registerForm = (name, form) => {
 	if (!registeredForms[name]) {
 		registeredForms[name] = form;
+	} else if (isArray(registeredForms[name])) {
+		registeredForms[name].push(form);
+	} else {
+		registeredForms[name] = [registeredForms[name], form];
 	}
 };
 
-const unregisterForm = (name) => {
+const unregisterForm = (name, form) => {
 	if (registeredForms[name]) {
-		registeredForms[name] = null;
-		delete registeredForms[name];
+		if (isArray(registeredForms[name])) {
+			const index = registeredForms[name].indexOf(form);
+			if (index > -1) {
+				registeredForms[name].splice(index, 1);
+			}
+		} else {
+			registeredForms[name] = null;
+			delete registeredForms[name];
+		}
 	}
 };
+
+const notifySubscribers = (name, data) => {
+	if (isArray(subscribers[name])) {
+		for (let i = 0; i < subscribers[name].length; i++) {
+			let [component, propName] = subscribers[name][i];
+			if (!isString(propName)) {
+				propName = DEFAULT_PROP_NAME;
+			}
+			component.setState({[propName]: data});
+		}
+	}
+}
 
 export class Form extends UIEXComponent {
 	static propTypes = FormPropTypes;
@@ -43,7 +98,7 @@ export class Form extends UIEXComponent {
 	}
 
 	componentWillUnmount() {
-		unregisterForm(this.props.name);
+		unregisterForm(this.props.name, this);
 	}
 
 	getControlValue = (name) => {
@@ -157,10 +212,12 @@ export class Form extends UIEXComponent {
 	change = (data) => {
 		data = this.getData(data);
 		this.firePropChange('change', null, [data], {data});
+		notifySubscribers(data);
 	}
 
 	handleChange = (name, value) => {
 		const data = this.getData(name, value);
 		this.firePropChange('change', null, [data, name, value], {data});
+		notifySubscribers(this.props.name, data);
 	}
 }

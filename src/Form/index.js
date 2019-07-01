@@ -3,6 +3,7 @@ import {UIEXComponent} from '../UIEXComponent';
 import {ButtonGroup} from '../ButtonGroup';
 import {Button} from '../Button';
 import {getNumber, isObject, isString, isFunction, isArray, isNumber} from '../utils';
+import {clone} from '../_utils/clone';
 import {FormPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -13,7 +14,10 @@ const DEFAULT_PROP_NAME = 'form';
 const registeredForms = {};
 const subscribers = {};
 
-export const change = (name, data) => {
+export const change = (name, data, value = null) => {
+	if (isString(data)) {
+		data = {[data]: value};
+	}
 	if ((isArray(registeredForms[name]) || isObject(registeredForms[name])) && isObject(data)) {
 		if (isArray(registeredForms[name])) {
 			registeredForms[name].forEach((form) => {
@@ -23,6 +27,34 @@ export const change = (name, data) => {
 			});
 		} else {
 			registeredForms[name].change(data);
+		}
+	}
+}
+
+export const reset = (name) => {
+	if (isArray(registeredForms[name]) || isObject(registeredForms[name])) {
+		if (isArray(registeredForms[name])) {
+			registeredForms[name].forEach((form) => {
+				if (isObject(form)) {
+					form.reset();
+				}
+			});
+		} else {
+			registeredForms[name].reset();
+		}
+	}
+}
+
+export const clear = (name) => {
+	if (isArray(registeredForms[name]) || isObject(registeredForms[name])) {
+		if (isArray(registeredForms[name])) {
+			registeredForms[name].forEach((form) => {
+				if (isObject(form)) {
+					form.clear();
+				}
+			});
+		} else {
+			registeredForms[name].clear();
 		}
 	}
 }
@@ -94,7 +126,8 @@ export class Form extends UIEXComponent {
 	constructor(props) {
 		super(props);
 		this.state = {
-			name: props.name
+			name: props.name,
+			initialData: clone(props.initialData || props.data)
 		};
 		if (props.name && isString(props.name)) {
 			registerForm(props.name, this);
@@ -230,6 +263,20 @@ export class Form extends UIEXComponent {
 	change = (data) => {
 		data = this.getData(data);
 		this.firePropChange('change', null, [data], {data});
+		notifySubscribers(data);
+	}
+
+	reset = () => {
+		const data = this.state.initialData || {};
+		this.firePropChange('change', null, [data], {data});
+		this.firePropChange('reset', null, [data], {data});
+		notifySubscribers(data);
+	}
+
+	clear = () => {
+		const data = {};
+		this.firePropChange('change', null, [data], {data});
+		this.firePropChange('clear', null, [data], {data});
 		notifySubscribers(data);
 	}
 

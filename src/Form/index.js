@@ -87,18 +87,22 @@ const notifySubscribers = (name, data) => {
 
 export class Form extends UIEXComponent {
 	static propTypes = FormPropTypes;
-	static properChildren = ['FormControl', 'FormControlGroup'];
+	static properChildren = ['FormControl', 'FormControlGroup', 'Checkbox'];
+	static styleNames = ['caption', 'buttons'];
 	static displayName = 'Form';
 
 	constructor(props) {
 		super(props);
+		this.state = {
+			name: props.name
+		};
 		if (props.name && isString(props.name)) {
 			registerForm(props.name, this);
 		}
 	}
 
 	componentWillUnmount() {
-		unregisterForm(this.props.name, this);
+		unregisterForm(this.state.name, this);
 	}
 
 	getControlValue = (name) => {
@@ -106,23 +110,34 @@ export class Form extends UIEXComponent {
 		return isObject(data) ? data[name] : undefined;
 	}
 
-	getData = (name, value = null) => {
+	getData = (fieldName, value = null) => {
 		const data = this.getProp('data');
-		if (isObject(name)) {
-			return {...data, ...name};
+		if (isObject(fieldName)) {
+			return {...data, ...fieldName};
 		}
-		if (!isString(name)) {
+		if (!isString(fieldName)) {
 			return data;
 		}		
 		if (!isObject(data)) {
-			return {[name]: value};
+			return {[fieldName]: value};
 		}
-		return {...data, [name]: value};
+		return {...data, [fieldName]: value};
 	}
 
 	addChildProps(child, props) {
 		const {type: control} = child;
 		switch (control.name) {
+			case 'Checkbox':
+				const valueGetter = this.getControlValue;
+				const {value, name, onChange} = child.props;
+				if (value === undefined && isFunction(valueGetter)) {
+					props.value = valueGetter(name);			
+				}
+				if (typeof onChange != 'function') {
+					props.onChange = this.handleChange;
+				}
+			break;
+
 			case 'FormControl':
 				props.valueGetter = this.getControlValue;
 				if (typeof child.props.onChange != 'function') {
@@ -178,7 +193,10 @@ export class Form extends UIEXComponent {
 		return (
 			<TagName {...this.getProps()}>
 				{caption &&
-					<div className="uiex-form-caption">
+					<div
+						className="uiex-form-caption"
+						style={this.getStyle('caption')}
+					>
 						{caption}
 					</div>
 				}
@@ -215,9 +233,9 @@ export class Form extends UIEXComponent {
 		notifySubscribers(data);
 	}
 
-	handleChange = (name, value) => {
-		const data = this.getData(name, value);
-		this.firePropChange('change', null, [data, name, value], {data});
-		notifySubscribers(this.props.name, data);
+	handleChange = (fieldName, value) => {
+		const data = this.getData(fieldName, value);
+		this.firePropChange('change', null, [data, fieldName, value], {data});
+		notifySubscribers(this.state.name, data);
 	}
 }

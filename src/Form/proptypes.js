@@ -4,13 +4,16 @@ import {PROPTYPE} from '../consts';
 
 export const FormPropTypes = {
 	...UIEXComponentPropTypes,
+	name: PropTypes.string,
 	caption: PROPTYPE.REACT_NODES,
 	columns: PROPTYPE.STRNUM,
 	cellSize: PROPTYPE.STRNUM,
 	rowMargin: PROPTYPE.STRNUM,
-	submit: PropTypes.string,
-	clear: PropTypes.string,
+	data: PropTypes.object,
+	initialData: PropTypes.object,
+	defaultData: PropTypes.object,
 	onChange: PropTypes.func,
-	onInitialize: PropTypes.func,
-	onReset: PropTypes.func
+	onSubmit: PropTypes.func,
+	onReset: PropTypes.func,
+	onClear: PropTypes.func
 }

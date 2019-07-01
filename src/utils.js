@@ -27,6 +27,9 @@ export const isFunction = (v) => {
 export const mergeStyleProps = (...objects) => {
 	const styles = {};
 	for (let i = 0; i < objects.length; i++) {
+		if (isString(objects[i])) {
+			objects[i] = getStyleObjectFromString(objects[i]);
+		}
 		if (!isObject(objects[i])) {
 			continue;
 		}

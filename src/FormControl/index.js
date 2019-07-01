@@ -9,6 +9,7 @@ import { isFunction } from 'util';
 export class FormControl extends Cell {
 	static propTypes = FormControlPropTypes;
 	static className = 'form-control';
+	static properParentClasses = ['Form', 'FormControlGroup'];
 	static properChildrenSign = 'isControl';
 	static properChildrenMaxCount = 1;
 	static displayName = 'FormControl';
@@ -16,9 +17,8 @@ export class FormControl extends Cell {
 	addChildProps(child, props) {
 		const {valueGetter} = this.props;
 		const {value, name, onChange} = child.props;
-		if (value === undefined && isFunction(valueGetter)) {
-			props.value = valueGetter(name);			
-		}
+		const valueFromData = isFunction(valueGetter) ? valueGetter(name) : undefined;
+		props.value = valueFromData === undefined ? value : valueFromData;
 		if (typeof onChange != 'function') {
 			props.onChange = this.handleChange;
 		}

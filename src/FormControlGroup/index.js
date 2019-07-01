@@ -12,9 +12,9 @@ export class FormControlGroup extends CellGroup {
 	static className = 'form-control-group';
 	static additionalClassName = 'cell-group';
 	static onlyProperChildren = true;
-	static defaultColumns = 10;
+	static defaultColumns = 1;
 	static defaultCellMargin = 12;
-	static defaultCellSize = 2;
+	static defaultCellSize = 1;
 	static displayName = 'FormControlGroup';
 
 	addChildProps(child, props, idx) {

@@ -3,7 +3,7 @@ import {UIEXBoxContainer} from '../UIEXComponent';
 import {Input} from '../Input';
 import {Icon} from '../Icon';
 import {PopupMenu, PopupMenuItem} from '../PopupMenu';
-import {isFunction} from '../utils';
+import {isFunction, isNumber} from '../utils';
 import {SelectPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -127,11 +127,11 @@ export class Select extends UIEXBoxContainer {
 	renderQuantityLabel() {
 		if (this.isMultiple() && this.props.value instanceof Array && this.props.value.length > 1) {
 			const selectedCount = this.getSelectedCount();
-			if (selectedCount) {
+			if (isNumber(selectedCount) && selectedCount - 1 > 0) {
 				const all = selectedCount === this.optionsTotalCount;
 				return (
 					<span className="uiex-quantity-label">
-						{all ? 'all' : '+' + selectedCount}
+						{all ? 'all' : '+' + (selectedCount - 1)}
 					</span>
 				)
 			}

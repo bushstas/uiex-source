@@ -1,23 +1,39 @@
 import React from 'react';
+import {isNumber, isFunction} from '../utils';
 import {Cell} from '../CellGroup';
 import {FormControlPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
-import { isFunction } from 'util';
 
 export class FormControl extends Cell {
 	static propTypes = FormControlPropTypes;
 	static className = 'form-control';
-	static properParentClasses = ['Form', 'FormControlGroup'];
+	static properParentClasses = ['Form', 'FormSection', 'FormControlGroup'];
 	static properChildrenSign = 'isControl';
 	static properChildrenMaxCount = 1;
 	static displayName = 'FormControl';
 
+	componentDidMount() {
+		const {arrayIndex, registerControl} = this.props;
+		if (isFunction(registerControl)) {
+			registerControl(this.name, arrayIndex);
+		}
+	}
+
 	addChildProps(child, props) {
-		const {valueGetter} = this.props;
+		const {
+			valueGetter,
+			initialValueGetter,
+			arrayIndex,
+			unregisterControl
+		} = this.props;
 		const {value, name, onChange} = child.props;
-		const valueFromData = isFunction(valueGetter) ? valueGetter(name) : undefined;
+		if (this.name && this.name !== name && isFunction(unregisterControl)) {
+			unregisterControl(this.name, arrayIndex);
+		}
+		this.name = name;
+		const valueFromData = isFunction(valueGetter) ? valueGetter(name, arrayIndex) : undefined;
 		props.value = valueFromData === undefined ? value : valueFromData;
 		if (typeof onChange != 'function') {
 			props.onChange = this.handleChange;
@@ -42,6 +58,12 @@ export class FormControl extends Cell {
 	}
 
 	handleChange = (value, name) => {
-		this.fire('change', name, value);
+		const {initialValueGetter, arrayIndex} = this.props;
+		this.fire('change', name, value, arrayIndex);
+		if (isFunction(initialValueGetter)) {
+			let initialValue = initialValueGetter(name, arrayIndex);
+			initialValue = initialValue === null || initialValue === undefined ? '' : initialValue;
+			this.fire('changeData', name, initialValue !== value, arrayIndex);
+		}
 	}
 }

@@ -4,5 +4,6 @@ import {PROPTYPE} from '../consts';
 
 export const JsonPreviewPropTypes = {
 	...UIEXComponentPropTypes,
-	data: PropTypes.any
+	data: PropTypes.any,
+	noUndefined: PropTypes.bool
 }

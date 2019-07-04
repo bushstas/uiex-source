@@ -1,6 +1,6 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
-import {getNumber, addToClassName, isValidAndNotEmptyNumericStyle} from '../utils';
+import {getNumber, addToClassName, isValidAndNotEmptyNumericStyle, isObject, isArray} from '../utils';
 import {CellGroupPropTypes, CellGroupRowPropTypes, CellPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -58,58 +58,71 @@ export class CellGroup extends UIEXComponent {
 		this.previosTotalSize = null;
 		this.children = [];
 		this.rowSizes = [];
-		this.currentRowIndex = -1;
 		this.columns = this.getSize(props, 'columns', columns) || defaultColumns;
 		this.cellSize = this.getSize(props, 'cellSize', cellSize) || defaultCellSize;
 		this.maxCellSize = this.getSize(props, 'maxCellSize', maxCellSize);		
 	}
 
 	doRenderChildren(children) {
+		this.renderCells(children, this.children);
+	}
+
+	renderCells(children, list) {
+		let rowIndex = -1;
 		if (children) {
 			if (children instanceof Array) {
 				for (let i = 0; i < children.length; i++) {
 					this.nextChild = children[i + 1];
 					const child = this.renderChild(children[i], i);
+					this.newContext = false;
 					if (React.isValidElement(child) && !(child instanceof Array)) {
 						if (this.isNewRow) {
 							if (this.previosTotalSize) {
 								this.rowSizes.push(this.previosTotalSize)
 							}
-							this.currentRowIndex++;
-							this.children.push([]);
+							rowIndex++;
+							list.push([]);
 						}
-						this.children[this.currentRowIndex].push(child);
+						list[rowIndex].push(child);
 					}
 				}
 			} else {
 				const child = this.renderChild(children, 0);
 				if (React.isValidElement(child)) {
-					this.children.push(child);
+					list.push([child]);
 				}
 			}
 		}
 	}
 
-	prepareChildren() {
-		const rows = this.children.length;
+	wrapIntoRows(children, sizes) {
+		const rows = children.length;
 		if (rows == 0) {
-			return null;
+			return [];
 		}
-		if (this.rowSizes.length != rows) {
-			this.rowSizes.push(this.totalCellSize);
+		if (sizes.length != rows) {
+			sizes.push(this.totalCellSize);
 		}
-		return this.children.map((row, idx) => {
-			return (
-				<CellGroupRow
-					className={this.rowSizes[idx] == this.columns ? 'uiex-complete-row' : 'uiex-incomplete-row'}
-					key={idx} 
-					style={idx > 0 ? this.getRowStyle() : null}
-					height={(100 / rows).toFixed(2) + '%'}
-				>
-					{row}
-				</CellGroupRow>
-			)
+		return children.map((row, idx) => {
+			if (isArray(row)) {
+	 			return (
+					<CellGroupRow
+						className={sizes[idx] == this.columns ? 'uiex-complete-row' : 'uiex-incomplete-row'}
+						key={idx} 
+						style={idx > 0 ? this.getRowStyle() : null}
+						height={(100 / rows).toFixed(2) + '%'}
+					>
+						{row}
+					</CellGroupRow>
+				);
+			}
+			return row;
 		});
+	}
+
+
+	prepareChildren() {
+		return this.wrapIntoRows(this.children, this.rowSizes);
 	}
 	
 	addChildProps(child, props, idx) {
@@ -217,7 +230,7 @@ export class CellGroup extends UIEXComponent {
 		let width = (size * 100 / columns).toFixed(4) + '%';
 		totalCellSize += size;
 
-		const isFirst = firstInRow || idx == 0 || totalCellSize > columns;
+		const isFirst = firstInRow || idx == 0 || totalCellSize > columns || this.newContext;
 		if (isFirst) {
 			isNewRow = true;
 			totalCellSize = size;

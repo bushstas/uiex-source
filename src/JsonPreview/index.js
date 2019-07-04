@@ -90,17 +90,21 @@ export class JsonPreview extends UIEXComponent {
 	}
 
 	renderObject(obj, isComma = false, isValue = false) {
+		const {noUndefined} = this.props;
 		this.renderLine(this.wrapWithTag('{', 'sign'), false, isValue);
 		this.addTab();
 		const keys = Object.keys(obj);
 		const lastKey = keys[keys.length - 1];
 		for (let k in obj) {
+			if (noUndefined && obj[k] === undefined) {
+				continue;
+			}
 			const key = this.getKey(k);
-			const isComma = k != lastKey;
+			const isWithComma = k != lastKey;
 			this.renderLineStart(key + ': ');
-			const item = this.getItem(obj[k], isComma, true);
+			const item = this.getItem(obj[k], isWithComma, true);
 			if (item) {
-				this.renderLineEnd(item, isComma);
+				this.renderLineEnd(item, isWithComma);
 			}
 		}
 		this.addTab(-1);

@@ -243,22 +243,42 @@ export const showError = (error) => {
 	console.error(error);
 }
 
-export const showImproperChildError = (child, parent) => {
-	let childType = 'text';
+const getChildTypeAndName = (child) => {
+	let type = 'text';
+	let name = child;
 	if (React.isValidElement(child)) {
-		childType = 'element';
+		type = 'element';
 		if (typeof child.type == 'function') {
-			child = child.type.name;
+			type = 'component';
+			name = child.type.name;
 		} else {
-			child = child.type;
+			name = child.type;
 		}			
 	}
-	let expectedChildren = parent.getExpectedChildren();
+	return {type, name};
+}
+
+export const showImproperChildError = (child, parent) => {
+	const {type, name} = getChildTypeAndName(child);
+ 	let expectedChildren = parent.getExpectedChildren();
 	const expected = typeof expectedChildren == 'string' ? 'The only expected child' : 'Expected children';
 	if (isArray(expectedChildren)) {
 		expectedChildren = expectedChildren.join(', ');
 	}
-	console.error('Improper ' + childType + ' child "' + child + '" in ' + parent.constructor.name + '. ' + expected + ': ' + expectedChildren);
+	console.error('Improper ' + type + ' child "' + name + '" in ' + parent.constructor.name + '. ' + expected + ': ' + expectedChildren);
+}
+
+export const showForbiddenChildError = (child, parent) => {
+	const {type, name} = getChildTypeAndName(child);
+	console.error('Not allowed ' + type + ' child "' + name + '" in ' + parent.constructor.name + '.');
+}
+
+export const showImproperParentError = (child, expectedParents) => {
+	const name = child.constructor.name;
+	if (isArray(expectedParents)) {
+		expectedParents = expectedParents.join(', ');
+	}
+	console.error('Component ' + name + ' has no a proper parent. Expected parents: ' + expectedParents);
 }
 
 export const showProperChildMaxCountError  = (child, parent) => {

@@ -1,0 +1,11 @@
+.uiex-form-section-caption {
+	padding-bottom: 8px;
+    font-size: 16px;
+}
+.uiex-form-section-item {
+	margin-bottom: 12px;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+}

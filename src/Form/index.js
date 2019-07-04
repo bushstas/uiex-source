@@ -4,6 +4,7 @@ import {ButtonGroup} from '../ButtonGroup';
 import {Button} from '../Button';
 import {getNumber, isObject, isString, isFunction, isArray, isNumber} from '../utils';
 import {clone} from '../_utils/clone';
+import {get} from '../_utils/get';
 import {FormPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -14,7 +15,7 @@ const DEFAULT_PROP_NAME = 'form';
 const registeredForms = {};
 const subscribers = {};
 
-export const change = (name, data, value = null) => {
+const doChangeAction = (action, name, data, value = null) => {
 	if (isString(data)) {
 		data = {[data]: value};
 	}
@@ -22,41 +23,55 @@ export const change = (name, data, value = null) => {
 		if (isArray(registeredForms[name])) {
 			registeredForms[name].forEach((form) => {
 				if (isObject(form)) {
-					form.change(data);
+					form[action](data);
 				}
 			});
 		} else {
-			registeredForms[name].change(data);
+			registeredForms[name][action](data);
+		}
+	}
+}
+
+export const change = (name, data, value = null) => {
+	doChangeAction('change', name, data, value);
+}
+
+export const alter = (name, data, value = null) => {
+	doChangeAction('alter', name, data, value);
+}
+
+export const set = (name, data, value = null) => {
+	doChangeAction('set', name, data, value);
+}
+
+export const replace = (name, data, value = null) => {
+	doChangeAction('replace', name, data, value);
+}
+
+const doFormAction = (action, name) => {
+	if (isArray(registeredForms[name]) || isObject(registeredForms[name])) {
+		if (isArray(registeredForms[name])) {
+			registeredForms[name].forEach((form) => {
+				if (isObject(form)) {
+					form[action]();
+				}
+			});
+		} else {
+			registeredForms[name][action]();
 		}
 	}
 }
 
 export const reset = (name) => {
-	if (isArray(registeredForms[name]) || isObject(registeredForms[name])) {
-		if (isArray(registeredForms[name])) {
-			registeredForms[name].forEach((form) => {
-				if (isObject(form)) {
-					form.reset();
-				}
-			});
-		} else {
-			registeredForms[name].reset();
-		}
-	}
+	doFormAction('reset', name);
 }
 
 export const clear = (name) => {
-	if (isArray(registeredForms[name]) || isObject(registeredForms[name])) {
-		if (isArray(registeredForms[name])) {
-			registeredForms[name].forEach((form) => {
-				if (isObject(form)) {
-					form.clear();
-				}
-			});
-		} else {
-			registeredForms[name].clear();
-		}
-	}
+	doFormAction('clear', name);
+}
+
+export const fixate = (name) => {
+	doFormAction('fixate', name);
 }
 
 export const subscribe = (name, component, propName) => {
@@ -119,8 +134,10 @@ const notifySubscribers = (name, data) => {
 
 export class Form extends UIEXComponent {
 	static propTypes = FormPropTypes;
-	static properChildren = ['FormControl', 'FormControlGroup', 'Checkbox'];
-	static styleNames = ['caption', 'buttons'];
+	static properChildren = ['FormSection', 'FormControl', 'FormControlGroup'];
+	static properChildrenSign = 'isControl';
+	static forbiddenChildren = 'Form';
+	static styleNames = ['caption', 'sectionCaption', 'buttons'];
 	static displayName = 'Form';
 
 	constructor(props) {
@@ -132,15 +149,33 @@ export class Form extends UIEXComponent {
 		if (props.name && isString(props.name)) {
 			registerForm(props.name, this);
 		}
+		this.changedFields = [];
+		this.registeredFields = [];
+	}
+
+	componentDidMount() {
+		const {name, initialData} = this.state;
+		notifySubscribers(name, initialData);
 	}
 
 	componentWillUnmount() {
 		unregisterForm(this.state.name, this);
 	}
 
+	registerControl = (name) => {
+		if (this.registeredFields.indexOf(name) === -1) {
+			this.registeredFields.push(name);
+		}
+	}
+
 	getControlValue = (name) => {
 		const data = this.getProp('data');
 		return isObject(data) ? data[name] : undefined;
+	}
+
+	getControlInitialValue = (name) => {
+		const {initialData} = this.state;
+		return isObject(initialData) ? initialData[name] : undefined;
 	}
 
 	getData = (fieldName, value = null) => {
@@ -160,17 +195,6 @@ export class Form extends UIEXComponent {
 	addChildProps(child, props) {
 		const {type: control} = child;
 		switch (control.name) {
-			case 'Checkbox':
-				const valueGetter = this.getControlValue;
-				const {value, name, onChange} = child.props;
-				if (value === undefined && isFunction(valueGetter)) {
-					props.value = valueGetter(name);			
-				}
-				if (typeof onChange != 'function') {
-					props.onChange = this.handleChange;
-				}
-			break;
-
 			case 'FormControl':
 				props.valueGetter = this.getControlValue;
 				if (typeof child.props.onChange != 'function') {
@@ -178,11 +202,13 @@ export class Form extends UIEXComponent {
 				}
 			break;
 
+			case 'FormSection':
 			case 'FormControlGroup':
 				let {rowMargin = DEFAULT_LINE_MARGIN, columns, cellSize} = this.props;
 				const {columnsTiny, columnsSmall, columnsMiddle, columnsLarger, columnsLarge, columnsHuge, columnsGigantic} = this.props;
 				rowMargin = getNumber(rowMargin);
 				props.valueGetter = this.getControlValue;
+				props.initialValueGetter = this.getControlInitialValue;
 				if (rowMargin) {
 					props.rowMargin = rowMargin;
 				}
@@ -216,7 +242,25 @@ export class Form extends UIEXComponent {
 				if (typeof child.props.onChange != 'function') {
 					props.onChange = this.handleChange;
 				}
+				props.onChangeData = this.handleChangeData;
+				props.registerControl = this.registerControl;
+				if (control.name == 'FormSection') {
+					props.captionStyle = this.props.sectionCaptionStyle;
+					props.itemStyle = this.props.sectionItemStyle;
+				}
 			break;
+
+			default:				
+				if (control.isControl) {
+					const valueGetter = this.getControlValue;
+					const {value, name, onChange} = child.props;
+					if (value === undefined && isFunction(valueGetter)) {
+						props.value = valueGetter(name);
+					}
+					if (typeof onChange != 'function') {
+						props.onChange = this.handleControlChange;
+					}
+				}
 		}
 	}
 
@@ -260,16 +304,66 @@ export class Form extends UIEXComponent {
 		return null;
 	}
 
+	initChangedFields(data) {
+		const {initialData} = this.state;
+		this.changedFields = [];
+		this.registeredFields.forEach(name => {
+			let value = get(data, name);
+			let initialValue = get(initialData, name);
+
+			if (!value && value !== 0 && value !== false) {
+				value = '';
+			}
+			if (!initialValue && initialValue !== 0 && initialValue !== false) {
+				initialValue = '';
+			}
+			if (value !== initialValue) {
+				this.changedFields.push(name);
+			}
+		});
+		const changed = this.changedFields.length > 0;
+		this.firePropChange('dataChange', null, [changed, this.changedFields]);
+	}
+
+	alter = (newData) => {
+		const data = this.getData(newData);
+		this.firePropChange('change', null, [data], {data});
+		notifySubscribers(data);
+
+		const {initialData} = this.state;
+		this.setState({initialData: {
+			...initialData,
+			...newData
+		}});
+	}
+
 	change = (data) => {
 		data = this.getData(data);
 		this.firePropChange('change', null, [data], {data});
 		notifySubscribers(data);
+		this.initChangedFields(data);
+	}
+
+	set = (data) => {
+		this.firePropChange('change', null, [data], {data});
+		notifySubscribers(data);
+		this.initChangedFields(data);
+	}
+
+	replace = (data) => {
+		this.firePropChange('change', null, [data], {data});
+		notifySubscribers(data);
+		this.setState({initialData: data});
+		this.changedFields = [];
+		this.firePropChange('dataChange', null, [false, []]);
 	}
 
 	reset = () => {
 		const data = this.state.initialData || {};
 		this.firePropChange('change', null, [data], {data});
-		this.firePropChange('reset', null, [data], {data});
+		this.firePropChange('reset', null, [data], {data});		
+		this.firePropChange('dataChange', null, [false, []]);
+		this.changedFields = [];
 		notifySubscribers(data);
 	}
 
@@ -278,11 +372,39 @@ export class Form extends UIEXComponent {
 		this.firePropChange('change', null, [data], {data});
 		this.firePropChange('clear', null, [data], {data});
 		notifySubscribers(data);
+		this.initChangedFields(data);
+	}
+
+	fixate = () => {
+		this.changedFields = [];
+		const initialData = this.getProp('data');
+		this.setState({initialData});
+		this.firePropChange('dataChange', null, [false, []]);
+	}
+
+	handleControlChange = (value, fieldName) => {
+		this.handleChange(fieldName, value);
 	}
 
 	handleChange = (fieldName, value) => {
 		const data = this.getData(fieldName, value);
 		this.firePropChange('change', null, [data, fieldName, value], {data});
 		notifySubscribers(this.state.name, data);
+	}
+
+	handleChangeData = (fieldName, isChanged) => {
+		const idx = this.changedFields.indexOf(fieldName);
+		let wasChanged = false;
+		if (isChanged && idx == -1) {
+			wasChanged = true;
+			this.changedFields.push(fieldName);
+		} else if (!isChanged && idx > -1) {
+			wasChanged = true;
+			this.changedFields.splice(idx, 1);
+		}
+		if (wasChanged) {
+			const changed = this.changedFields.length > 0;
+			this.firePropChange('dataChange', null, [changed, this.changedFields]);
+		}
 	}
 }

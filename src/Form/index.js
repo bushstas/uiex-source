@@ -140,6 +140,8 @@ export class Form extends UIEXComponent {
 	static styleNames = ['caption', 'sectionCaption', 'buttons'];
 	static displayName = 'Form';
 
+	data = null;
+
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -156,6 +158,12 @@ export class Form extends UIEXComponent {
 	componentDidMount() {
 		const {name, initialData} = this.state;
 		notifySubscribers(name, initialData);
+	}
+
+	componentDidUpdate(prevProps) {
+		if (this.props.data != this.data) {
+			this.initChangedFields(this.props.data);
+		}
 	}
 
 	componentWillUnmount() {
@@ -305,31 +313,38 @@ export class Form extends UIEXComponent {
 	}
 
 	initChangedFields(data) {
-		const {initialData} = this.state;
-		this.changedFields = [];
-		this.registeredFields.forEach(name => {
-			let value = get(data, name);
-			let initialValue = get(initialData, name);
+		const {onDataChange} = this.props;
+		if (isFunction(onDataChange)) {
+			const {initialData} = this.state;
+			this.changedFields = [];
+			this.registeredFields.forEach(name => {
+				let value = get(data, name);
+				let initialValue = get(initialData, name);
 
-			if (!value && value !== 0 && value !== false) {
-				value = '';
-			}
-			if (!initialValue && initialValue !== 0 && initialValue !== false) {
-				initialValue = '';
-			}
-			if (value !== initialValue) {
-				this.changedFields.push(name);
-			}
-		});
-		const changed = this.changedFields.length > 0;
-		this.firePropChange('dataChange', null, [changed, this.changedFields]);
+				if (!value && value !== 0 && value !== false) {
+					value = '';
+				}
+				if (!initialValue && initialValue !== 0 && initialValue !== false) {
+					initialValue = '';
+				}
+				if (value !== initialValue) {
+					this.changedFields.push(name);
+				}
+			});
+			const changed = this.changedFields.length > 0;
+			this.firePropChange('dataChange', null, [changed, this.changedFields]);
+		}
+	}
+
+	fireChange = (data, fieldName, value) => {
+		this.data = data;
+		this.firePropChange('change', null, [data, fieldName, value], {data});
+		notifySubscribers(this.state.name, data);
 	}
 
 	alter = (newData) => {
 		const data = this.getData(newData);
-		this.firePropChange('change', null, [data], {data});
-		notifySubscribers(data);
-
+		this.fireChange(data);
 		const {initialData} = this.state;
 		this.setState({initialData: {
 			...initialData,
@@ -339,20 +354,17 @@ export class Form extends UIEXComponent {
 
 	change = (data) => {
 		data = this.getData(data);
-		this.firePropChange('change', null, [data], {data});
-		notifySubscribers(data);
+		this.fireChange(data);
 		this.initChangedFields(data);
 	}
 
 	set = (data) => {
-		this.firePropChange('change', null, [data], {data});
-		notifySubscribers(data);
+		this.fireChange(data);
 		this.initChangedFields(data);
 	}
 
 	replace = (data) => {
-		this.firePropChange('change', null, [data], {data});
-		notifySubscribers(data);
+		this.fireChange(data);
 		this.setState({initialData: data});
 		this.changedFields = [];
 		this.firePropChange('dataChange', null, [false, []]);
@@ -360,18 +372,16 @@ export class Form extends UIEXComponent {
 
 	reset = () => {
 		const data = this.state.initialData || {};
-		this.firePropChange('change', null, [data], {data});
+		this.fireChange(data);
 		this.firePropChange('reset', null, [data], {data});		
 		this.firePropChange('dataChange', null, [false, []]);
 		this.changedFields = [];
-		notifySubscribers(data);
 	}
 
 	clear = () => {
 		const data = {};
-		this.firePropChange('change', null, [data], {data});
+		this.fireChange(data);
 		this.firePropChange('clear', null, [data], {data});
-		notifySubscribers(data);
 		this.initChangedFields(data);
 	}
 
@@ -388,23 +398,25 @@ export class Form extends UIEXComponent {
 
 	handleChange = (fieldName, value) => {
 		const data = this.getData(fieldName, value);
-		this.firePropChange('change', null, [data, fieldName, value], {data});
-		notifySubscribers(this.state.name, data);
+		this.fireChange(data, fieldName, value);
 	}
 
 	handleChangeData = (fieldName, isChanged) => {
-		const idx = this.changedFields.indexOf(fieldName);
-		let wasChanged = false;
-		if (isChanged && idx == -1) {
-			wasChanged = true;
-			this.changedFields.push(fieldName);
-		} else if (!isChanged && idx > -1) {
-			wasChanged = true;
-			this.changedFields.splice(idx, 1);
-		}
-		if (wasChanged) {
-			const changed = this.changedFields.length > 0;
-			this.firePropChange('dataChange', null, [changed, this.changedFields]);
+		const {onDataChange} = this.props;
+		if (isFunction(onDataChange)) {
+			const idx = this.changedFields.indexOf(fieldName);
+			let wasChanged = false;
+			if (isChanged && idx == -1) {
+				wasChanged = true;
+				this.changedFields.push(fieldName);
+			} else if (!isChanged && idx > -1) {
+				wasChanged = true;
+				this.changedFields.splice(idx, 1);
+			}
+			if (wasChanged) {
+				const changed = this.changedFields.length > 0;
+				this.firePropChange('dataChange', null, [changed, this.changedFields]);
+			}
 		}
 	}
 }

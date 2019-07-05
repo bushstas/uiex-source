@@ -63,7 +63,7 @@ export class FormControl extends Cell {
 		if (isFunction(initialValueGetter)) {
 			let initialValue = initialValueGetter(name, arrayIndex);
 			initialValue = initialValue === null || initialValue === undefined ? '' : initialValue;
-			this.fire('changeData', name, initialValue !== value, arrayIndex);
+			this.fire('dataChange', name, initialValue !== value, arrayIndex);
 		}
 	}
 }

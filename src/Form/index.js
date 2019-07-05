@@ -11,24 +11,23 @@ import '../style.scss';
 import './style.scss';
 
 const DEFAULT_LINE_MARGIN = 15;
-const DEFAULT_PROP_NAME = 'form';
+const DEFAULT_PROP_NAME = 'forms';
 const registeredForms = {};
 const subscribers = {};
+
+export const getData = (name) => {
+	if (isObject(registeredForms[name])) {
+		return registeredForms[name].getProp('data');
+	}
+	return undefined;
+}
 
 const doChangeAction = (action, name, data, value = null) => {
 	if (isString(data)) {
 		data = {[data]: value};
 	}
-	if ((isArray(registeredForms[name]) || isObject(registeredForms[name])) && isObject(data)) {
-		if (isArray(registeredForms[name])) {
-			registeredForms[name].forEach((form) => {
-				if (isObject(form)) {
-					form[action](data);
-				}
-			});
-		} else {
-			registeredForms[name][action](data);
-		}
+	if (isObject(registeredForms[name]) && isObject(data)) {
+		registeredForms[name][action](data);
 	}
 }
 
@@ -49,16 +48,8 @@ export const replace = (name, data, value = null) => {
 }
 
 const doFormAction = (action, name) => {
-	if (isArray(registeredForms[name]) || isObject(registeredForms[name])) {
-		if (isArray(registeredForms[name])) {
-			registeredForms[name].forEach((form) => {
-				if (isObject(form)) {
-					form[action]();
-				}
-			});
-		} else {
-			registeredForms[name][action]();
-		}
+	if (isObject(registeredForms[name])) {
+		registeredForms[name][action]();
 	}
 }
 
@@ -98,25 +89,15 @@ export const unsubscribe = (name, component) => {
 
 const registerForm = (name, form) => {
 	if (!registeredForms[name]) {
-		registeredForms[name] = form;
-	} else if (isArray(registeredForms[name])) {
-		registeredForms[name].push(form);
-	} else {
-		registeredForms[name] = [registeredForms[name], form];
+		return registeredForms[name] = form;
 	}
+	console.error('Form with name "' + name + '" is already registered. You can\'t have more than one form with the same name');
 };
 
-const unregisterForm = (name, form) => {
+const unregisterForm = (name) => {
 	if (registeredForms[name]) {
-		if (isArray(registeredForms[name])) {
-			const index = registeredForms[name].indexOf(form);
-			if (index > -1) {
-				registeredForms[name].splice(index, 1);
-			}
-		} else {
-			registeredForms[name] = null;
-			delete registeredForms[name];
-		}
+		registeredForms[name] = null;
+		delete registeredForms[name];
 	}
 };
 
@@ -127,14 +108,22 @@ const notifySubscribers = (name, data) => {
 			if (!isString(propName)) {
 				propName = DEFAULT_PROP_NAME;
 			}
-			component.setState({[propName]: data});
+			const parts = propName.split('.');
+			if (parts[1]) {
+				component.setState({[parts[0]]: {
+					...component.state[parts[0]],
+					[parts[1]]: data
+				}});	
+			} else {
+				component.setState({[propName]: data});
+			}
 		}
 	}
 }
 
 export class Form extends UIEXComponent {
 	static propTypes = FormPropTypes;
-	static properChildren = ['FormSection', 'FormControl', 'FormControlGroup'];
+	static properChildren = ['FormSection', 'FormControl', 'FormControlGroup', 'FormButtons'];
 	static properChildrenSign = 'isControl';
 	static forbiddenChildren = 'Form';
 	static styleNames = ['caption', 'sectionCaption', 'buttons'];
@@ -167,7 +156,7 @@ export class Form extends UIEXComponent {
 	}
 
 	componentWillUnmount() {
-		unregisterForm(this.state.name, this);
+		unregisterForm(this.state.name);
 	}
 
 	registerControl = (name) => {
@@ -212,7 +201,7 @@ export class Form extends UIEXComponent {
 
 			case 'FormSection':
 			case 'FormControlGroup':
-				let {rowMargin = DEFAULT_LINE_MARGIN, columns, cellSize} = this.props;
+				let {rowMargin = DEFAULT_LINE_MARGIN, columns, cellSize, onDataChange} = this.props;
 				const {columnsTiny, columnsSmall, columnsMiddle, columnsLarger, columnsLarge, columnsHuge, columnsGigantic} = this.props;
 				rowMargin = getNumber(rowMargin);
 				props.valueGetter = this.getControlValue;
@@ -250,7 +239,9 @@ export class Form extends UIEXComponent {
 				if (typeof child.props.onChange != 'function') {
 					props.onChange = this.handleChange;
 				}
-				props.onChangeData = this.handleChangeData;
+				if (isFunction(onDataChange)) {
+					props.onDataChange = this.handleDataChange;
+				}
 				props.registerControl = this.registerControl;
 				if (control.name == 'FormSection') {
 					props.captionStyle = this.props.sectionCaptionStyle;
@@ -401,7 +392,7 @@ export class Form extends UIEXComponent {
 		this.fireChange(data, fieldName, value);
 	}
 
-	handleChangeData = (fieldName, isChanged) => {
+	handleDataChange = (fieldName, isChanged) => {
 		const {onDataChange} = this.props;
 		if (isFunction(onDataChange)) {
 			const idx = this.changedFields.indexOf(fieldName);

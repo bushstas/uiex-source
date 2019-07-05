@@ -100,7 +100,7 @@ export class FormSection extends UIEXComponent {
 				if (typeof child.props.onChange != 'function') {
 					props.onChange = this.handleChange;
 				}
-				props.onChangeData = this.handleChangeData;
+				props.onDataChange = this.handleDataChange;
 				props.registerControl = this.registerControl;
 				if (control.name == 'FormSection') {
 					props.captionStyle = this.props.captionStyle;
@@ -194,9 +194,9 @@ export class FormSection extends UIEXComponent {
 		this.fire('change', name, value);
 	}
 
-	handleChangeData = (fieldName, isChanged, arrayIndex) => {
+	handleDataChange = (fieldName, isChanged, arrayIndex) => {
 		this.fire(
-			'changeData',
+			'dataChange',
 			`${this.props.name}${isNumber(arrayIndex) ? `[${arrayIndex}]` : ''}.${fieldName}`, isChanged,
 			this.props.arrayIndex
 		);

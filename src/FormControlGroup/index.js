@@ -30,6 +30,6 @@ export class FormControlGroup extends CellGroup {
 		if (!isFunction(onChange)) {
 			props.onChange = this.props.onChange;
 		}
-		props.onChangeData = this.props.onChangeData;
+		props.onDataChange = this.props.onDataChange;
 	}
 }

@@ -230,13 +230,13 @@ export class UIEXComponent extends React.PureComponent {
 		return this.renderInternal();
 	}
 
-	getNativeClassName() {
+	getNativeClassName(mainElement = false) {
 		let {className, additionalClassName, displayName, name} = this.constructor;
 		if (displayName) {
 			name = displayName;
 		}
 		className = 'uiex-' + (className || name.toLowerCase());
-		if (additionalClassName) {
+		if (mainElement && additionalClassName) {
 			className += ' uiex-' + additionalClassName;
 		}
 		return className;

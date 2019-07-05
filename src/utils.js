@@ -319,7 +319,7 @@ export const getComponentClassName = (component) => {
 		onClick
 	} = component.props;
 
-	const {add, get} = getClassNameBuilder(component.getNativeClassName(), className);
+	const {add, get} = getClassNameBuilder(component.getNativeClassName(true), className);
 	component.addClassNames(add);
 	add('disabled', disabled);
 	add('active', active);

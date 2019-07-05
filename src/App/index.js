@@ -320,9 +320,14 @@ export class App extends UIEXComponent {
 	}
 
 	handleChangePage({page, params}) {
-		this.setState({page});
-		this.fire('changePage', page, params);
-		highlightLink(page, this);
+		if (this.state.page !== page) {
+			this.setState({page: null}, () => {
+				this.setState({page}, () => {
+					this.fire('changePage', page, params);
+					highlightLink(page, this);
+				});
+			});
+		}
 	}
 
 	navigateToPage(page, path, params) {

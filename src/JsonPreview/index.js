@@ -76,39 +76,55 @@ export class JsonPreview extends UIEXComponent {
 	}
 
 	renderArray(arr, isComma = false, isValue = false) {
-		this.renderLine(this.wrapWithTag('[', 'sign'), false, isValue);
-		this.addTab();
-		for (let i = 0; i < arr.length; i++) {
-			const isComma = i < arr.length - 1;
-			const item = this.getItem(arr[i], isComma);			
-			if (item) {
-				this.renderLine(item, isComma);
+		const len = arr.length;
+		if (len == 0) {
+			if (!isValue) {
+				this.content += this.getTab();
 			}
+			this.content += this.wrapWithTag('[]', 'sign') + (isComma ? ',' : '') + "\n";
+		} else {
+			this.renderLine(this.wrapWithTag('[', 'sign'), false, isValue);
+			this.addTab();
+			for (let i = 0; i < len; i++) {
+				const isComma = i < arr.length - 1;
+				const item = this.getItem(arr[i], isComma);			
+				if (item) {
+					this.renderLine(item, isComma);
+				}
+			}
+			this.addTab(-1);
+			this.renderLine(this.wrapWithTag(']', 'sign') + (isComma ? ',' : ''));
 		}
-		this.addTab(-1);
-		this.renderLine(this.wrapWithTag(']', 'sign') + (isComma ? ',' : ''));
 	}
 
 	renderObject(obj, isComma = false, isValue = false) {
 		const {noUndefined} = this.props;
-		this.renderLine(this.wrapWithTag('{', 'sign'), false, isValue);
-		this.addTab();
 		const keys = Object.keys(obj);
-		const lastKey = keys[keys.length - 1];
-		for (let k in obj) {
-			if (noUndefined && obj[k] === undefined) {
-				continue;
+		const len = keys.length;
+		if (len == 0) {
+			if (!isValue) {
+				this.content += this.getTab();
 			}
-			const key = this.getKey(k);
-			const isWithComma = k != lastKey;
-			this.renderLineStart(key + ': ');
-			const item = this.getItem(obj[k], isWithComma, true);
-			if (item) {
-				this.renderLineEnd(item, isWithComma);
+			this.content += this.wrapWithTag('{}', 'sign') + (isComma ? ',' : '') + "\n";
+		} else {
+			this.renderLine(this.wrapWithTag('{', 'sign'), false, isValue);
+			this.addTab();
+			const lastKey = keys[len - 1];
+			for (let k in obj) {
+				if (noUndefined && obj[k] === undefined) {
+					continue;
+				}
+				const key = this.getKey(k);
+				const isWithComma = k != lastKey;
+				this.renderLineStart(key + ': ');
+				const item = this.getItem(obj[k], isWithComma, true);
+				if (item) {
+					this.renderLineEnd(item, isWithComma);
+				}
 			}
+			this.addTab(-1);
+			this.renderLine(this.wrapWithTag('}', 'sign') + (isComma ? ',' : ''));
 		}
-		this.addTab(-1);
-		this.renderLine(this.wrapWithTag('}', 'sign') + (isComma ? ',' : ''));
 	}
 
 	getItem(item, isComma, isValue = false) {

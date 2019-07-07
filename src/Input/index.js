@@ -44,16 +44,22 @@ export class Input extends UIEXComponent {
 		}
 	}
 
+	componentWillUnmount() {
+		this.fire('unmount');
+	}
+
 	addClassNames(add) {
-		const {textarea, readOnly} = this.props;
+		const {textarea, readOnly, noVisualValidation, value} = this.props;
 		const valid = this.getProp('valid');
 		add('control');
 		add('textarea', textarea);
 		add('readonly', readOnly);
 		add('clearable', this.isClearable());
-		add('valid', valid === true);
-		add('invalid', valid === false);
 		add('focused', this.state.focused);
+		if (!noVisualValidation) {
+			add('valid', value && valid === true);
+			add('invalid', valid === false);
+		}
 	}
 
 	initRendering() {
@@ -214,13 +220,14 @@ export class Input extends UIEXComponent {
 	}
 
 	isValueValid(value) {
+		let errorType = 'pattern';
 		let {pattern, required, minLength} = this.props;
 		let isValid = true;
 		if (pattern && isString(pattern)) {
-			if (pattern == '^') {
-				pattern = null;
-			} else {
-				pattern = new RegExp(regexEscape(pattern));
+			try {
+				pattern = new RegExp(pattern);
+			} catch (e) {
+				console.error(e);
 			}
 		}
 		if (value && (pattern instanceof RegExp || isFunction(pattern))) {
@@ -230,35 +237,37 @@ export class Input extends UIEXComponent {
 				isValid = pattern(value);
 			}
 		} else if (!required && !minLength) {
-			return null;
+			return {valid: null, errorType: null};
 		}
 		if (isValid) {
 			if ((value === '' || value == null) && required) {
 				isValid = false;
-			} else {
+				errorType = 'required';
+			} else if (value) {
 				minLength = getNumber(minLength);
 				value = String(value);
 				if (minLength) {
 					isValid = value.length >= minLength; 
 				}
+				errorType = 'length';
 			}
 		}
-		return isValid;
+		return {valid: isValid, errorType: isValid ? null : errorType};
 	}
 
 	checkValidity(value = this.getProp('value')) {
 		let currentValid = this.getProp('valid');
 		const {name} = this.props;
 		if (this.props.validating) {
-			const valid = this.isValueValid(value);			
+			const {valid, errorType} = this.isValueValid(value);	
 			if (currentValid === undefined) {
 				currentValid = null;
 			}		
 			if (valid !== currentValid) {
-				this.firePropChange('changeValidity', 'valid', [valid, value, name], valid);
+				this.firePropChange('changeValidity', 'valid', [valid, errorType, value, name], valid);
 			}
 		} else if (isBoolean(currentValid)) {
-			this.firePropChange('changeValidity', 'valid', [null, value, name], null);
+			this.firePropChange('changeValidity', 'valid', [null, null, value, name], null);
 		}
 	}
 

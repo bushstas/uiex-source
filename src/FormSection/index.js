@@ -35,7 +35,7 @@ export class FormSection extends UIEXComponent {
 		return isObject(value) ? value[fieldName] : undefined;
 	}
 
-	getInitialControlValue = (fieldName, index) => {
+	getControlInitialValue = (fieldName, index) => {
 		const {initialValueGetter, name} = this.props;
 		let value;
 		if (isFunction(initialValueGetter)) {
@@ -47,16 +47,31 @@ export class FormSection extends UIEXComponent {
 		return isObject(value) ? value[fieldName] : undefined;
 	}
 
+	addStandartProps(child, props) {
+		props.valueGetter = this.getControlValue;
+		props.initialValueGetter = this.getControlInitialValue;
+		props.arrayIndex = this.currentIndex;
+		props.onChangeValidity = this.handleChangeValidity;
+		props.validating = this.props.validating;
+		props.errorsShown = this.props.errorsShown;
+		props.requiredError = this.props.requiredError;
+		props.lengthError = this.props.lengthError;
+		props.patternError = this.props.patternError;
+		props.placeError = this.props.placeError;
+		props.registerControl = this.registerControl;
+		if (typeof child.props.onChange != 'function') {
+			props.onChange = this.handleChange;
+		}
+		if (isFunction(this.props.onDataChange)) {
+			props.onDataChange = this.handleDataChange;
+		}		
+	}
+
 	addChildProps(child, props) {
 		const {type: control} = child;
 		switch (control.name) {
 			case 'FormControl':
-				props.valueGetter = this.getControlValue;
-				props.arrayIndex = this.currentIndex;
-				props.registerControl = this.registerControl;
-				if (typeof child.props.onChange != 'function') {
-					props.onChange = this.handleChange;
-				}
+				this.addStandartProps(child, props);
 			break;
 
 			case 'FormSection':
@@ -64,9 +79,6 @@ export class FormSection extends UIEXComponent {
 				let {rowMargin = DEFAULT_LINE_MARGIN, columns, cellSize} = this.props;
 				const {columnsTiny, columnsSmall, columnsMiddle, columnsLarger, columnsLarge, columnsHuge, columnsGigantic} = this.props;
 				rowMargin = getNumber(rowMargin);
-				props.valueGetter = this.getControlValue;
-				props.initialValueGetter = this.getInitialControlValue;	
-				props.arrayIndex = this.currentIndex;
 				if (rowMargin) {
 					props.rowMargin = rowMargin;
 				}
@@ -97,15 +109,11 @@ export class FormSection extends UIEXComponent {
 				if (cellSize && !child.props.cellSize) {
 					props.cellSize = cellSize;
 				}
-				if (typeof child.props.onChange != 'function') {
-					props.onChange = this.handleChange;
-				}
-				props.onDataChange = this.handleDataChange;
-				props.registerControl = this.registerControl;
 				if (control.name == 'FormSection') {
 					props.captionStyle = this.props.captionStyle;
 					props.itemStyle = this.props.itemStyle;
 				}
+				this.addStandartProps(child, props);
 			break;
 		}
 	}

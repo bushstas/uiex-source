@@ -406,9 +406,11 @@ export class InputDate extends Input {
 				value = this.value;
 			}
 			const length = withTime ? 16 : 10;
-			return value.length == length;
+			const valid = value.length == length;
+			const errorType = value ? 'length' : 'required';
+			return {valid, errorType: valid ? null : errorType};
 		}
-		return null;
+		return {valid: null, errorType: null};
 	}
 
 	getDateFromTimestamp(timestamp, isWithTime = true) {

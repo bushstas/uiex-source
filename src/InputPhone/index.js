@@ -148,8 +148,10 @@ export class InputPhone extends Input {
 					length += String(code).length;
 				}
 			}
-			return value.length == length;
+			const valid = value.length == length;
+			const errorType = value ? 'length' : 'required';
+			return {valid, errorType: valid ? null : errorType};
 		}
-		return null;
+		return {valid: null, errorType: null};
 	}
 }

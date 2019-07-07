@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types';
-import {UIEXComponentPropTypes} from '../UIEXComponentPropTypes';
+import {CellPropTypes} from '../CellGroup/proptypes';
 import {PROPTYPE} from '../consts';
 
 export const FormControlPropTypes = {
-	...UIEXComponentPropTypes,
+	...CellPropTypes,
 	caption: PROPTYPE.REACT_NODES,
-	size: PROPTYPE.STRNUM,
-	shift: PROPTYPE.STRNUM,
+	requiredError: PROPTYPE.REACT_NODES,
+	patternError: PROPTYPE.REACT_NODES,
 	onChange: PropTypes.func
 }

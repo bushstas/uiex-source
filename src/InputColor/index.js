@@ -136,7 +136,8 @@ export class InputColor extends Input {
 
 	isValueValid(value) {
 		const {required} = this.props;
-		return value || required ? this.isValidColor : null;
+		const valid = value || required ? this.isValidColor : null;
+		return {valid, errorType: valid ? null : 'required'};
 	}
 
 	getProperIncomingValue(value) {

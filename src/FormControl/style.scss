@@ -11,12 +11,50 @@
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
+
+		.uiex-form-control-error {
+			float: right;
+			padding-left: 20px;
+			line-height: inherit;
+			margin-top: 0;
+		}
 	}
 	.uiex-form-control-content {
+		position: relative;
 		& > .uiex-control {
 			width: 100% !important;
 			display: block !important;
 		}
+	}
+	.uiex-form-control-error {
+		color: red;
+		margin-top: 10px;
+		line-height: 15px;
+		font-size: 13px;
+
+		&.uiex-form-control-error-left,
+	    &.uiex-form-control-error-top,
+	    &.uiex-form-control-error-bottom,
+	    &.uiex-form-control-error-right {
+	    	display: flex;
+	    	align-items: center;
+	    	position: absolute;
+	    	z-index: 20;
+	    	top: 0;
+	    	bottom: 0;
+	    	margin-top: 0;
+	    }
+	    &.uiex-form-control-error-right {
+	    	left: 100%;
+	    	margin-left: 15px;
+	    }
+	}
+	.uiex-form-control-error-inner {
+	    background-color: red;
+	    color: #fff;
+	    padding: 10px;
+	    border-radius: 3px;
+	    white-space: nowrap;
 	}
 }
 .uiex-control {

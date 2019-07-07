@@ -48,13 +48,15 @@ export class InputRegexp extends Input {
 			if (!value && required) {
 				return false;
 			}
+			let valid = true;
 			try {
 				value = new RegExp(value);
 			} catch(e) {
-				return false;
+				valid = false;
 			}
-			return true;
+			const errorType = value ? 'pattern' : 'required';
+			return {valid, errorType: valid ? null : errorType};
 		}
-		return null;
+		return {valid: null, errorType: null};
 	}
 }

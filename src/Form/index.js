@@ -15,6 +15,13 @@ const DEFAULT_PROP_NAME = 'forms';
 const registeredForms = {};
 const subscribers = {};
 
+export const isChanged = (name) => {
+	if (isObject(registeredForms[name])) {
+		return registeredForms[name].isChanged();
+	}
+	return undefined; 
+}
+
 export const getData = (name) => {
 	if (isObject(registeredForms[name])) {
 		return registeredForms[name].getProp('data');
@@ -135,12 +142,14 @@ export class Form extends UIEXComponent {
 		super(props);
 		this.state = {
 			name: props.name,
+			valid: undefined,
 			initialData: clone(props.initialData || props.data)
 		};
 		if (props.name && isString(props.name)) {
 			registerForm(props.name, this);
 		}
 		this.changedFields = [];
+		this.invalidFields = [];
 		this.registeredFields = [];
 	}
 
@@ -189,23 +198,37 @@ export class Form extends UIEXComponent {
 		return {...data, [fieldName]: value};
 	}
 
+	addStandartProps(child, props) {
+		props.valueGetter = this.getControlValue;
+		props.initialValueGetter = this.getControlInitialValue;
+		props.onChangeValidity = this.handleChangeValidity;
+		props.validating = this.props.validating;
+		props.errorsShown = this.props.errorsShown;
+		props.requiredError = this.props.requiredError;
+		props.lengthError = this.props.lengthError;
+		props.patternError = this.props.patternError;
+		props.placeError = this.props.placeError;
+		props.registerControl = this.registerControl;
+		if (typeof child.props.onChange != 'function') {
+			props.onChange = this.handleChange;
+		}
+		if (isFunction(this.props.onDataChange)) {
+			props.onDataChange = this.handleDataChange;
+		}
+	}
+
 	addChildProps(child, props) {
 		const {type: control} = child;
 		switch (control.name) {
 			case 'FormControl':
-				props.valueGetter = this.getControlValue;
-				if (typeof child.props.onChange != 'function') {
-					props.onChange = this.handleChange;
-				}
+				this.addStandartProps(child, props);
 			break;
 
 			case 'FormSection':
 			case 'FormControlGroup':
-				let {rowMargin = DEFAULT_LINE_MARGIN, columns, cellSize, onDataChange} = this.props;
+				let {rowMargin = DEFAULT_LINE_MARGIN, columns, cellSize} = this.props;
 				const {columnsTiny, columnsSmall, columnsMiddle, columnsLarger, columnsLarge, columnsHuge, columnsGigantic} = this.props;
-				rowMargin = getNumber(rowMargin);
-				props.valueGetter = this.getControlValue;
-				props.initialValueGetter = this.getControlInitialValue;
+				rowMargin = getNumber(rowMargin);								
 				if (rowMargin) {
 					props.rowMargin = rowMargin;
 				}
@@ -236,17 +259,16 @@ export class Form extends UIEXComponent {
 				if (cellSize && !child.props.cellSize) {
 					props.cellSize = cellSize;
 				}
-				if (typeof child.props.onChange != 'function') {
-					props.onChange = this.handleChange;
-				}
-				if (isFunction(onDataChange)) {
-					props.onDataChange = this.handleDataChange;
-				}
-				props.registerControl = this.registerControl;
+				
 				if (control.name == 'FormSection') {
 					props.captionStyle = this.props.sectionCaptionStyle;
 					props.itemStyle = this.props.sectionItemStyle;
 				}
+				this.addStandartProps(child, props);
+			break;
+
+			case 'FormButtons':
+				props.onAction = this.handleAction;
 			break;
 
 			default:				
@@ -306,6 +328,8 @@ export class Form extends UIEXComponent {
 	initChangedFields(data) {
 		const {onDataChange} = this.props;
 		if (isFunction(onDataChange)) {
+			this.changedFields.sort();
+			const currentChanged = clone(this.changedFields);
 			const {initialData} = this.state;
 			this.changedFields = [];
 			this.registeredFields.forEach(name => {
@@ -322,8 +346,11 @@ export class Form extends UIEXComponent {
 					this.changedFields.push(name);
 				}
 			});
-			const changed = this.changedFields.length > 0;
-			this.firePropChange('dataChange', null, [changed, this.changedFields]);
+			this.changedFields.sort();
+			if (currentChanged.toString() !== this.changedFields.toString()) {
+				const changed = this.changedFields.length > 0;
+				this.fire('dataChange', changed, this.changedFields);
+			}
 		}
 	}
 
@@ -331,6 +358,10 @@ export class Form extends UIEXComponent {
 		this.data = data;
 		this.firePropChange('change', null, [data, fieldName, value], {data});
 		notifySubscribers(this.state.name, data);
+	}
+
+	isChanged = () => {
+		return this.changedFields.length > 0;
 	}
 
 	alter = (newData) => {
@@ -357,22 +388,26 @@ export class Form extends UIEXComponent {
 	replace = (data) => {
 		this.fireChange(data);
 		this.setState({initialData: data});
-		this.changedFields = [];
-		this.firePropChange('dataChange', null, [false, []]);
+		if (this.changedFields.length > 0) {
+			this.fire('dataChange', false, []);
+			this.changedFields = [];
+		}
 	}
 
 	reset = () => {
 		const data = this.state.initialData || {};
 		this.fireChange(data);
-		this.firePropChange('reset', null, [data], {data});		
-		this.firePropChange('dataChange', null, [false, []]);
-		this.changedFields = [];
+		this.fire('reset', data);
+		if (this.changedFields.length > 0) {
+			this.fire('dataChange', false, []);
+			this.changedFields = [];
+		}
 	}
 
 	clear = () => {
 		const data = {};
 		this.fireChange(data);
-		this.firePropChange('clear', null, [data], {data});
+		this.fire('clear');
 		this.initChangedFields(data);
 	}
 
@@ -380,7 +415,7 @@ export class Form extends UIEXComponent {
 		this.changedFields = [];
 		const initialData = this.getProp('data');
 		this.setState({initialData});
-		this.firePropChange('dataChange', null, [false, []]);
+		this.fire('dataChange', false, []);
 	}
 
 	handleControlChange = (value, fieldName) => {
@@ -406,8 +441,48 @@ export class Form extends UIEXComponent {
 			}
 			if (wasChanged) {
 				const changed = this.changedFields.length > 0;
-				this.firePropChange('dataChange', null, [changed, this.changedFields]);
+				this.fire('dataChange', changed, this.changedFields);
 			}
+		}
+	}
+
+	handleChangeValidity = (name, valid) => {
+		const {valid: currentValid} = this.state;
+		const idx = this.invalidFields.indexOf(name);
+		const len = this.invalidFields.length;
+		if (valid && idx > -1) {
+			this.invalidFields.splice(idx, 1);
+		} else if (!valid && idx === -1) {
+			this.invalidFields.push(name);
+		}
+		const newLen = this.invalidFields.length;
+		const newValid = this.invalidFields.length === 0;
+		if (currentValid !== newValid || len !== newLen) {
+			this.setState({valid: newValid});
+			this.fire('changeValidity', newValid, this.invalidFields);
+		}
+	}
+
+	handleAction = (action) => {
+		switch (action) {
+			case 'submit':
+				const {valid} = this.state;
+				const {onSubmitFail} = this.props;
+				if (isFunction(onSubmitFail) && !valid) {
+					this.fire('submitFail', this.invalidFields);
+				} else {
+					this.fire('submit', this.getProp('data'));
+				}
+			break;
+			case 'reset':
+				this.reset();
+			break;
+			case 'clear':
+				this.clear();
+			break;
+			case 'view':
+				alert('aaa')
+			break;
 		}
 	}
 }

@@ -31,5 +31,12 @@ export class FormControlGroup extends CellGroup {
 			props.onChange = this.props.onChange;
 		}
 		props.onDataChange = this.props.onDataChange;
+		props.onChangeValidity = this.props.onChangeValidity;
+		props.validating = this.props.validating;
+		props.errorsShown = this.props.errorsShown;
+		props.requiredError = this.props.requiredError;
+		props.lengthError = this.props.lengthError;
+		props.patternError = this.props.patternError;
+		props.placeError = this.props.placeError;
 	}
 }

@@ -19,5 +19,6 @@ export const HintPropTypes = {
 	withArrow: PropTypes.bool,
 	withMouseEventHandlers: PropTypes.bool,
 	popupStyle: PropTypes.object,
+	zIndex: PROPTYPE.STRNUM,
 	onToggleShown: PropTypes.func
 }

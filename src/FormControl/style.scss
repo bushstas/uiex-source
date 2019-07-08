@@ -46,15 +46,22 @@
 	    }
 	    &.uiex-form-control-error-right {
 	    	left: 100%;
-	    	margin-left: 15px;
 	    }
-	}
-	.uiex-form-control-error-inner {
-	    background-color: red;
-	    color: #fff;
-	    padding: 10px;
-	    border-radius: 3px;
-	    white-space: nowrap;
+	    &.uiex-form-control-error-left {
+	    	right: 100%;
+	    }
+	    &.uiex-form-control-error-top {
+	    	top: auto;
+	    	left: 0;
+	    	right: 0;
+	    	bottom: 100%;
+	    }
+	    &.uiex-form-control-error-bottom {
+	    	top: 100%;
+	    	left: 0;
+	    	right: 0;
+	    	bottom: auto;
+	    }
 	}
 }
 .uiex-control {

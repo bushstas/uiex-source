@@ -38,5 +38,6 @@ export class FormControlGroup extends CellGroup {
 		props.lengthError = this.props.lengthError;
 		props.patternError = this.props.patternError;
 		props.placeError = this.props.placeError;
+		props.errorZIndex = this.props.errorZIndex;
 	}
 }

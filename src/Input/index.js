@@ -21,6 +21,7 @@ export class Input extends UIEXComponent {
 		this.handleBlur = this.blurHandler.bind(this);
 		this.handleClick = this.clickHandler.bind(this);
 		this.handleChange = this.inputHandler.bind(this);
+		this.errorType = null;
 	}
 
 	componentDidMount() {
@@ -257,13 +258,22 @@ export class Input extends UIEXComponent {
 
 	checkValidity(value = this.getProp('value')) {
 		let currentValid = this.getProp('valid');
-		const {name} = this.props;
+		const {name, validate} = this.props;
 		if (this.props.validating) {
-			const {valid, errorType} = this.isValueValid(value);	
+			let {valid, errorType} = this.isValueValid(value);
+			if (value && !valid && isFunction(validate)) {
+				const error = validate(value, name);
+				valid = true;
+				if (error) {
+					valid = false;
+					errorType = error;
+				}
+			}
 			if (currentValid === undefined) {
 				currentValid = null;
 			}		
-			if (valid !== currentValid) {
+			if (valid !== currentValid || this.errorType !== errorType) {
+				this.errorType = errorType;
 				this.firePropChange('changeValidity', 'valid', [valid, errorType, value, name], valid);
 			}
 		} else if (isBoolean(currentValid)) {

@@ -51,13 +51,14 @@ export class FormSection extends UIEXComponent {
 		props.valueGetter = this.getControlValue;
 		props.initialValueGetter = this.getControlInitialValue;
 		props.arrayIndex = this.currentIndex;
-		props.onChangeValidity = this.handleChangeValidity;
+		props.onChangeValidity = this.props.onChangeValidity;
 		props.validating = this.props.validating;
 		props.errorsShown = this.props.errorsShown;
 		props.requiredError = this.props.requiredError;
 		props.lengthError = this.props.lengthError;
 		props.patternError = this.props.patternError;
 		props.placeError = this.props.placeError;
+		props.errorZIndex = this.props.errorZIndex;
 		props.registerControl = this.registerControl;
 		if (typeof child.props.onChange != 'function') {
 			props.onChange = this.handleChange;

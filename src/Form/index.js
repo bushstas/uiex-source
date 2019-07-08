@@ -208,6 +208,7 @@ export class Form extends UIEXComponent {
 		props.lengthError = this.props.lengthError;
 		props.patternError = this.props.patternError;
 		props.placeError = this.props.placeError;
+		props.errorZIndex = this.props.errorZIndex;
 		props.registerControl = this.registerControl;
 		if (typeof child.props.onChange != 'function') {
 			props.onChange = this.handleChange;

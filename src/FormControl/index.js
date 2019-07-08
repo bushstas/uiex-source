@@ -1,10 +1,16 @@
 import React from 'react';
 import {isNumber, isFunction, isString} from '../utils';
 import {Cell} from '../CellGroup';
+import {Hint} from '../Hint';
 import {FormControlPropTypes} from './proptypes';
 
 import '../style.scss';
 import './style.scss';
+
+const DEFAULT_Z_INDEX = 100;
+const DEFAULT_REQUIRED_ERROR = 'Please fill out this field';
+const DEFAULT_LENGTH_ERROR = 'Please enter {length} symbols';
+const DEFAULT_PATTERN_ERROR = 'Please enter correct value';
 
 export class FormControl extends Cell {
 	static propTypes = FormControlPropTypes;
@@ -13,6 +19,11 @@ export class FormControl extends Cell {
 	static properChildrenSign = 'isControl';
 	static properChildrenMaxCount = 1;
 	static displayName = 'FormControl';
+
+	constructor(props) {
+		super(props);
+		this.errorTarget = React.createRef();
+	}
 
 	componentDidMount() {
 		const {arrayIndex, registerControl} = this.props;
@@ -45,6 +56,7 @@ export class FormControl extends Cell {
 			props.onChange = this.handleChange;
 		}
 		props.valid = this.state.valid;
+		props.validate = this.props.validate;
 		props.noVisualValidation = !validating;
 		props.onChangeValidity = this.handleValidate;
 		props.onUnmount = this.handleUnmount;
@@ -65,18 +77,36 @@ export class FormControl extends Cell {
 		}
 	}
 
+	getPopupPosition(place) {
+		switch (place) {
+			case 'left':
+				return 'left-center';
+
+			case 'top':
+				return 'top-right';
+
+			case 'bottom':
+				return 'bottom-right';
+
+			default:
+				return 'right-center';
+		}
+	}
+
 	renderInternal() {
 		const {
 			caption,
 			requiredError,
 			patternError,
 			validating,
-			errorsShown
+			errorsShown,
+			errorZIndex
 		} = this.props;
 		const {valid} = this.state;
 		const TagName = this.getTagName();
 		const error = validating && errorsShown && !valid ? this.getError() : null;
 		const place = error ? this.getErrorPlace() : null;
+		const zIndex = isNumber(errorZIndex) ? errorZIndex : DEFAULT_Z_INDEX;
 		return (
 			<TagName {...this.getProps()}>
 				{caption &&
@@ -92,10 +122,19 @@ export class FormControl extends Cell {
 				<div className="uiex-form-control-content">
 					{this.renderChildren()}
 					{place && place != 'under' && place != 'above' &&
-						<div className={`uiex-form-control-error uiex-form-control-error-${place}`}>
-							<div className="uiex-form-control-error-inner">
+						<div
+							className={`uiex-form-control-error uiex-form-control-error-${place}`}
+							ref={this.errorTarget}
+						>
+							<Hint
+								position={this.getPopupPosition(place)}
+								target={this.errorTarget}
+								zIndex={zIndex}
+								withArrow
+								isOpen
+							>
 								{error}
-							</div>
+							</Hint>
 						</div>
 					}
 				</div>
@@ -130,13 +169,13 @@ export class FormControl extends Cell {
 		const {errorType} = this.state;
 		switch (errorType) {
 			case 'required':
-				return this.renderError(this.props.requiredError);
+				return this.renderError(this.props.requiredError || DEFAULT_REQUIRED_ERROR);
 			case 'length':
-				return this.renderError(this.props.lengthError);
+				return this.renderError(this.props.lengthError || DEFAULT_LENGTH_ERROR);
 			case 'pattern':
-				return this.renderError(this.props.patternError);
+				return this.renderError(this.props.patternError || DEFAULT_PATTERN_ERROR);
 		}
-		return null;
+		return errorType;
 	}
 
 	handleValidate = (valid, errorType) => {

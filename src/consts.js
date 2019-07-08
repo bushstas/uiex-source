@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 
+export const POPUP_ROLES = ['hint', 'modal', 'formError'];
 export const COLORS = ['black', 'gray', 'white', 'red', 'blue', 'green', 'yellow', 'orange'];
 export const ALIGN = ['left', 'center', 'right'];
 export const CELL_ALIGN = ['left', 'center', 'right', 'justify'];
@@ -134,6 +135,7 @@ export const PROPTYPE = {
 		PropTypes.object
 	]),
 	AXIS: PropTypes.oneOf(AXIS),
+	POPUP_ROLES: PropTypes.oneOf(POPUP_ROLES),
 	TOOLTIP_TYPES: PropTypes.oneOf(TOOLTIP_TYPES),
 	TOOLTIP_POSITIONS: PropTypes.oneOf(TOOLTIP_POSITIONS),
 	SPINNER_TYPES: PropTypes.oneOf(SPINNER_TYPES),

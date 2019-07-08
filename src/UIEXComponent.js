@@ -17,6 +17,8 @@ import {
 	ucfirst,
 	getStyleObjectFromString,
 	isObject,
+	isNumber,
+	isString,
 	mergeStyleProps,
 	preAnimate,
 	animate,
@@ -24,7 +26,7 @@ import {
 	addToClassName,
 	isArray
 } from './utils';
-import {FORM_BUTTON_DISPLAY} from './consts';
+import {FORM_BUTTON_DISPLAY, POPUP_ROLES} from './consts';
 
 export class UIEXComponent extends React.PureComponent {
 	constructor(props) {
@@ -617,12 +619,19 @@ export class UIEXForm extends UIEXComponent {
 
 
 const ROOT_ID = 'uiex-popup-root';
+const DEFAULT_Z_INDEX = 1000;
 const ANIMATION_OPTIONS = {
 	margin: 10,
 	scaleUp: 0.9,
 	scaleDown: 1.1
 };
+
 export class UIEXPopup extends UIEXComponent {
+	constructor(props) {
+		super(props);
+		this.roots = {};
+		this.zIndex = props.zIndex;
+	}
 
 	componentDidMount() {
 		if (this.props.isOpen) {
@@ -653,6 +662,12 @@ export class UIEXPopup extends UIEXComponent {
 	componentWillUnmount() {
 		this.removeBodyClickHandler();
 		super.componentWillUnmount();
+		if (isObject(this.root)) {
+			const count = this.root.childNodes.length;
+			if (count === 1) {
+				document.body.removeChild(this.root);
+			}
+		}
 	}
 
 	getCustomProps() {
@@ -710,16 +725,24 @@ export class UIEXPopup extends UIEXComponent {
 	}
 	
 	getRootElement() {
-		if (!this.root) {
-			let root = document.getElementById(ROOT_ID);
+		let {zIndex} = this;
+		if (!zIndex || (!isString(zIndex) && !isNumber(zIndex))) {
+			zIndex = DEFAULT_Z_INDEX;
+		}
+		if (!this.roots[zIndex]) {
+			const rootId = `${ROOT_ID}-${zIndex}`;
+			let root = document.getElementById(rootId);
 			if (!root) {
 				root = document.createElement('div');
-				root.id = ROOT_ID;
+				root.style.zIndex = zIndex;
+				root.className = ROOT_ID;
+				root.id = rootId;
 				document.body.appendChild(root);
 			}
-			this.root = root;
+			this.roots[zIndex] = root;
 		}
-		return this.root;
+		this.root = this.roots[zIndex];
+		return this.roots[zIndex];
 	}
 
 	getPositionState() {

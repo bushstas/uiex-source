@@ -19,6 +19,7 @@ export const FormPropTypes = {
 	requiredError: PROPTYPE.REACT_NODES,
 	lengthError: PROPTYPE.REACT_NODES,
 	patternError: PROPTYPE.REACT_NODES,
+	errorZIndex: PROPTYPE.STRNUM,
 	onChange: PropTypes.func,
 	onDataChange: PropTypes.func,
 	onChangeValidity: PropTypes.func,

@@ -162,7 +162,8 @@ export class Hint extends UIEXComponent {
 			transparency,
 			withArrow,
 			border,
-			boxShadow
+			boxShadow,
+			zIndex
 		} = this.props;
 		const bgColor = this.getBgColor();
 		return (
@@ -173,6 +174,7 @@ export class Hint extends UIEXComponent {
 				position={position}
 				animation={animation}
 				width={width}
+				zIndex={zIndex}
 				inPortal
 			>
 				{withArrow && 

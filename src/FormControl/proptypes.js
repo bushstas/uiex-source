@@ -6,6 +6,9 @@ export const FormControlPropTypes = {
 	...CellPropTypes,
 	caption: PROPTYPE.REACT_NODES,
 	requiredError: PROPTYPE.REACT_NODES,
+	lengthError: PROPTYPE.REACT_NODES,
 	patternError: PROPTYPE.REACT_NODES,
+	errorZIndex: PROPTYPE.STRNUM,
+	validate: PropTypes.func,
 	onChange: PropTypes.func
 }

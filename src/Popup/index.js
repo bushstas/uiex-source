@@ -28,14 +28,21 @@ export class Popup extends UIEXPopup {
 		this.setPositionByTarget(this.props.target);
 	}
 
+	getScrollTop() {
+		var doc = document.documentElement;
+		return (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+	}
+
 	setPositionByTarget(target) {
 		if (target instanceof Object && target.current instanceof Element) {
 			target = target.current;
 		}
 		if (target instanceof Element) {
 			const {main} = this.refs;
-			const {left, top, width, height} = target.getBoundingClientRect();
+			const scrollTop = this.getScrollTop();
+			const {left, top: targetTop, width, height} = target.getBoundingClientRect();
 			const {width: ownWidth, height: ownHeight} = main.getBoundingClientRect();
+			const top = targetTop + scrollTop;
 			let x, y;
 			const {position} = this.props;
 			switch (position) {

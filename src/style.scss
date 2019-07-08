@@ -6,7 +6,7 @@
 	top: 0;
 	z-index: 1000;
 }
-#uiex-popup-root {
+.uiex-popup-root {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -14,6 +14,9 @@
 	right: 0;
 	z-index: 1100;
 	pointer-events: none;
+	&:empty {
+		display: none;
+	}
 }
 .uiex-no-select {
 	user-select: none;

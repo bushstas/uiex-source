@@ -10,10 +10,12 @@ const COORD = PropTypes.oneOfType([
 export const PopupPropTypes = {
 	...UIEXComponentPropTypes,
 	target: PropTypes.object,
+	role: PROPTYPE.POPUP_ROLES,
 	isOpen: PropTypes.bool,
 	queueName: PropTypes.string,
 	inPortal: PropTypes.bool,
 	x: COORD,
 	y: COORD,
+	zIndex: PROPTYPE.STRNUM,
 	onCollapse: PropTypes.func
 };

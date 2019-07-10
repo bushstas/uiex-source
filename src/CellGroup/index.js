@@ -58,6 +58,7 @@ export class CellGroup extends UIEXComponent {
 		this.previosTotalSize = null;
 		this.children = [];
 		this.rowSizes = [];
+		this.rowIndex = -1;
 		this.columns = this.getSize(props, 'columns', columns) || defaultColumns;
 		this.cellSize = this.getSize(props, 'cellSize', cellSize) || defaultCellSize;
 		this.maxCellSize = this.getSize(props, 'maxCellSize', maxCellSize);		
@@ -68,7 +69,6 @@ export class CellGroup extends UIEXComponent {
 	}
 
 	renderCells(children, list) {
-		let rowIndex = -1;
 		if (children) {
 			if (children instanceof Array) {
 				for (let i = 0; i < children.length; i++) {
@@ -80,10 +80,10 @@ export class CellGroup extends UIEXComponent {
 							if (this.previosTotalSize) {
 								this.rowSizes.push(this.previosTotalSize)
 							}
-							rowIndex++;
+							this.rowIndex++;
 							list.push([]);
 						}
-						list[rowIndex].push(child);
+						list[this.rowIndex].push(child);
 					}
 				}
 			} else {

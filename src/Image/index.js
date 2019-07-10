@@ -1,6 +1,6 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
-import {getNumber, isNumber} from '../utils';
+import {getNumber, getNumberOrNull, isNumber} from '../utils';
 import {ImagePropTypes} from './proptypes';
 
 import '../style.scss';
@@ -24,11 +24,40 @@ export class Image extends UIEXComponent {
 
 	getBorder() {
 		const {borderWidth, borderColor} = this.props;
-		const width = getNumber(borderWidth);
-		const color = borderColor || DEFAULT_BORDER_COLOR;
+		const {hover} = this.state;
+		let hoverBorderWidth;
+		let hoverBorderColor;
+		if (hover) {
+			hoverBorderWidth = this.props.hoverBorderWidth;
+			hoverBorderColor = this.props.hoverBorderColor;
+		}
+		const width = getNumber(hoverBorderWidth, borderWidth);
+		const color = hoverBorderColor || borderColor || DEFAULT_BORDER_COLOR;
 		if (width) {
 			return `${width}px solid ${color}`;
 		}
+	}
+
+	getBorderOpacity() {
+		const {borderOpacity} = this.props;
+		const {hover} = this.state;
+		const opacity = getNumber(borderOpacity);
+		let hoverBorderOpacity;
+		if (hover) {
+			hoverBorderOpacity = getNumber(this.props.hoverBorderOpacity);
+		}
+		return getNumber(hoverBorderOpacity || opacity, DEFAULT_BORDER_OPACITY) / 10;
+	}
+
+	getPaleness() {
+		const {paleness} = this.props;
+		const {hover} = this.state;
+		let hoverPaleness;
+		const pale = getNumber(paleness);
+		if (hover) {
+			hoverPaleness = getNumberOrNull(this.props.hoverPaleness);
+		}
+		return (isNumber(hoverPaleness) ? hoverPaleness : pale) * 10;
 	}
 
 	renderReflection = () => {
@@ -40,7 +69,6 @@ export class Image extends UIEXComponent {
 			backgroundRepeat,
 			reflectionMargin,
 			reflectionOpacity,
-			borderOpacity,
 			borderRadius
 		} = this.props;
 		const border = this.getBorder();
@@ -72,7 +100,7 @@ export class Image extends UIEXComponent {
 							style={{
 								border,
 								borderRadius,
-								opacity: getNumber(borderOpacity, DEFAULT_BORDER_OPACITY) / 10
+								opacity: this.getBorderOpacity()
 							}}
 						/>
 					}
@@ -98,7 +126,6 @@ export class Image extends UIEXComponent {
 			backgroundSize,
 			backgroundRepeat,
 			borderRadius,
-			borderOpacity,
 			reflected
 		} = this.props;
 		const border = this.getBorder();
@@ -106,7 +133,14 @@ export class Image extends UIEXComponent {
 		const height = getNumber(imageHeight, DEFAULT_IMAGE_SIZE);
 		return (
 			<TagName {...this.getProps()}>
-				<div className="uiex-image-outer">
+				<div
+					className="uiex-image-outer"
+					style={{
+						filter: `grayscale(${this.getPaleness()}%)`
+					}}
+					onMouseEnter={this.handleMouseEnter}
+					onMouseLeave={this.handleMouseLeave}
+				>
 					<div
 						className="uiex-image-inner"
 						style={{
@@ -126,7 +160,7 @@ export class Image extends UIEXComponent {
 								style={{
 									border,
 									borderRadius,
-									opacity: getNumber(borderOpacity, DEFAULT_BORDER_OPACITY) / 10
+									opacity: this.getBorderOpacity()
 								}}
 							/>
 						}
@@ -135,5 +169,26 @@ export class Image extends UIEXComponent {
 				</div>
 			</TagName>
 		);
+	}
+
+	handleMouseEnter = () => {
+		const {
+			hoverBorderWidth,
+			hoverBorderColor,
+			hoverBorderOpacity,
+			hoverPaleness
+		} = this.props;
+		if (
+			isNumber(hoverBorderWidth) || hoverBorderColor ||
+			isNumber(hoverBorderOpacity) || isNumber(hoverPaleness)
+		) {
+			this.setState({hover: true});
+		}
+	}
+
+	handleMouseLeave = () => {
+		if (this.state.hover) {
+			this.setState({hover: false});
+		}
 	}
 }

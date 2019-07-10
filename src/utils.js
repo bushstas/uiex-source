@@ -211,7 +211,7 @@ export const isValidAndNotEmptyNumericStyle = (v) => {
 }
 
 export const getNumber = (n, d = 0) => {
-	if (typeof n == 'string' && n == Number(n)) {
+	if (typeof n == 'string' && n !== '' && n == Number(n)) {
 		n = Number(n);
 	}
 	if (typeof n == 'number') {

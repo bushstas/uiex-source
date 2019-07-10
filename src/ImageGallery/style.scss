@@ -1,6 +1,6 @@
 .uiex-gallery {
     &.uiex-behavior-float-left {
-        .uiex-gallery-image {
+        .uiex-image {
             float: left;
         }
         .uiex-gallery-inner {
@@ -12,7 +12,7 @@
         }
     }
     &.uiex-behavior-float-right {
-        .uiex-gallery-image {
+        .uiex-image {
             float: right;
         }
         .uiex-gallery-inner {
@@ -59,7 +59,7 @@
         }
     }
     &.uiex-behavior-grid {
-        .uiex-image.uiex-gallery-image {
+        .uiex-image.uiex-image {
             width: 100% !important;
             .uiex-image-reflection,
             .uiex-image-inner {
@@ -70,9 +70,13 @@
     .uiex-gallery-outer {
         overflow: hidden;
     }
-    .uiex-gallery-image {
+    .uiex-image {
         width: auto !important;
         height: auto !important;
+        cursor: pointer;
+    }
+    .uiex-gallery-extra-content {
+        margin: 20px 0;
     }
 }
 

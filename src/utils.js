@@ -24,6 +24,10 @@ export const isFunction = (v) => {
 	return typeof v == 'function';
 }
 
+export const isElement = (v) => {
+	return v instanceof Element;
+}
+
 export const mergeStyleProps = (...objects) => {
 	const styles = {};
 	for (let i = 0; i < objects.length; i++) {
@@ -86,9 +90,13 @@ export const getDaysInMonth = (year, month) => {
     return now.getDate();
 }
 
+const cachedStyles = {};
 export const getStyleObjectFromString = (str) => {
 	if (!str) {
 		return null;
+	}
+	if (isObject(cachedStyles[str])) {
+		return cachedStyles[str];
 	}
 	const parts = str.split(';');
 	const style = {};
@@ -106,6 +114,7 @@ export const getStyleObjectFromString = (str) => {
 			style[kp] = p[1].trim();
 		}
 	}
+	cachedStyles[str] = style;
 	return style;
 }
 
@@ -144,7 +153,7 @@ export const addToClassName = (classNameToAdd, className = undefined) => {
 }
 
 export const removeClass = (element, cn) => {
-	if (element instanceof Element) {
+	if (isElement(element)) {
 		let {className} = element;
 		if (typeof className == 'string') {
 			const regexp = new RegExp(regexEscape(cn));
@@ -166,7 +175,7 @@ export const removeClass = (element, cn) => {
 }
 
 export const addClass = (element, cn) => {
-	if (element instanceof Element) {
+	if (isElement(element)) {
 		if (!element.className) {
 			element.className = cn;
 		} else {

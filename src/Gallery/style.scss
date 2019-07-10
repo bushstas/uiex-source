@@ -1,0 +1,112 @@
+.uiex-gallery {
+    &.uiex-behavior-float-left {
+        .uiex-gallery-image {
+            float: left;
+        }
+        .uiex-gallery-inner {
+            &::after {
+                content: '';
+                display: block;
+                clear: left;
+            }
+        }
+    }
+    &.uiex-behavior-float-right {
+        .uiex-gallery-image {
+            float: right;
+        }
+        .uiex-gallery-inner {
+            &::after {
+                content: '';
+                display: block;
+                clear: right;
+            }
+        }
+    }
+    &.uiex-behavior-flex-start {
+        .uiex-gallery-inner {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+    }
+    &.uiex-behavior-flex-end {
+        .uiex-gallery-inner {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+    }
+    &.uiex-behavior-flex-center {
+        .uiex-gallery-inner {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
+    &.uiex-behavior-flex-space-between {
+        .uiex-gallery-inner {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+    }
+    &.uiex-behavior-flex-space-around {
+        .uiex-gallery-inner {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+    }
+    &.uiex-behavior-grid {
+        .uiex-image.uiex-gallery-image {
+            width: 100% !important;
+            .uiex-image-reflection,
+            .uiex-image-inner {
+                width: 100% !important;
+            }
+        }
+    }
+    .uiex-gallery-outer {
+        overflow: hidden;
+    }
+    .uiex-gallery-image {
+        width: auto !important;
+        height: auto !important;
+    }
+}
+
+.uiex-image {
+    .uiex-image-inner {
+        position: relative;
+    }
+    .uiex-image-border {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+    }
+    .uiex-image-reflection {
+        position: relative;
+        overflow: hidden;
+    }
+    .uiex-image-reflection-bg {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        opacity: 0.4;
+        -moz-transform: scaleY(-1);
+        -o-transform: scaleY(-1);
+        -webkit-transform: scaleY(-1);
+        transform: scaleY(-1);
+    }
+    .uiex-image-reflection-mask {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+    }
+}

@@ -6,6 +6,7 @@ export const ALIGN = ['left', 'center', 'right'];
 export const CELL_ALIGN = ['left', 'center', 'right', 'justify'];
 export const ALIGN_SELF = ['start', 'center', 'end'];
 export const VALIGN = ['top', 'center', 'bottom'];
+export const PLACE_ERRORS = ['under', 'above', 'left', 'right', 'top', 'bottom'];
 export const FLOAT = ['left', 'right'];
 export const ICON_TYPE = ['Material', 'FontAwesome', 'LineAwesome', 'Foundation', 'LigatureSymbols', 'Genericons', 'Glyphicons', 'Ionicons', 'IcoMoon'];
 export const BUTTONS_VIEW = ['united', 'underlined', 'bordered', 'simple'];
@@ -25,7 +26,10 @@ export const DISPLAY_TIME = ['left-out', 'left-in', 'right-out', 'right-in', 'to
 export const BOX_SECTION_VIEWS = ['header', 'large', 'small'];
 export const SPINNER_TYPES = ['ring', 'dual-ring', 'roller'];
 export const AXIS = ['vertical', 'horizontal'];
+export const BACKGROUND_SIZES = ['cover', 'contain'];
+export const BACKGROUND_REPEATS = ['no-repeat', 'repeat', 'repeat-x', 'repeat-y'];
 export const TOOLTIP_TYPES = ['simple', 'round', 'triangle', 'square'];
+export const GALLERY_BEHAVIORS = ['float-left', 'float-right', 'flex-start', 'flex-center', 'flex-end', 'flex-space-between', 'flex-space-around', 'grid'];
 export const TOOLTIP_POSITIONS = [
 	'right-above', 'right-top', 'right-center', 'right-bottom', 'right-under',
 	'left-above', 'left-top', 'left-center', 'left-bottom', 'left-under',
@@ -134,6 +138,10 @@ export const PROPTYPE = {
 		PropTypes.array,
 		PropTypes.object
 	]),
+	GALLERY_BEHAVIORS: PropTypes.oneOf(GALLERY_BEHAVIORS),
+	BACKGROUND_REPEATS: PropTypes.oneOf(BACKGROUND_REPEATS),
+	BACKGROUND_SIZES: PropTypes.oneOf(BACKGROUND_SIZES),
+	PLACE_ERRORS: PropTypes.oneOf(PLACE_ERRORS),
 	AXIS: PropTypes.oneOf(AXIS),
 	POPUP_ROLES: PropTypes.oneOf(POPUP_ROLES),
 	TOOLTIP_TYPES: PropTypes.oneOf(TOOLTIP_TYPES),

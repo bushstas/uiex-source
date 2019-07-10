@@ -492,6 +492,15 @@ export class UIEXComponent extends React.PureComponent {
 		return false;
 	}
 
+	getElementStyle(name, value, gettter) {
+		this.cachedElementStyles = this.cachedElementStyles || {};
+		const key = `${name}_${value}`;
+		if (!this.cachedElementStyles[key]) {
+			this.cachedElementStyles[key] = gettter(value);
+		}
+		return this.cachedElementStyles[key];
+	}
+
 	initRendering() {}
 	addChildProps() {}
 	addClassNames() {}

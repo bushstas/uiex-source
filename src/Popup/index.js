@@ -16,6 +16,9 @@ export class Popup extends UIEXPopup {
 		if (isOpen && prevProps.position !== position) {
 			return this.showPopup();
 		}
+		if (isOpen) {
+			this.setPositionByTarget(this.props.target);
+		}
 		super.componentDidUpdate(prevProps);
 	}
 

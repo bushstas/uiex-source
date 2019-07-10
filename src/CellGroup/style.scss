@@ -100,6 +100,13 @@
 			display: flex;
 		}
 	}
+	&.uiex-no-overflow {
+		.uiex-cell-content {
+			.uiex-cell-content-inner {
+				overflow: visible;			
+			}
+		}
+	}
 	&.uiex-valign-center {
 		.uiex-cell-content {
 			.uiex-cell-content-inner {

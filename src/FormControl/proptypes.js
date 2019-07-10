@@ -9,6 +9,8 @@ export const FormControlPropTypes = {
 	lengthError: PROPTYPE.REACT_NODES,
 	patternError: PROPTYPE.REACT_NODES,
 	errorZIndex: PROPTYPE.STRNUM,
+	errorBgColor: PropTypes.string,
+	errorTextColor: PropTypes.string,
 	validate: PropTypes.func,
 	onChange: PropTypes.func
 }

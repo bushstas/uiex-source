@@ -142,9 +142,9 @@ export class Form extends UIEXComponent {
 		super(props);
 		this.state = {
 			name: props.name,
-			valid: undefined,
-			initialData: clone(props.initialData || props.data)
+			valid: undefined
 		};
+		this.initialData = clone(props.initialData !== undefined ? props.initialData : props.data);
 		if (props.name && isString(props.name)) {
 			registerForm(props.name, this);
 		}
@@ -154,13 +154,16 @@ export class Form extends UIEXComponent {
 	}
 
 	componentDidMount() {
-		const {name, initialData} = this.state;
-		notifySubscribers(name, initialData);
+		const {name} = this.state;
+		notifySubscribers(name, this.initialData);
 	}
 
 	componentDidUpdate(prevProps) {
 		if (this.props.data != this.data) {
 			this.initChangedFields(this.props.data);
+		}
+		if (this.props.initialData != this.initialData) {
+			this.initialData = clone(this.props.initialData);
 		}
 	}
 
@@ -180,7 +183,7 @@ export class Form extends UIEXComponent {
 	}
 
 	getControlInitialValue = (name) => {
-		const {initialData} = this.state;
+		const {initialData} = this;
 		return isObject(initialData) ? initialData[name] : undefined;
 	}
 
@@ -207,8 +210,10 @@ export class Form extends UIEXComponent {
 		props.requiredError = this.props.requiredError;
 		props.lengthError = this.props.lengthError;
 		props.patternError = this.props.patternError;
-		props.placeError = this.props.placeError;
+		props.errorPosition = this.props.errorPosition;
 		props.errorZIndex = this.props.errorZIndex;
+		props.errorBgColor = this.props.errorBgColor;
+		props.errorTextColor = this.props.errorTextColor;
 		props.registerControl = this.registerControl;
 		if (typeof child.props.onChange != 'function') {
 			props.onChange = this.handleChange;
@@ -227,8 +232,11 @@ export class Form extends UIEXComponent {
 
 			case 'FormSection':
 			case 'FormControlGroup':
-				let {rowMargin = DEFAULT_LINE_MARGIN, columns, cellSize} = this.props;
+				let {rowMargin, columns, cellSize} = this.props;
 				const {columnsTiny, columnsSmall, columnsMiddle, columnsLarger, columnsLarge, columnsHuge, columnsGigantic} = this.props;
+				if (!rowMargin && rowMargin !== 0) {
+					rowMargin = DEFAULT_LINE_MARGIN;
+				}
 				rowMargin = getNumber(rowMargin);								
 				if (rowMargin) {
 					props.rowMargin = rowMargin;
@@ -331,7 +339,7 @@ export class Form extends UIEXComponent {
 		if (isFunction(onDataChange)) {
 			this.changedFields.sort();
 			const currentChanged = clone(this.changedFields);
-			const {initialData} = this.state;
+			const {initialData} = this;
 			this.changedFields = [];
 			this.registeredFields.forEach(name => {
 				let value = get(data, name);
@@ -368,11 +376,11 @@ export class Form extends UIEXComponent {
 	alter = (newData) => {
 		const data = this.getData(newData);
 		this.fireChange(data);
-		const {initialData} = this.state;
-		this.setState({initialData: {
+		const {initialData} = this;
+		this.initialData = {
 			...initialData,
 			...newData
-		}});
+		};
 	}
 
 	change = (data) => {
@@ -388,7 +396,7 @@ export class Form extends UIEXComponent {
 
 	replace = (data) => {
 		this.fireChange(data);
-		this.setState({initialData: data});
+		this.initialData = data;
 		if (this.changedFields.length > 0) {
 			this.fire('dataChange', false, []);
 			this.changedFields = [];
@@ -396,7 +404,7 @@ export class Form extends UIEXComponent {
 	}
 
 	reset = () => {
-		const data = this.state.initialData || {};
+		const data = this.initialData || {};
 		this.fireChange(data);
 		this.fire('reset', data);
 		if (this.changedFields.length > 0) {
@@ -414,8 +422,7 @@ export class Form extends UIEXComponent {
 
 	fixate = () => {
 		this.changedFields = [];
-		const initialData = this.getProp('data');
-		this.setState({initialData});
+		this.initialData = this.getProp('data');
 		this.fire('dataChange', false, []);
 	}
 

@@ -12,6 +12,7 @@
 		justify-content: center;
 		border-right: 1px solid #aaa;
 		text-align: left;
+		cursor: pointer;
 
 		.uiex-color-input-color {
 			position: relative;
@@ -21,7 +22,6 @@
 			font-size: 14px;
 			box-sizing: border-box;
 			border-radius: 50%;
-			cursor: pointer;
 
 			&:after {
 				content: '';

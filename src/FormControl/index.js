@@ -64,14 +64,14 @@ export class FormControl extends Cell {
 	}
 
 	getErrorPlace() {
-		const {placeError} = this.props;
-		switch (placeError) {
+		const {errorPosition} = this.props;
+		switch (errorPosition) {
 			case 'above':
 			case 'left':
 			case 'right':
 			case 'top':
 			case 'bottom':
-				return placeError;
+				return errorPosition;
 			default:
 				return 'under';
 		}
@@ -93,6 +93,18 @@ export class FormControl extends Cell {
 		}
 	}
 
+	renderError(error) {
+		const {errorTextColor} = this.props;
+		return (
+			<div
+				className="uiex-form-control-error"
+				style={this.getElementStyle('error', errorTextColor, color => ({color}))}
+			>
+				{error}
+			</div>
+		);
+	}
+
 	renderInternal() {
 		const {
 			caption,
@@ -100,7 +112,9 @@ export class FormControl extends Cell {
 			patternError,
 			validating,
 			errorsShown,
-			errorZIndex
+			errorZIndex,
+			errorBgColor,
+			errorTextColor
 		} = this.props;
 		const {valid} = this.state;
 		const TagName = this.getTagName();
@@ -112,11 +126,7 @@ export class FormControl extends Cell {
 				{caption &&
 					<div className="uiex-form-control-caption">
 						{caption}
-						{place == 'above' && 
-							<div className="uiex-form-control-error">
-								{error}
-							</div>
-						}
+						{place == 'above' && this.renderError(error)}
 					</div>
 				}
 				<div className="uiex-form-control-content">
@@ -130,6 +140,8 @@ export class FormControl extends Cell {
 								position={this.getPopupPosition(place)}
 								target={this.errorTarget}
 								zIndex={zIndex}
+								color={errorBgColor}
+								textColor={errorTextColor}
 								withArrow
 								isOpen
 							>
@@ -138,11 +150,7 @@ export class FormControl extends Cell {
 						</div>
 					}
 				</div>
-				{place == 'under' &&
-					<div className="uiex-form-control-error">
-						{error}
-					</div>
-				}			
+				{place == 'under' && this.renderError(error)}
 			</TagName>
 		)
 	}
@@ -157,7 +165,7 @@ export class FormControl extends Cell {
 		}
 	}
 
-	renderError(error) {
+	getProperError(error) {
 		if (!error || !isString(error)) {
 			return null;
 		}
@@ -169,11 +177,11 @@ export class FormControl extends Cell {
 		const {errorType} = this.state;
 		switch (errorType) {
 			case 'required':
-				return this.renderError(this.props.requiredError || DEFAULT_REQUIRED_ERROR);
+				return this.getProperError(this.props.requiredError || DEFAULT_REQUIRED_ERROR);
 			case 'length':
-				return this.renderError(this.props.lengthError || DEFAULT_LENGTH_ERROR);
+				return this.getProperError(this.props.lengthError || DEFAULT_LENGTH_ERROR);
 			case 'pattern':
-				return this.renderError(this.props.patternError || DEFAULT_PATTERN_ERROR);
+				return this.getProperError(this.props.patternError || DEFAULT_PATTERN_ERROR);
 		}
 		return errorType;
 	}

@@ -354,6 +354,7 @@ export class Cell extends UIEXComponent {
 
 	addClassNames(add) {
 		add('align-self-' + this.props.alignSelf, this.props.alignSelf);
+		add('no-overflow', this.props.noOverflow);
 	}
 
 	getCustomStyle() {

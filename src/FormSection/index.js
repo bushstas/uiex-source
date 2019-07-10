@@ -57,8 +57,10 @@ export class FormSection extends UIEXComponent {
 		props.requiredError = this.props.requiredError;
 		props.lengthError = this.props.lengthError;
 		props.patternError = this.props.patternError;
-		props.placeError = this.props.placeError;
+		props.errorPosition = this.props.errorPosition;
 		props.errorZIndex = this.props.errorZIndex;
+		props.errorBgColor = this.props.errorBgColor;
+		props.errorTextColor = this.props.errorTextColor;
 		props.registerControl = this.registerControl;
 		if (typeof child.props.onChange != 'function') {
 			props.onChange = this.handleChange;
@@ -77,7 +79,7 @@ export class FormSection extends UIEXComponent {
 
 			case 'FormSection':
 			case 'FormControlGroup':
-				let {rowMargin = DEFAULT_LINE_MARGIN, columns, cellSize} = this.props;
+				let {rowMargin, columns, cellSize} = this.props;
 				const {columnsTiny, columnsSmall, columnsMiddle, columnsLarger, columnsLarge, columnsHuge, columnsGigantic} = this.props;
 				rowMargin = getNumber(rowMargin);
 				if (rowMargin) {

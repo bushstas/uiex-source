@@ -1,6 +1,6 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
-import {getNumber, getNumberOrNull, isNumber} from '../utils';
+import {getNumber, getNumberOrNull, isNumber, isString} from '../utils';
 import {ImagePropTypes} from './proptypes';
 
 import '../style.scss';
@@ -10,6 +10,7 @@ const DEFAULT_IMAGE_SIZE = 100;
 const DEFAULT_REFLECTION_HEIGHT = 30;
 const DEFAULT_REFLECTION_OPACITY = 4;
 const DEFAULT_BORDER_COLOR = '#F1F1F1';
+const DEFAULT_REFLECTION_MASK_COLOR = '#FFFFFF';
 const DEFAULT_BORDER_OPACITY = 10;
 
 export class Image extends UIEXComponent {
@@ -41,7 +42,7 @@ export class Image extends UIEXComponent {
 	getBorderOpacity() {
 		const {borderOpacity} = this.props;
 		const {hover} = this.state;
-		const opacity = getNumber(borderOpacity);
+		const opacity = getNumberOrNull(borderOpacity);
 		let hoverBorderOpacity;
 		if (hover) {
 			hoverBorderOpacity = getNumber(this.props.hoverBorderOpacity);
@@ -58,6 +59,11 @@ export class Image extends UIEXComponent {
 			hoverPaleness = getNumberOrNull(this.props.hoverPaleness);
 		}
 		return (isNumber(hoverPaleness) ? hoverPaleness : pale) * 10;
+	}
+
+	getReflectionMaskColor() {
+		const {reflectionMaskColor} = this.props;
+		return reflectionMaskColor && isString(reflectionMaskColor) ? reflectionMaskColor : DEFAULT_REFLECTION_MASK_COLOR;
 	}
 
 	renderReflection = () => {
@@ -108,10 +114,23 @@ export class Image extends UIEXComponent {
 				<div
 					className="uiex-image-reflection-mask"
 					style={{
-						backgroundImage: 'linear-gradient(to top, #f4f4f4, transparent)'
+						backgroundImage: `linear-gradient(to top, ${this.getReflectionMaskColor()}, transparent)`
 					}}
 				/>
 			</div>
+		);
+	}
+
+	renderRealImage() {
+		const {
+			src,
+			width: imageWidth,
+			height: imageHeight
+		} = this.props;
+		const width = getNumber(imageWidth, DEFAULT_IMAGE_SIZE);
+		const height = getNumber(imageHeight, DEFAULT_IMAGE_SIZE);
+		return (
+			<img src={src} style={{width, height}} />
 		);
 	}
 
@@ -126,7 +145,8 @@ export class Image extends UIEXComponent {
 			backgroundSize,
 			backgroundRepeat,
 			borderRadius,
-			reflected
+			reflected,
+			realImage
 		} = this.props;
 		const border = this.getBorder();
 		const width = getNumber(imageWidth, DEFAULT_IMAGE_SIZE);
@@ -136,24 +156,26 @@ export class Image extends UIEXComponent {
 				<div
 					className="uiex-image-outer"
 					style={{
-						filter: `grayscale(${this.getPaleness()}%)`
+						filter: `grayscale(${this.getPaleness()}%)`,
+						marginBottom,
+						marginRight
 					}}
 					onMouseEnter={this.handleMouseEnter}
 					onMouseLeave={this.handleMouseLeave}
+					onClick={this.handleClick}
 				>
 					<div
 						className="uiex-image-inner"
 						style={{
-							backgroundImage: `url(${src})`,
+							backgroundImage: realImage ? undefined : `url(${src})`,
 							width: width,
 							height: height,
-							marginBottom,
-							marginRight,
 							backgroundSize,
 							backgroundRepeat,
 							borderRadius: border && isNumber(borderRadius) ? borderRadius + 2 : borderRadius
 						}}
 					>
+						{realImage && this.renderRealImage()}
 						{border &&
 							<div
 								className="uiex-image-border"
@@ -190,5 +212,10 @@ export class Image extends UIEXComponent {
 		if (this.state.hover) {
 			this.setState({hover: false});
 		}
+	}
+
+	handleClick = () => {
+		const {index, src} = this.props;
+		this.fire('click', index, src);
 	}
 }

@@ -15,11 +15,17 @@ export const ImagePropTypes = {
 	reflectionHeight: PROPTYPE.STRNUM,
 	reflectionMargin: PROPTYPE.STRNUM,
 	reflectionOpacity: PROPTYPE.STRNUM,
+	reflectionMaskColor: PropTypes.string,
 	backgroundSize: PROPTYPE.BACKGROUND_SIZES,
 	backgroundRepeat: PROPTYPE.BACKGROUND_REPEATS,
 	borderWidth: PROPTYPE.STRNUM,
 	borderColor: PropTypes.string,
 	borderRadius: PROPTYPE.STRNUM,
 	borderOpacity: PROPTYPE.STRNUM,
-	reflected: PropTypes.bool
+	hoverBorderWidth: PROPTYPE.STRNUM,
+	hoverBorderColor: PropTypes.string,
+	hoverBorderOpacity: PROPTYPE.STRNUM,
+	reflected: PropTypes.bool,
+	realImage: PropTypes.bool,
+	onClick: PropTypes.func
 }

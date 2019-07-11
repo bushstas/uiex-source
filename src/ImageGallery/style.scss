@@ -61,6 +61,10 @@
     &.uiex-behavior-grid {
         .uiex-image.uiex-image {
             width: 100% !important;
+            img {
+                width: 100% !important;
+                display: block;
+            }
             .uiex-image-reflection,
             .uiex-image-inner {
                 width: 100% !important;
@@ -83,6 +87,7 @@
 .uiex-image {
     .uiex-image-inner {
         position: relative;
+        overflow: hidden;
     }
     .uiex-image-border {
         position: absolute;

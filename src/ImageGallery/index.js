@@ -25,6 +25,10 @@ export class ImageGallery extends UIEXComponent {
 		add(`behavior-${behavior}`);
 	}
 
+	initRendering() {
+		this.currentIndex = 0;
+	}
+
 	addChildProps(child, props) {
 		const {
 			src, width, height, marginBottom,
@@ -34,7 +38,8 @@ export class ImageGallery extends UIEXComponent {
 			borderWidth: bw, borderColor: bc, borderRadius: bra,
 			borderOpacity: bo, reflected: re, paleness: pa,
 			hoverBorderWidth: hbw, hoverBorderColor: hbc,
-			hoverBorderOpacity: hbo, hoverPaleness: hp
+			hoverBorderOpacity: hbo, hoverPaleness: hp,
+			reflectionMaskColor: rmc, realImage: ri
 		} = child.props;
 		const {
 			imageWidth, imageHeight, imageMargin,
@@ -42,9 +47,11 @@ export class ImageGallery extends UIEXComponent {
 			reflectionOpacity, backgroundSize, backgroundRepeat,
 			borderWidth, borderColor, borderRadius, borderOpacity,
 			reflected, paleness, hoverBorderWidth, hoverBorderColor,
-			hoverBorderOpacity, hoverPaleness
+			hoverBorderOpacity, hoverPaleness, reflectionMaskColor,
+			realImage
 		} = this.props;
 		props.src = this.getPath(src);
+		props.index = this.currentIndex++;
 		if (!width) {
 			props.width = imageWidth;
 		}
@@ -64,6 +71,9 @@ export class ImageGallery extends UIEXComponent {
 		}
 		if (!rm) {
 			props.reflectionMargin = reflectionMargin;
+		}
+		if (!rmc) {
+			props.reflectionMaskColor = reflectionMaskColor;
 		}
 		if (!ro) {
 			props.reflectionOpacity = reflectionOpacity;
@@ -88,6 +98,9 @@ export class ImageGallery extends UIEXComponent {
 		}
 		if (!re) {
 			props.reflected = reflected;
+		}
+		if (!ri) {
+			props.realImage = realImage;
 		}
 		if (!pa) {
 			props.paleness = paleness;
@@ -114,6 +127,14 @@ export class ImageGallery extends UIEXComponent {
 		return image;
 	}
 
+	getChildren() {
+		const children = this.renderChildren();
+		if (!isArray(children)) {
+			return [children];
+		}
+		return children;
+	}
+
 	renderImage = (src, idx) => {
 		const {
 			source,
@@ -135,19 +156,23 @@ export class ImageGallery extends UIEXComponent {
 			hoverBorderWidth,
 			hoverBorderColor,
 			hoverBorderOpacity,
-			hoverPaleness
+			reflectionMaskColor,
+			hoverPaleness,
+			realImage
 		} = this.props;
 		return (
 			<Image
 				key={idx !== undefined ? `${src}_${idx}` : undefined}
 				src={this.getPath(src)}
+				index={this.currentIndex++}
 				width={imageWidth}
 				height={imageHeight}
 				marginBottom={behavior !== 'grid' ? imageMargin : undefined}
-				marginRight={imageMargin}
+				marginRight={behavior !== 'grid' ? imageMargin : undefined}
 				reflectionHeight={reflectionHeight}
 				reflectionMargin={reflectionMargin}
 				reflectionOpacity={reflectionOpacity}
+				reflectionMaskColor={reflectionMaskColor}
 				backgroundSize={backgroundSize}
 				backgroundRepeat={backgroundRepeat}
 				borderWidth={borderWidth}
@@ -160,6 +185,7 @@ export class ImageGallery extends UIEXComponent {
 				hoverBorderColor={hoverBorderColor}
 				hoverBorderOpacity={hoverBorderOpacity}
 				hoverPaleness={hoverPaleness}
+				realImage={realImage}
 			/>
 		);
 	}

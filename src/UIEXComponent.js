@@ -24,7 +24,8 @@ import {
 	animate,
 	animateBack,
 	addToClassName,
-	isArray
+	isArray,
+	isFunction
 } from './utils';
 import {FORM_BUTTON_DISPLAY, POPUP_ROLES} from './consts';
 
@@ -112,6 +113,10 @@ export class UIEXComponent extends React.PureComponent {
 	}
 
 	renderChildren() {
+		const {properChildren, properChildrenSign} = this.constructor;
+		if (!properChildren && !properChildrenSign) {
+			return this.props.children;
+		}
 		this.properChildrenCount = 0;
 		this.currentProperChildIdx = -1;
 		return this.prepareChildren(
@@ -187,6 +192,10 @@ export class UIEXComponent extends React.PureComponent {
 					}
 					props.parent = displayName;
 				}
+				// const isComponentChild = isFunction(child.type);
+				// if (!isComponentChild) {
+					
+				// }
 				const children = isProperChild && noskip ? child.props.children : this.doRenderChildren(child.props.children);
 				child = React.cloneElement(child, props, children);
 			}

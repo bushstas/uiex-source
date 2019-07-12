@@ -24,5 +24,6 @@ export const ImageGalleryPropTypes = {
 	hoverBorderColor: PropTypes.string,
 	hoverBorderOpacity: PROPTYPE.STRNUM,
 	reflected: PropTypes.bool,
-	realImage: PropTypes.bool
+	realImage: PropTypes.bool,
+	onView: PropTypes.func
 }

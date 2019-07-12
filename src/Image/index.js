@@ -215,7 +215,7 @@ export class Image extends UIEXComponent {
 	}
 
 	handleClick = () => {
-		const {index, src} = this.props;
-		this.fire('click', index, src);
+		const {value, src} = this.props;
+		this.fire('click', value, src);
 	}
 }

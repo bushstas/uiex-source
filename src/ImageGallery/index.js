@@ -48,10 +48,10 @@ export class ImageGallery extends UIEXComponent {
 			borderWidth, borderColor, borderRadius, borderOpacity,
 			reflected, paleness, hoverBorderWidth, hoverBorderColor,
 			hoverBorderOpacity, hoverPaleness, reflectionMaskColor,
-			realImage
+			realImage, onView
 		} = this.props;
 		props.src = this.getPath(src);
-		props.index = this.currentIndex++;
+		props.value = this.currentIndex++;
 		if (!width) {
 			props.width = imageWidth;
 		}
@@ -117,6 +117,7 @@ export class ImageGallery extends UIEXComponent {
 		if (!hp) {
 			props.hoverPaleness = hoverPaleness;
 		}
+		props.onClick = onView;
 	}
 
 	getPath(image) {
@@ -158,13 +159,14 @@ export class ImageGallery extends UIEXComponent {
 			hoverBorderOpacity,
 			reflectionMaskColor,
 			hoverPaleness,
-			realImage
+			realImage,
+			onView
 		} = this.props;
 		return (
 			<Image
 				key={idx !== undefined ? `${src}_${idx}` : undefined}
 				src={this.getPath(src)}
-				index={this.currentIndex++}
+				value={this.currentIndex++}
 				width={imageWidth}
 				height={imageHeight}
 				marginBottom={behavior !== 'grid' ? imageMargin : undefined}
@@ -186,6 +188,7 @@ export class ImageGallery extends UIEXComponent {
 				hoverBorderOpacity={hoverBorderOpacity}
 				hoverPaleness={hoverPaleness}
 				realImage={realImage}
+				onClick={onView}
 			/>
 		);
 	}
@@ -245,8 +248,8 @@ export class ImageGallery extends UIEXComponent {
 					cellMargin={imageMargin}
 					rowMargin={imageMargin}
 				>
-					{images.map(this.renderImageCellWithSrc)}
 					{children.map(this.renderImageCell)}
+					{images.map(this.renderImageCellWithSrc)}
 				</CellGroup>
 			);
 		}

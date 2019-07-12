@@ -14,5 +14,6 @@ export const ImageViewerTypes = {
 	borderColor: PropTypes.string,
 	borderRadius: PROPTYPE.STRNUM,
 	borderOpacity: PROPTYPE.STRNUM,
-	realImage: PropTypes.bool
+	realImage: PropTypes.bool,
+	initialImageIndex: PropTypes.number
 }

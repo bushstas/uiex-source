@@ -145,12 +145,6 @@ export class InputNumber extends Input {
 		}
 	}
 
-	getCustomInputProps() {
-		return {
-			onWheel: this.handleWheel
-		}
-	}
-
 	keyUpHandler(e) {
 		super.keyUpHandler(e);
 		const {key} = e;

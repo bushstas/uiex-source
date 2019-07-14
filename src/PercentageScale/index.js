@@ -8,6 +8,11 @@ import './style.scss';
 
 const PROPS_LIST = ['borderRadius', 'clickAreaHeight', 'trackColor', 'indicatorColor'];
 
+const wheelEventOptions = {
+	capture: false,
+	passive: false
+};
+
 export class TimeScale extends UIEXComponent {
 	static propTypes = TimeScalePropTypes;
 	static className = 'time-scale';
@@ -19,6 +24,7 @@ export class TimeScale extends UIEXComponent {
 		if (this.props.playing) {
 			this.play();
 		}
+		this.refs.main.addEventListener('wheel', this.handleTrackWheel, wheelEventOptions);
 	}
 
 	componentDidUpdate(prevProps) {
@@ -44,13 +50,13 @@ export class TimeScale extends UIEXComponent {
 	}
 
 	componentWillUnmount() {
+		this.refs.main.removeEventListener('wheel', this.handleTrackWheel, wheelEventOptions);
 		this.stop();
 	}
 
 	getCustomProps() {
 		return {
-			onClick: this.handleTrackClick,
-			onWheel: this.handleTrackWheel
+			onClick: this.handleTrackClick
 		}
 	}
 

@@ -27,5 +27,6 @@ export const ImagePropTypes = {
 	hoverBorderOpacity: PROPTYPE.STRNUM,
 	reflected: PropTypes.bool,
 	realImage: PropTypes.bool,
+	fullSize: PropTypes.bool,
 	onClick: PropTypes.func
 }

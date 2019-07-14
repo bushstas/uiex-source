@@ -83,39 +83,3 @@
         margin: 20px 0;
     }
 }
-
-.uiex-image {
-    .uiex-image-inner {
-        position: relative;
-        overflow: hidden;
-    }
-    .uiex-image-border {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
-    }
-    .uiex-image-reflection {
-        position: relative;
-        overflow: hidden;
-    }
-    .uiex-image-reflection-bg {
-        position: absolute;
-        left: 0;
-        top: 0;
-        right: 0;
-        opacity: 0.4;
-        -moz-transform: scaleY(-1);
-        -o-transform: scaleY(-1);
-        -webkit-transform: scaleY(-1);
-        transform: scaleY(-1);
-    }
-    .uiex-image-reflection-mask {
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        right: 0;
-    }
-}

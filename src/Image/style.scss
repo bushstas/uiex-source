@@ -1,84 +1,7 @@
-.uiex-gallery {
-    &.uiex-behavior-float-left {
-        .uiex-gallery-image {
-            float: left;
-        }
-        .uiex-gallery-inner {
-            &::after {
-                content: '';
-                display: block;
-                clear: left;
-            }
-        }
-    }
-    &.uiex-behavior-float-right {
-        .uiex-gallery-image {
-            float: right;
-        }
-        .uiex-gallery-inner {
-            &::after {
-                content: '';
-                display: block;
-                clear: right;
-            }
-        }
-    }
-    &.uiex-behavior-flex-start {
-        .uiex-gallery-inner {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-        }
-    }
-    &.uiex-behavior-flex-end {
-        .uiex-gallery-inner {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-    }
-    &.uiex-behavior-flex-center {
-        .uiex-gallery-inner {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-    }
-    &.uiex-behavior-flex-space-between {
-        .uiex-gallery-inner {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-    }
-    &.uiex-behavior-flex-space-around {
-        .uiex-gallery-inner {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-        }
-    }
-    &.uiex-behavior-grid {
-        .uiex-image.uiex-gallery-image {
-            width: 100% !important;
-            .uiex-image-reflection,
-            .uiex-image-inner {
-                width: 100% !important;
-            }
-        }
-    }
-    .uiex-gallery-outer {
-        overflow: hidden;
-    }
-    .uiex-gallery-image {
-        width: auto !important;
-        height: auto !important;
-    }
-}
-
 .uiex-image {
     .uiex-image-inner {
         position: relative;
+        background-color: #fff;
     }
     .uiex-image-border {
         position: absolute;
@@ -86,6 +9,19 @@
         right: 0;
         top: 0;
         bottom: 0;
+    }
+    &.uiex-full-size {
+        .uiex-image-outer,
+        .uiex-image-inner,
+        .uiex-image-inner img {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: auto !important;
+            height: auto !important;
+        }
     }
     .uiex-image-reflection {
         position: relative;

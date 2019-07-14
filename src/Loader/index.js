@@ -18,6 +18,11 @@ export class Loader extends UIEXComponent {
 	static displayName = 'Loader';
 	static styleNames = ['mask'];
 
+	addClassNames(add) {
+		const {overlayed, children} = this.props;
+		add('overlayed', overlayed && !children);
+	}
+
 	renderText() {
 		const {textStyle, loadingText} = this.props;
 		return (

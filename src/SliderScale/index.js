@@ -12,10 +12,6 @@ export class SliderScale extends UIEXComponent {
 	static displayName = 'SliderScale';
 	static isControl = true;
 
-	addClassNames(add) {
-	
-	}
-
 	getCustomProps() {
 		return {
 			onClick: this.handleClick

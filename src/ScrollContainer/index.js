@@ -26,6 +26,11 @@ const MIN_RADIUS = 0;
 const MAX_RADIUS = 50;
 const DEFAULT_TRANSITION_EFFECT = 'linear';
 
+const wheelEventOptions = {
+	capture: false,
+	passive: false
+};
+
 const PROPS_LIST = [
 	'scrollTop',
 	'scrollTopPercent',
@@ -50,7 +55,6 @@ export class ScrollContainer extends UIEXComponent {
 
 	getCustomProps() {
 		return {
-			onWheel: this.handleWheel,
 			onKeyDown: this.handleKeyDown,
 			tabIndex: 0
 		}
@@ -69,12 +73,14 @@ export class ScrollContainer extends UIEXComponent {
 	componentDidMount() {
 		this.forceUpdate();
 		window.addEventListener('resize', this.handleWindowResize, false);
+		this.refs.main.addEventListener('wheel', this.handleWheel, wheelEventOptions);
 	}
 
 	componentWillUnmount() {
 		clearTimeout(this.timeout);
 		clearTimeout(this.scrollingTimeout);
 		window.removeEventListener('resize', this.handleWindowResize, false);
+		this.refs.main.removeEventListener('wheel', this.handleWheel, wheelEventOptions);
 	}
 
 	getCustomStyle() {

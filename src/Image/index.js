@@ -1,6 +1,8 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {getNumber, getNumberOrNull, isNumber, isString} from '../utils';
+import {Loader} from '../Loader';
+import {loadImage} from '../_utils/load-image';
 import {ImagePropTypes} from './proptypes';
 
 import '../style.scss';
@@ -16,6 +18,18 @@ const DEFAULT_BORDER_OPACITY = 10;
 export class Image extends UIEXComponent {
 	static propTypes = ImagePropTypes;
 	static displayName = 'Image';
+
+	constructor(props) {
+		super(props);
+		this.state = {
+			loaded: loadImage(props.src, this.handleLoad)
+		};
+	}
+
+	addClassNames(add) {
+		const {fullSize} = this.props;
+		add ('full-size', fullSize);
+	}
 
 	getReflectionHeight() {
 		const {height, reflectionHeight: rh} = this.props;
@@ -77,6 +91,7 @@ export class Image extends UIEXComponent {
 			reflectionOpacity,
 			borderRadius
 		} = this.props;
+		const {loaded} = this.state;
 		const border = this.getBorder();
 		const width = getNumber(imageWidth, DEFAULT_IMAGE_SIZE);
 		const height = getNumber(imageHeight, DEFAULT_IMAGE_SIZE);
@@ -92,7 +107,7 @@ export class Image extends UIEXComponent {
 				<div
 					className="uiex-image-reflection-bg"
 					style={{
-						backgroundImage: `url(${src})`,
+						backgroundImage: loaded ? `url(${src})` : undefined,
 						height: Math.round(height * 0.9),
 						opacity: getNumber(reflectionOpacity, DEFAULT_REFLECTION_OPACITY) / 10,
 						backgroundSize,
@@ -134,9 +149,24 @@ export class Image extends UIEXComponent {
 		);
 	}
 
+	renderLoader = () => {
+		return (
+			<Loader
+				loading={!this.state.loaded}
+				spinnerThickness="3"
+				spinnerSize="30"
+				spinnerColor="#d1d1d1"
+				withoutMask
+				overlayed
+			/>
+		)
+	}
+
 	renderInternal = () => {
 		const TagName = this.getTagName();
+		const {loaded} = this.state;
 		const {
+			children,
 			src,
 			width: imageWidth,
 			height: imageHeight,
@@ -167,7 +197,7 @@ export class Image extends UIEXComponent {
 					<div
 						className="uiex-image-inner"
 						style={{
-							backgroundImage: realImage ? undefined : `url(${src})`,
+							backgroundImage: realImage || !loaded ? undefined : `url(${src})`,
 							width: width,
 							height: height,
 							backgroundSize,
@@ -175,7 +205,8 @@ export class Image extends UIEXComponent {
 							borderRadius: border && isNumber(borderRadius) ? borderRadius + 2 : borderRadius
 						}}
 					>
-						{realImage && this.renderRealImage()}
+						{realImage && loaded && this.renderRealImage()}
+						{!loaded && this.renderLoader()}
 						{border &&
 							<div
 								className="uiex-image-border"
@@ -186,11 +217,18 @@ export class Image extends UIEXComponent {
 								}}
 							/>
 						}
+						{children}
 					</div>
 					{reflected && this.renderReflection()}
 				</div>
 			</TagName>
 		);
+	}
+
+	handleLoad = () => {
+		if (!this.state.loaded) {
+			this.setState({loaded: true});
+		}
 	}
 
 	handleMouseEnter = () => {

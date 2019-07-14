@@ -1,3 +1,26 @@
-.image-viewer {
-
+.uiex-image-viewer {
+	.uiex-image-viewer-side {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		box-sizing: border-box;
+		&.uiex-left-side {
+			left: 0;
+		}
+		&.uiex-right-side {
+			right: 0;
+			padding: 20px;
+			background-color: #f2f2f2;
+		}
+	}
+	.uiex-image-viewer-picture {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		border-radius: 3px 0 3px 0;
+		background-size: cover;
+		background-position: center center;
+	}
 }

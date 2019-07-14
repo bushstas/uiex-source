@@ -24,6 +24,11 @@ const ROOT_ID = 'uiex-modal-root';
 const DEFAULT_MASK_OPACITY = 6;
 const DEFAULT_BLUR_VALUE = 2;
 
+const wheelEventOptions = {
+	capture: false,
+	passive: false
+};
+
 class ModalComponent extends UIEXComponent {
 	static propTypes = ModalPropTypes;
 	static styleNames = ['body', 'header', 'footer', 'mask', 'controls'];
@@ -106,6 +111,7 @@ class ModalComponent extends UIEXComponent {
 				this.setState({isOpen: true}, () => {
 					this.initPosition();
 					animate(container, outer, animation);
+					this.addWheelHandler();
 					if (mask) {
 						setTimeout(() => {
 							mask.style.opacity = maskOpacity;
@@ -116,11 +122,27 @@ class ModalComponent extends UIEXComponent {
 		} else {
 			this.setState({isOpen: true}, () => {
 				this.initPosition();
+				this.addWheelHandler();
 			});
 		}
 	}
 
+	addWheelHandler() {
+		if (this.refs.main && !this.wheelListenerAdded) {
+			this.wheelListenerAdded = true;
+			this.refs.main.addEventListener('wheel', this.handleWheel, wheelEventOptions);
+		}
+	}
+
+	removeWheelHandler() {
+		if (this.refs.main && this.wheelListenerAdded) {
+			this.wheelListenerAdded = false;
+			this.refs.main.removeEventListener('wheel', this.handleWheel, wheelEventOptions);
+		}
+	}
+
 	animateHiding(isAction = false) {
+		this.removeWheelHandler();
 		const container = this.getContainer();
 		if (!container) {
 			return;
@@ -194,7 +216,10 @@ class ModalComponent extends UIEXComponent {
 	}
 
 	addClassNames(add) {
-		const {expandable, animation, expanded, withoutPortal, header, footer} = this.props;
+		const {
+			expandable, animation, expanded, withoutPortal,
+			header, footer, withoutPadding
+		} = this.props;
 		add('expandable', expandable);
 		add('shown', this.state.isOpen);
 		add('expanded', expanded);
@@ -202,6 +227,7 @@ class ModalComponent extends UIEXComponent {
 		add('without-portal', withoutPortal);
 		add('without-header', !header);
 		add('without-footer', !footer);
+		add('without-padding', withoutPadding);
 	}
 
 	renderInternal() {
@@ -358,6 +384,10 @@ class ModalComponent extends UIEXComponent {
 				this.initSize();
 			}
 		}
+	}
+
+	handleWheel = (e) => {
+		e.preventDefault();
 	}
 
 	getContainer() {

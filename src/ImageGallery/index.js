@@ -122,8 +122,13 @@ export class ImageGallery extends UIEXComponent {
 
 	getPath(image) {
 		const {source} = this.props;
-		if (source && isString(source) && isString(image)) {
-			return `${source.replace(/\/+$/, '')}/${image.replace(/^\/+/, '')}`;
+		if (isString(image)) {
+			if (/^https*:/.test(image)) {
+				return image;
+			}
+			if (source && isString(source)) {
+				return `${source.replace(/\/+$/, '')}/${image.replace(/^\/+/, '')}`;
+			}
 		}
 		return image;
 	}

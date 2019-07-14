@@ -9,6 +9,11 @@ import './style.scss';
 
 const PROPS_LIST = ['validating', 'value', 'required', 'minLength', 'uncontrolled'];
 
+const wheelEventOptions = {
+	capture: false,
+	passive: false
+};
+
 export class Input extends UIEXComponent {
 	static propTypes = InputPropTypes;
 	static isControl = true;
@@ -33,6 +38,9 @@ export class Input extends UIEXComponent {
 			}
 		}
 		this.checkValidity();
+		if (isFunction(this.handleWheel)) {
+			this.refs.main.addEventListener('wheel', this.handleWheel, wheelEventOptions);	
+		}
 	}
 
 	componentDidUpdate(prevProps) {
@@ -46,6 +54,9 @@ export class Input extends UIEXComponent {
 	}
 
 	componentWillUnmount() {
+		if (isFunction(this.handleWheel)) {
+			this.refs.main.removeEventListener('wheel', this.handleWheel, wheelEventOptions);	
+		}
 		this.fire('unmount');
 	}
 

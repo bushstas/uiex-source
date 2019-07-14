@@ -118,12 +118,22 @@
             &:hover {
                 opacity: 1;
             }
+            &:first-child {
+            	margin-left: 0;
+            }
         }
     }
     &.uiex-without-header {
+    	.uiex-modal-container {
+    		border-radius: 3px 0 3px 3px;
+    	}
         .uiex-modal-controls {
-            right: 5px;
-            top: 5px;
+        	top: auto;
+            bottom: 100%;
+            right: 0;
+            background-color: #d7d7d7;
+            padding: 5px 7px;
+            border-radius: 3px 3px 0 0;
             .uiex-draggable-handle-area {
                 line-height: 0;
                 .uiex-icon {
@@ -132,7 +142,6 @@
             }
         }
         .uiex-modal-body {
-            padding-top: 32px;
             border-top-left-radius: 3px;
             border-top-right-radius: 3px;
         }
@@ -166,6 +175,11 @@
     	padding: 20px;
     	overflow: auto;
         flex-grow: 1;
+    }
+    &.uiex-without-padding {
+        .uiex-modal-body {
+            padding: 0;
+        }
     }
     .uiex-modal-footer {
     	min-height: 40px;

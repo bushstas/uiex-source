@@ -21,6 +21,7 @@ export const ModalPropTypes = {
 	animation: PROPTYPE.MODAL_ANIMATION,
 	blurSelector: PropTypes.string,
 	blurValue: PROPTYPE.STRNUM,
+	withoutPadding: PropTypes.bool,
 	onClose: PropTypes.func,
 	onExpand: PropTypes.func,
 	onDragStart: PropTypes.func,

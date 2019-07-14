@@ -3,6 +3,14 @@
     min-height: 50px;
     display: block;
 
+    &.uiex-overlayed {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+    }
+
     .uiex-loader-mask {
         position: absolute;
         left: 0;

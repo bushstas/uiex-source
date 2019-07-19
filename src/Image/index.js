@@ -227,7 +227,11 @@ export class Image extends UIEXComponent {
 
 	handleLoad = () => {
 		if (!this.state.loaded) {
-			this.setState({loaded: true});
+			if (this.refs.main) {
+				this.setState({loaded: true});
+			} else {
+				this.state.loaded = true;
+			}
 		}
 	}
 

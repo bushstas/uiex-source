@@ -17,6 +17,12 @@ export class ImageViewer extends UIEXComponent {
 	static propTypes = ImageViewerPropTypes;
 	static displayName = 'ImageViewer';
 
+	constructor(props) {
+		super(props);
+		this.currentImageIndex = getNumber(this.getProp('imageIndex'));
+		this.currentImage = 1;
+	}
+
 	getPath(image) {
 		const {source} = this.props;
 		if (isString(image)) {
@@ -30,12 +36,44 @@ export class ImageViewer extends UIEXComponent {
 		return image;
 	}
 
-	getImage() {		
-		const {images, source} = this.props;
+	getImage(id) {
+		const {animated} = this.props;
 		const currentImage = getNumber(this.getProp('imageIndex'));
-		if (isNumber(currentImage) && isArray(images) && images[currentImage] && isString(images[currentImage])) {
-			return `url(${this.getPath(images[currentImage])})`;
+		if (animated && currentImage != this.currentImageIndex) {
+			this.currentImage = this.currentImage == 2 ? 1 : 2;
+			this.currentImageIndex = currentImage;
 		}
+		if (id == this.currentImage) {
+			const {images, source} = this.props;			
+			if (isNumber(currentImage) && isArray(images) && images[currentImage] && isString(images[currentImage])) {
+				this.tempPrevImage = `url(${this.getPath(images[currentImage])})`;
+				return this.tempPrevImage;
+			}
+			return;
+		}
+		return this.prevImage;
+	}
+
+	getOpacity(id) {
+		const {animated} = this.props;
+		if (!animated) {
+			return undefined;
+		}
+		if (id == this.currentImage) {
+			return this.prevImage ? '0' : '1';
+		}
+		return this.prevImage ? '1' : '0';
+	}
+
+	getZIndex(id) {
+		const {animated} = this.props;
+		if (!animated) {
+			return undefined;
+		}
+		if (id == this.currentImage) {
+			return 2;
+		}
+		return 1;
 	}
 
 	getLeftSideWidth() {
@@ -107,7 +145,6 @@ export class ImageViewer extends UIEXComponent {
 							className="uiex-image-viewer-control uiex-prev"
 							onClick={this.handlePrevClick}
 						>
-							PREV
 						</div>
 					}
 					{isNext && 
@@ -115,7 +152,6 @@ export class ImageViewer extends UIEXComponent {
 							className="uiex-image-viewer-control uiex-next"
 							onClick={this.handleNextClick}
 						>
-							NEXT
 						</div>
 					}
 				</Fragment>
@@ -124,17 +160,53 @@ export class ImageViewer extends UIEXComponent {
 		return null;
 	}
 
+	renderPictures() {
+		const {animated} = this.props;
+		const opacity1 = this.getOpacity(1);
+		const opacity2 = this.getOpacity(2);
+		const zIndex1 = this.getZIndex(1);
+		const zIndex2 = this.getZIndex(2);
+		const pictures = [
+			<div
+				key="picture1"
+				className="uiex-image-viewer-picture"
+				style={{
+					opacity: opacity1,
+					zIndex: zIndex1,
+					backgroundImage: this.getImage(1)					
+				}}
+			/>,
+			animated ? <div
+				key="picture2"
+				className="uiex-image-viewer-picture"
+				style={{
+					opacity: opacity2,
+					zIndex: zIndex2,
+					backgroundImage: this.getImage(2)
+				}}
+			/> : null
+		];
+		this.prevImage = this.tempPrevImage;
+		return pictures;
+	}
+
 	renderInternal() {
 		const {
-			isOpen,
-			onClose,
+			animated,
+			looping,
+			source,
+			images,
+			imageIndex,
+			contentWidth,
 			className,
+			children,
+			...modalProps
 		} = this.props;
+		const {isOpen} = modalProps;
 		return (
 			<Modal
 				className={getMergedClassName('uiex-image-viewer', className)}
-				isOpen={isOpen}
-				onClose={onClose}
+				{...modalProps}
 				width={this.getWidth()}
 				height={this.getHeight()}
 				withoutPadding
@@ -143,20 +215,14 @@ export class ImageViewer extends UIEXComponent {
 					className="uiex-image-viewer-side uiex-left-side"
 					style={{width: this.getLeftSideWidth()}}
 				>
-					<div
-						className="uiex-image-viewer-picture"
-						style={{
-							backgroundImage: this.getImage()
-						}}
-					>
-						{this.renderControls()}
-					</div>
+					{isOpen && this.renderPictures()}
+					{isOpen && this.renderControls()}
 				</div>
 				<div
 					className="uiex-image-viewer-side uiex-right-side"
 					style={{width: this.getRightSideWidth()}}
 				>
-					1111111
+					{children}
 				</div>
 			</Modal>
 		)

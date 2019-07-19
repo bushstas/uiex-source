@@ -130,14 +130,14 @@ class ModalComponent extends UIEXComponent {
 	addWheelHandler() {
 		if (this.refs.main && !this.wheelListenerAdded) {
 			this.wheelListenerAdded = true;
-			this.refs.main.addEventListener('wheel', this.handleWheel, wheelEventOptions);
+			this.refs.mask.addEventListener('wheel', this.handleWheel, wheelEventOptions);
 		}
 	}
 
 	removeWheelHandler() {
 		if (this.refs.main && this.wheelListenerAdded) {
 			this.wheelListenerAdded = false;
-			this.refs.main.removeEventListener('wheel', this.handleWheel, wheelEventOptions);
+			this.refs.mask.removeEventListener('wheel', this.handleWheel, wheelEventOptions);
 		}
 	}
 
@@ -307,7 +307,10 @@ class ModalComponent extends UIEXComponent {
 							</div>
 						}
 						{this.renderHeader()}
-						<div className={this.getClassName('body', 'uiex-scrollable')} style={this.getStyle('body')}>
+						<div
+							className={this.getClassName('body', 'uiex-scrollable')}
+							style={this.getStyle('body')}
+						>
 							{this.renderChildren()}
 						</div>
 						{this.renderFooter()}

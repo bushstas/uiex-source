@@ -7,13 +7,8 @@ export const ImageViewerTypes = {
 	isOpen: PropTypes.bool,
 	source: PropTypes.string,
 	images: PropTypes.arrayOf(PropTypes.string),
-	imageWidth: PROPTYPE.STRNUM,
-	imageHeight: PROPTYPE.STRNUM,
-	backgroundSize: PROPTYPE.BACKGROUND_SIZES,
-	borderWidth: PROPTYPE.STRNUM,
-	borderColor: PropTypes.string,
-	borderRadius: PROPTYPE.STRNUM,
-	borderOpacity: PROPTYPE.STRNUM,
-	realImage: PropTypes.bool,
-	imageIndex: PropTypes.number
+	imageIndex: PropTypes.number,
+	contentWidth: PROPTYPE.STRNUM,
+	animated: PropTypes.bool,
+	looping: PropTypes.bool
 }

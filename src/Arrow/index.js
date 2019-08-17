@@ -45,15 +45,22 @@ export class Arrow extends UIEXComponent {
 	}
 
 	getOuterClassName() {
-		const {direction} = this.props;
-		switch (direction) {
-			case 'up-left':
-			case 'up-right':
-			case 'down-left':
-			case 'down-right':
-				return 'uiex-direction-' + direction;
-			
+		const classNames = [];
+		const {direction, float} = this.props;
+		if (float && (float === 'left' || float === 'right')) {
+			classNames.push(`uiex-float-${float}`);
 		}
+		if (direction) {
+			switch (direction) {
+				case 'up-left':
+				case 'up-right':
+				case 'down-left':
+				case 'down-right':
+					classNames.push('uiex-direction-' + direction);
+				
+			}
+		}
+		return classNames.join(' ');
 	}
 
 	getCustomStyle() {

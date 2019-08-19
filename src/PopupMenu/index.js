@@ -184,8 +184,8 @@ export class PopupMenu extends UIEXBoxContainer {
 				value = this.removeSingles(value);
 			}
 		}
-		this.fire('select', value);
 		this.fire('selectOption', idx, option);
+		this.fire('select', value);
 		this.fireChange(value);
 	}
 
@@ -228,15 +228,23 @@ export class PopupMenu extends UIEXBoxContainer {
 			if (!iconType) {
 				iconType = this.props.iconType;
 			}
-			return {
-				value,
-				title: children,
-				icon,
-				iconType,
-				withTopDelimiter,
-				withBottomDelimiter,
-				single
+			const option = {value, title: children};
+			if (icon) {
+				option.icon = icon;
 			}
+			if (iconType) {
+				option.iconType = iconType;
+			}
+			if (withTopDelimiter) {
+				option.withTopDelimiter = withTopDelimiter;
+			}
+			if (withBottomDelimiter) {
+				option.withBottomDelimiter = withBottomDelimiter;
+			}
+			if (single) {
+				option.single = single;
+			}
+			return option;
 		}
 		return null;
 	}
@@ -329,15 +337,22 @@ export class PopupMenuItem extends UIEXComponent {
 	handleClick = (e) => {
 		e.stopPropagation();
 		const {value, children, icon, iconType, withTopDelimiter, withBottomDelimiter, index, single} = this.props;
-		const option = {
-			value,
-			title: children,
-			icon,
-			iconType,
-			withTopDelimiter,
-			withBottomDelimiter,
-			single
-		};
+		const option = {value, title: children};
+		if (icon) {
+			option.icon = icon;
+		}
+		if (iconType) {
+			option.iconType = iconType;
+		}
+		if (withTopDelimiter) {
+			option.withTopDelimiter = withTopDelimiter;
+		}
+		if (withBottomDelimiter) {
+			option.withBottomDelimiter = withBottomDelimiter;
+		}
+		if (single) {
+			option.single = single;
+		}
 		this.fire('select', value, index, option);
 	}
 }

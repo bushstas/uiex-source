@@ -162,9 +162,6 @@ export class Form extends UIEXComponent {
 		if (this.props.data != this.data) {
 			this.initChangedFields(this.props.data);
 		}
-		if (this.props.initialData != this.initialData) {
-			this.initialData = clone(this.props.initialData);
-		}
 	}
 
 	componentWillUnmount() {

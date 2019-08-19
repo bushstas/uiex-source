@@ -3,7 +3,8 @@ import {UIEXBoxContainer} from '../UIEXComponent';
 import {Input} from '../Input';
 import {Icon} from '../Icon';
 import {PopupMenu, PopupMenuItem} from '../PopupMenu';
-import {isFunction, isNumber} from '../utils';
+import {isFunction, isNumber, isObject} from '../utils';
+import {clone} from '../_utils/clone';
 import {SelectPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -61,6 +62,9 @@ export class Select extends UIEXBoxContainer {
 			if (value instanceof Array) {
 				value = value[0];
 			}
+			if (isObject(value)) {
+				value = value.value;
+			}
 			if (this.values) {
 				return this.values[value] || '';
 			}
@@ -85,6 +89,7 @@ export class Select extends UIEXBoxContainer {
 
 	initRendering() {
 		this.values = {};
+		this.options = [];
 	}
 
 	renderInternal() {
@@ -108,6 +113,7 @@ export class Select extends UIEXBoxContainer {
 				value={this.getTitle()}
 				placeholder={statePlaceholder || placeholder}
 				disabled={disabled}
+				onEnter={this.handleEnterInput}
 				readOnly
 			/>
 		)
@@ -149,10 +155,66 @@ export class Select extends UIEXBoxContainer {
 		return count;
 	}
 
+	renderOption = (item) => {
+		const OptionComponent = this.getOptionComponent();
+		let value, title, icon, iconType, withTopDelimiter, withBottomDelimiter, single;
+		if (typeof item == 'string' || typeof item == 'number' || typeof item == 'boolean') {
+			value = item;
+			title = item.toString();
+		} else if (item instanceof Object) {
+			value = item.value;
+			title = item.title || item.children;
+			icon = item.icon;
+			iconType = item.iconType;
+			withTopDelimiter = item.withTopDelimiter;
+			withBottomDelimiter = item.withBottomDelimiter;
+			single = item.single;
+		}
+		if (isObject(value) && value.value) {
+			if (!title) {
+				title = value.title;
+			}
+			this.values[value.value] = title;
+		} else {
+			this.values[value] = title;
+		}
+		this.options.push(item);
+		if (this.filterOption(value)) {
+			return (
+				<OptionComponent 
+					key={value}
+					className="uiex-select-option"
+					value={value} 
+					icon={icon}
+					iconType={iconType}
+					withTopDelimiter={withTopDelimiter}
+					withBottomDelimiter={withBottomDelimiter}
+					single={single}
+				>
+					{title}
+				</OptionComponent>
+			)
+		}
+	}
+
+	renderChildOption = (child) => {
+		return this.renderOption(child.props);
+	}
+
 	renderOptions() {
 		const {focused, options} = this.state;
 		const OptionComponent = this.getOptionComponent();
-		const {value, name, empty, iconType, optionsShown, disabled, menuStyle, optionStyle} = this.props;
+		const {
+			value,
+			name,
+			empty,
+			iconType,
+			optionsShown,
+			disabled,
+			menuStyle,
+			optionStyle,
+			children
+		} = this.props;
 		let pending = false;
 		let items = [];
 		if (options && options instanceof Object) {
@@ -182,14 +244,13 @@ export class Select extends UIEXBoxContainer {
 				}
 			}
 		}
-		const reactChildren = this.renderChildren();
-		if (reactChildren) {
-			if (reactChildren instanceof Array) {
-				items = items.concat(reactChildren);
-			} else {
-				items.push(reactChildren);
-			}
+
+		if (children instanceof Array) {
+			items = items.concat(children.map(this.renderChildOption));
+		} else if (children) {
+			items.push(this.renderChildOption(children));
 		}
+
 		this.optionsTotalCount = items.length;
 		this.hasOptions = this.optionsTotalCount > 0;
 		if (!pending && this.hasEmptyOption()) {
@@ -211,7 +272,7 @@ export class Select extends UIEXBoxContainer {
 				optionStyle={optionStyle}
 				iconType={iconType}
 				multiple={this.isMultiple()}
-				value={value}
+				value={isObject(value) ? value.value : value}
 				isOpen={optionsShown || focused}
 				isInnerChild
 				disabled={disabled}
@@ -240,45 +301,15 @@ export class Select extends UIEXBoxContainer {
 		return PENDING_PLACEHOLDER;
 	}
 
-	renderOption = (item) => {
-		const OptionComponent = this.getOptionComponent();
-		let value, title, icon, iconType, withTopDelimiter, withBottomDelimiter, single;
-		if (typeof item == 'string' || typeof item == 'number') {
-			value = item;
-			title = item;
-		} else if (item instanceof Object) {
-			value = item.value;
-			title = item.title;
-			icon = item.icon;
-			iconType = item.iconType;
-			withTopDelimiter = item.withTopDelimiter;
-			withBottomDelimiter = item.withBottomDelimiter;
-			single = item.single;
-		}
-		this.values[value] = title;
-		if (this.filterOption(value)) {
-			return (
-				<OptionComponent 
-					key={value}
-					className="uiex-select-option"
-					value={value} 
-					icon={icon}
-					iconType={iconType}
-					withTopDelimiter={withTopDelimiter}
-					withBottomDelimiter={withBottomDelimiter}
-					single={single}
-				>
-					{title}
-				</OptionComponent>
-			)
-		}
-	}
-
 	handlePromiseResolve = (options) => {
 		if (!this.isUnmounted && this.pendingPromise == this.props.options) {
 			this.setState({options, placeholder: null});
 			this.fire('promiseResolve', options);
 		}
+	}
+
+	handleEnterInput = () => {
+		this.handleClick();
 	}
 
 	handlePromiseReject = (error) => {
@@ -289,7 +320,7 @@ export class Select extends UIEXBoxContainer {
 	}
 
 	handleClick(e) {
-		e.stopPropagation();
+		if (e) e.stopPropagation();
 		const {value, name, disabled, readOnly} = this.props;
 		if (readOnly) {
 			return;
@@ -329,7 +360,7 @@ export class Select extends UIEXBoxContainer {
 		if (!this.isMultiple()) {
 			this.hidePopup();
 		}
-		this.fireChange(value);
+		this.handleChange(value);
 	}
 
 	handleSelectByArrow(value) {
@@ -337,16 +368,32 @@ export class Select extends UIEXBoxContainer {
 		if (disabled || readOnly) {
 			return;
 		}
-		this.fireChange(value);
+		this.handleChange(value);
 		this.fire('select', value, name);
 	}
 
+	handleChange = (value) => {
+		const {optionAsValue} = this.props;
+		if (!isObject(value) && optionAsValue) {
+			if (!isObject(this.options[this.index])) {
+				return this.fireChange({
+					value,
+					title: this.values[value]
+				});
+			}
+			const optionValue = clone(this.options[this.index]);
+			return this.fireChange(optionValue);
+		}
+		this.fireChange(value);
+	}
+
 	handleSelectOption = (index, option) => {
+		this.index = index;
 		const {name, disabled, readOnly} = this.props;
 		if (disabled || readOnly) {
 			return;
 		}
-		this.fire('selectOption', index, option, name);
+		this.fire('selectOption', option, index, name);
 	}
 
 	fireChange(value) {

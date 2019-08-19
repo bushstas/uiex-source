@@ -35,14 +35,13 @@ export class Box extends UIEXComponent {
 	}
 
 	componentDidMount() {
-		const isOpen = this.getProp('isOpen');
-		this.animate(isOpen);
+		const isOpen = this.getProp('isOpen');		
 		this.changeStyles(isOpen);
 	}
 
 	componentDidUpdate(prevProps) {
 		const {isOpen, uncontrolled} = this.props;
-		if (!uncontrolled && isOpen !== prevProps.isOpen) {
+		if (!uncontrolled && Boolean(isOpen) != Boolean(prevProps.isOpen)) {
 			this.update();
 		}
 	}
@@ -124,10 +123,10 @@ export class Box extends UIEXComponent {
 
 	animate(isOpen) {
 		this.animating = true;
-		let {animation, onHide, noHideAnimation} = this.props;
+		let {animation, noHideAnimation} = this.props;
 		const callback = () => {
-			if (!isOpen && typeof onHide == 'function') {
-				onHide();
+			if (!isOpen) {
+				this.fire('hide');
 			}
 			this.animating = false;
 		};

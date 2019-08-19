@@ -39,6 +39,12 @@
 			cursor: default;
 		}
 	}
+	&.uiex-readonly {
+		input,
+		textarea {
+			user-select: none;
+		}
+	}
 	&.uiex-clearable {
 		.uiex-input-clear {
 			display: flex;

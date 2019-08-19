@@ -138,6 +138,18 @@ export const PROPTYPE = {
 		PropTypes.array,
 		PropTypes.object
 	]),
+	SELECT_VALUE: PropTypes.oneOfType([
+		PropTypes.string,
+		PropTypes.number,
+		PropTypes.bool,
+		PropTypes.shape({
+			value: PropTypes.oneOfType([
+				PropTypes.string,
+				PropTypes.number
+			])
+		}),
+		ARRAY_OF_STRNUMS
+	]),
 	GALLERY_BEHAVIORS: PropTypes.oneOf(GALLERY_BEHAVIORS),
 	BACKGROUND_REPEATS: PropTypes.oneOf(BACKGROUND_REPEATS),
 	BACKGROUND_SIZES: PropTypes.oneOf(BACKGROUND_SIZES),

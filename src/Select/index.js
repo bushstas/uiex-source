@@ -41,6 +41,7 @@ export class Select extends UIEXBoxContainer {
 	componentDidUpdate(prevProps) {
 		let {options} = this.props;
 		if (prevProps.options != options) {
+			this.cached = {};
 			if (isFunction(options)) {
 				options = options();
 			}
@@ -195,11 +196,13 @@ export class Select extends UIEXBoxContainer {
 			withBottomDelimiter = item.withBottomDelimiter;
 			single = item.single;
 		}
+		let properValue = value;
 		if (isObject(value) && value.value) {
+			properValue = value.value;
 			if (!title) {
 				title = value.title;
 			}
-			this.values[value.value] = title;
+			this.values[properValue] = title;
 		} else {
 			this.values[value] = title;
 		}
@@ -207,7 +210,7 @@ export class Select extends UIEXBoxContainer {
 		if (this.filterOption(value)) {
 			return (
 				<OptionComponent 
-					key={value}
+					key={properValue}
 					className="uiex-select-option"
 					value={value} 
 					icon={icon}
@@ -356,8 +359,6 @@ export class Select extends UIEXBoxContainer {
 			this.setState({focused});
 			if (focused) {				
 				this.fire('focus', value, name);
-			} else {
-				this.fire('blur', value, name);
 			}
 		} else {
 			this.fire('disabledClick', name);
@@ -409,6 +410,9 @@ export class Select extends UIEXBoxContainer {
 			}
 			const optionValue = this.getCachedOption(clone(this.options[this.index]));
 			return this.fireChange(optionValue);
+		} else if (isObject(value) && value.value !== undefined) {
+			const optionValue = this.getCachedOption(clone(value));
+			return this.fireChange(optionValue);
 		}
 		this.fireChange(value);
 	}
@@ -437,8 +441,11 @@ export class Select extends UIEXBoxContainer {
 
 	hidePopup = () => {
 		this.setState({focused: false});
-		const {value, name} = this.props;
-		this.fire('blur', value, name);
+		clearTimeout(this.timeout);
+		this.timeout = setTimeout(() => {
+			const {value, name} = this.props;
+			this.fire('blur', value, name);
+		}, 100);
 	}
 
 	hasEmptyOption() {

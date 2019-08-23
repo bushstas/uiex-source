@@ -192,10 +192,6 @@ export class UIEXComponent extends React.PureComponent {
 					}
 					props.parent = displayName;
 				}
-				// const isComponentChild = isFunction(child.type);
-				// if (!isComponentChild) {
-					
-				// }
 				const children = isProperChild && noskip ? child.props.children : this.doRenderChildren(child.props.children);
 				child = React.cloneElement(child, props, children);
 			}

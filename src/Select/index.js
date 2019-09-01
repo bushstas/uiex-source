@@ -3,7 +3,7 @@ import {UIEXBoxContainer} from '../UIEXComponent';
 import {Input} from '../Input';
 import {Icon} from '../Icon';
 import {PopupMenu, PopupMenuItem} from '../PopupMenu';
-import {isFunction, isNumber, isObject} from '../utils';
+import {isFunction, isNumber, isObject, isString, isArray} from '../utils';
 import {clone} from '../_utils/clone';
 import {SelectPropTypes} from './proptypes';
 
@@ -35,11 +35,13 @@ export class Select extends UIEXBoxContainer {
 		if (options instanceof Promise) {
 			this.state.placeholder = this.getPendingPlaceholder();
 		}
+		this.cached = {};
 	}
 
 	componentDidUpdate(prevProps) {
 		let {options} = this.props;
 		if (prevProps.options != options) {
+			this.cached = {};
 			if (isFunction(options)) {
 				options = options();
 			}
@@ -56,10 +58,30 @@ export class Select extends UIEXBoxContainer {
 		super.componentWillUnmount();
 	}
 
+	getCachedOption(option) {
+		const {value} = option;
+		if (isString(value) || isNumber(value)) {
+			if (this.cached[value] === undefined) {
+				delete option.single;
+				delete option.icon;
+				delete option.iconType;
+				delete option.withTopDelimiter;
+				delete option.withBottomDelimiter;
+				if (!option.title && option.children) {
+					option.title = option.children;
+				}
+				delete option.children;
+				this.cached[value] = option;
+			}
+			return this.cached[value];
+		}
+		return option;
+	}
+
 	getTitle() {
 		let {value} = this.props;
 		if (value != null && value !== '') {
-			if (value instanceof Array) {
+			if (isArray(value)) {
 				value = value[0];
 			}
 			if (isObject(value)) {
@@ -78,7 +100,7 @@ export class Select extends UIEXBoxContainer {
 		add('control');
 		add('select-focused', focused && !disabled);
 		add('without-options', !this.hasOptions);
-		add('multi-valued', this.isMultiple() && value instanceof Array && value.length > 1);
+		add('multi-valued', this.isMultiple() && isArray(value) && value.length > 1);
 	}
 
 	getCustomProps() {
@@ -131,7 +153,7 @@ export class Select extends UIEXBoxContainer {
 	}
 
 	renderQuantityLabel() {
-		if (this.isMultiple() && this.props.value instanceof Array && this.props.value.length > 1) {
+		if (this.isMultiple() && isArray(this.props.value) && this.props.value.length > 1) {
 			const selectedCount = this.getSelectedCount();
 			if (isNumber(selectedCount) && selectedCount - 1 > 0) {
 				const all = selectedCount === this.optionsTotalCount;
@@ -148,7 +170,11 @@ export class Select extends UIEXBoxContainer {
 		const {value} = this.props;
 		let count = 0;
 		for (let i = 0; i < value.length; i++) {
-			if (this.values[value[i]] !== undefined) {
+			let item = value[i];
+			if (isObject(item) && item.value) {
+				item = item.value;
+			}
+			if (this.values[item] !== undefined) {
 				count++;
 			}
 		}
@@ -170,11 +196,13 @@ export class Select extends UIEXBoxContainer {
 			withBottomDelimiter = item.withBottomDelimiter;
 			single = item.single;
 		}
+		let properValue = value;
 		if (isObject(value) && value.value) {
+			properValue = value.value;
 			if (!title) {
 				title = value.title;
 			}
-			this.values[value.value] = title;
+			this.values[properValue] = title;
 		} else {
 			this.values[value] = title;
 		}
@@ -182,7 +210,7 @@ export class Select extends UIEXBoxContainer {
 		if (this.filterOption(value)) {
 			return (
 				<OptionComponent 
-					key={value}
+					key={properValue}
 					className="uiex-select-option"
 					value={value} 
 					icon={icon}
@@ -228,7 +256,7 @@ export class Select extends UIEXBoxContainer {
 				const opt = this.renderOption({title: pendingPlaceholder, value: null});
 				items.push(opt);
 				pending = true;
-			} else if (options instanceof Array) {
+			} else if (isArray(options)) {
 				for (let i = 0; i < options.length; i++) {
 					const opt = this.renderOption(options[i]);
 					if (opt) {
@@ -245,7 +273,7 @@ export class Select extends UIEXBoxContainer {
 			}
 		}
 
-		if (children instanceof Array) {
+		if (isArray(children)) {
 			items = items.concat(children.map(this.renderChildOption));
 		} else if (children) {
 			items.push(this.renderChildOption(children));
@@ -331,8 +359,6 @@ export class Select extends UIEXBoxContainer {
 			this.setState({focused});
 			if (focused) {				
 				this.fire('focus', value, name);
-			} else {
-				this.fire('blur', value, name);
 			}
 		} else {
 			this.fire('disabledClick', name);
@@ -376,12 +402,16 @@ export class Select extends UIEXBoxContainer {
 		const {optionAsValue} = this.props;
 		if (!isObject(value) && optionAsValue) {
 			if (!isObject(this.options[this.index])) {
-				return this.fireChange({
+				const option = this.getCachedOption({
 					value,
 					title: this.values[value]
 				});
+				return this.fireChange(option);
 			}
-			const optionValue = clone(this.options[this.index]);
+			const optionValue = this.getCachedOption(clone(this.options[this.index]));
+			return this.fireChange(optionValue);
+		} else if (isObject(value) && value.value !== undefined) {
+			const optionValue = this.getCachedOption(clone(value));
 			return this.fireChange(optionValue);
 		}
 		this.fireChange(value);
@@ -397,7 +427,7 @@ export class Select extends UIEXBoxContainer {
 	}
 
 	fireChange(value) {
-		if (value instanceof Array && this.isMultiple()) {
+		if (isArray(value) && this.isMultiple()) {
 			const values = [];
 			for (let i = 0; i < value.length; i++) {
 				if (this.values[value[i]] !== undefined) {
@@ -411,8 +441,11 @@ export class Select extends UIEXBoxContainer {
 
 	hidePopup = () => {
 		this.setState({focused: false});
-		const {value, name} = this.props;
-		this.fire('blur', value, name);
+		clearTimeout(this.timeout);
+		this.timeout = setTimeout(() => {
+			const {value, name} = this.props;
+			this.fire('blur', value, name);
+		}, 100);
 	}
 
 	hasEmptyOption() {

@@ -5,7 +5,7 @@ import {PROPTYPE} from '../consts';
 export const SelectPropTypes = {
 	...BoxContainerPropTypes,
 	name: PropTypes.string,
-	value: PROPTYPE.STRNUMS,
+	value: PROPTYPE.SELECT_VALUE,
 	optionAsValue: PropTypes.bool,
 	options: PROPTYPE.OPTIONS,
 	placeholder: PropTypes.string,

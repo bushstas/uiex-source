@@ -84,7 +84,7 @@ const OPTION_SHAPE = PropTypes.shape({
 		PropTypes.number,
 		PropTypes.bool
 	]).isRequired,
-	title: PropTypes.string.isRequired,
+	title: PropTypes.string,
 	icon: PropTypes.string,
 	iconType: PropTypes.oneOf(ICON_TYPE),
 	single: PropTypes.bool,
@@ -138,6 +138,13 @@ export const PROPTYPE = {
 		PropTypes.array,
 		PropTypes.object
 	]),
+	SELECT_VALUE: PropTypes.oneOfType([
+		PropTypes.string,
+		PropTypes.number,
+		PropTypes.bool,
+		OPTION_SHAPE,
+		ARRAY_OF_STRNUMS
+	]),
 	GALLERY_BEHAVIORS: PropTypes.oneOf(GALLERY_BEHAVIORS),
 	BACKGROUND_REPEATS: PropTypes.oneOf(BACKGROUND_REPEATS),
 	BACKGROUND_SIZES: PropTypes.oneOf(BACKGROUND_SIZES),
@@ -175,6 +182,7 @@ export const PROPTYPE = {
 			])
 		)
 	]),
+	OPTION: OPTION_SHAPE,
 	FORM_BUTTON_DISPLAY: PropTypes.oneOf(FORM_BUTTON_DISPLAY),
 	SIDES: PropTypes.oneOf(SIDES),
 	PANEL_ANIMATION: PropTypes.oneOf(PANEL_ANIMATION),

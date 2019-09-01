@@ -29,6 +29,13 @@ export const getData = (name) => {
 	return undefined;
 }
 
+export const getChangedFields = (name) => {
+	if (isObject(registeredForms[name])) {
+		return registeredForms[name].changedFields;
+	}
+	return undefined;
+}
+
 const doChangeAction = (action, name, data, value = null) => {
 	if (isString(data)) {
 		data = {[data]: value};
@@ -144,7 +151,7 @@ export class Form extends UIEXComponent {
 			name: props.name,
 			valid: undefined
 		};
-		this.initialData = clone(props.initialData !== undefined ? props.initialData : props.data);
+		this.initialData = props.initialData !== undefined ? props.initialData : props.data;
 		if (props.name && isString(props.name)) {
 			registerForm(props.name, this);
 		}
@@ -155,7 +162,7 @@ export class Form extends UIEXComponent {
 
 	componentDidMount() {
 		const {name} = this.state;
-		notifySubscribers(name, this.initialData);
+		notifySubscribers(name, clone(this.initialData));
 	}
 
 	componentDidUpdate(prevProps) {
@@ -334,30 +341,34 @@ export class Form extends UIEXComponent {
 	initChangedFields(data) {
 		const {onDataChange} = this.props;
 		if (isFunction(onDataChange)) {
-			this.changedFields.sort();
 			const currentChanged = clone(this.changedFields);
-			const {initialData} = this;
-			this.changedFields = [];
-			this.registeredFields.forEach(name => {
-				let value = get(data, name);
-				let initialValue = get(initialData, name);
-
-				if (!value && value !== 0 && value !== false) {
-					value = '';
-				}
-				if (!initialValue && initialValue !== 0 && initialValue !== false) {
-					initialValue = '';
-				}
-				if (value !== initialValue) {
-					this.changedFields.push(name);
-				}
-			});
-			this.changedFields.sort();
+			this.findChanges(data, currentChanged);
 			if (currentChanged.toString() !== this.changedFields.toString()) {
 				const changed = this.changedFields.length > 0;
 				this.fire('dataChange', changed, this.changedFields);
 			}
 		}
+	}
+
+	findChanges(data, currentChanged) {
+		this.changedFields.sort();		
+		const {initialData} = this;
+		this.changedFields = [];
+		this.registeredFields.forEach(name => {
+			let value = get(data, name);
+			let initialValue = get(initialData, name);
+
+			if (!value && value !== 0 && value !== false) {
+				value = '';
+			}
+			if (!initialValue && initialValue !== 0 && initialValue !== false) {
+				initialValue = '';
+			}
+			if (value !== initialValue) {
+				this.changedFields.push(name);
+			}
+		});
+		this.changedFields.sort();
 	}
 
 	fireChange = (data, fieldName, value) => {
@@ -367,6 +378,11 @@ export class Form extends UIEXComponent {
 	}
 
 	isChanged = () => {
+		const {onDataChange} = this.props;
+		if (!isFunction(onDataChange)) {
+			const currentChanged = clone(this.changedFields);
+			this.findChanges(this.getProp('data'), currentChanged);
+		}
 		return this.changedFields.length > 0;
 	}
 
@@ -375,7 +391,7 @@ export class Form extends UIEXComponent {
 		this.fireChange(data);
 		const {initialData} = this;
 		this.initialData = {
-			...initialData,
+			...clone(initialData),
 			...newData
 		};
 	}

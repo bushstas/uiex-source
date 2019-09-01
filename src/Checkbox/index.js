@@ -212,7 +212,7 @@ export class Checkbox extends UIEXComponent {
 		} else {
 			const checked = !this.checked;
 			if (this.hasChildGroup) {
-				this.fire('change', checked, this.allValues);
+				this.fire('change', checked, name, this.allValues);
 			} else {
 				this.fire('change', checked, name);
 			}

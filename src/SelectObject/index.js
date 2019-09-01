@@ -196,18 +196,20 @@ export class SelectObject extends UIEXComponent {
 		this.setState({focused: false});
 	}
 
-	getItemClickHandler = (key = -1, data = null) => {
+	getItemClickHandler = (key = -1) => {
 		if (!this.cachedClickHandlers[key]) {
-			this.cachedClickHandlers[key] = this.handleItemClick.bind(this, data);
+			this.cachedClickHandlers[key] = this.handleItemClick.bind(this, key);
 		}
 		return this.cachedClickHandlers[key];
 	}
 
-	handleItemClick(data) {
-		if (isObject(data) && data.jsonPreviewInfo && data.value) {
-			data = data.value;
+	handleItemClick(index) {
+		const {options} = this.props;
+		let option = options[index];
+		if (isObject(option) && option.jsonPreviewInfo && option.value) {
+			option = option.value;
 		}
-		this.fire('change', data, this.props.name);
+		this.fire('change', option, this.props.name);
 		this.setState({focused: false});
 	}
 

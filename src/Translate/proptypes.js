@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
 
-export const TranslateCutPropTypes = {
+export const TranslatePropTypes = {
 	lang: PropTypes.string
 }

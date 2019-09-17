@@ -1,6 +1,7 @@
 import React from 'react';
 import {isArray, isFunction, isString, isObject, isNumber} from '../utils';
 import {clone} from '../_utils/clone';
+import {get} from '../_utils/get';
 import {subscribe as subscribeToForm, unsubscribe as unsubscribeFromForm} from '../Form';
 import {DataProviderPropTypes} from './proptypes';
 
@@ -213,21 +214,55 @@ export class DataProvider extends React.PureComponent {
 		}
 	}
 
+	getFromStore = (selector, empty = undefined) => {
+		const {stores} = this.state;
+		const value = get(stores, selector);
+		const {getEmpty} = this.props;
+		if ((value === undefined || value === null || value === '') && isFunction(getEmpty)) {
+			return getEmpty(value);
+		}
+		return value || empty;
+	}
+
+	getFromForm = (selector, empty = undefined) => {
+		const {forms} = this.state;
+		const value = get(forms, selector);
+		if ((value === undefined || value === null || value === '') && isFunction(getEmpty)) {
+			return getEmpty(value);
+		}
+		return value || empty;
+	}
+
 	render() {
 		const {
 			formName,
 			storeName,
+			flatten,
+			getEmpty,
 			component: Component,
 			...restProps
 		} = this.props;
 
 		const {forms, stores} = this.state;
 		if (isFunction(Component)) {
+			if (flatten) {
+				return (
+					<Component
+						{...restProps}
+						{...forms}
+						{...stores}
+						getFromStore={this.getFromStore}
+						getFromForm={this.getFromForm}
+					/>
+				);
+			}
 			return (
 				<Component
 					{...restProps}
 					forms={formName ? forms : undefined}
 					stores={storeName ? stores : undefined}
+					getFromStore={this.getFromStore}
+					getFromForm={this.getFromForm}
 				/>
 			);
 		}

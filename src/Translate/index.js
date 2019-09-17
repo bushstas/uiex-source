@@ -1,6 +1,6 @@
 import React from 'react';
 import {isString, isObject} from '../utils';
-import {TranslateCutPropTypes} from './proptypes';
+import {TranslatePropTypes} from './proptypes';
 
 let lang = 'eng';
 let dictionaries = {};
@@ -45,9 +45,13 @@ export const translate = (word, trLang) => {
 	if (!trLang || !isString(trLang)) {
 		trLang = lang;
 	}
-	return isObject(dictionaries[trLang]) ? dictionaries[trLang][word] : word;
+	return isObject(dictionaries[trLang]) ? (dictionaries[trLang][word] || word) : word;
 };
 
-export const Translate = (props) => (
-	translate(props.children)
-);
+export class Translate extends React.PureComponent {
+	static propTypes = TranslatePropTypes;
+
+	render() {
+		return translate(this.props.children);
+	}
+}

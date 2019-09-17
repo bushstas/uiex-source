@@ -4,5 +4,7 @@ import {PROPTYPE} from '../consts';
 export const DataProviderPropTypes = {
 	formName: PROPTYPE.STRINGS,
 	storeName: PROPTYPE.STRINGS,
-	component: PropTypes.func.isRequired
+	component: PropTypes.func.isRequired,
+	getEmpty: PropTypes.func,
+	flatten: PropTypes.bool
 }

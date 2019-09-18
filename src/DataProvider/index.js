@@ -119,6 +119,10 @@ export const loadStore = (name, saveName) => {
 	}
 };
 
+export const getStore = () => {
+	return stores;
+};
+
 const subscribeToStore = (name, component, propName) => {
 	if (stores[name] === undefined) {
 		createStore(name);

@@ -133,6 +133,24 @@ export const PROPTYPE = {
 			PropTypes.string
 		)
 	]),
+	BOOLS: PropTypes.oneOfType([
+		PropTypes.bool,
+		PropTypes.arrayOf(
+			PropTypes.bool
+		)
+	]),
+	OBJECTS: PropTypes.oneOfType([
+		PropTypes.object,
+		PropTypes.arrayOf(
+			PropTypes.object
+		)
+	]),
+	FUNCS: PropTypes.oneOfType([
+		PropTypes.func,
+		PropTypes.arrayOf(
+			PropTypes.func
+		)
+	]),
 	STRARR: ARRAY_OF_STRNUMS,
 	ARROBJ: PropTypes.oneOfType([
 		PropTypes.array,

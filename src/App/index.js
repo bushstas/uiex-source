@@ -240,35 +240,9 @@ export class App extends UIEXComponent {
 	constructor(props) {
 		super(props);
 		appCount++;
-		this.partsToLoad = 0;
-		this.partsLoaded = 0;
-		const {loadDictionaryUrl} = props;
-		if (loadDictionaryUrl && isString(loadDictionaryUrl)) {
-			this.partsToLoad++;
-		}
-		this.state = {
-			loaded: this.partsToLoad === 0
-		};
 	}
 
 	componentDidMount() {
-		const {loadDictionaryUrl} = this.props;
-		if (loadDictionaryUrl && isString(loadDictionaryUrl)) {
-			fetch(loadDictionaryUrl).then((response) => {
-				response.json().then((data) => {
-					if (isObject(data)) {
-						addTranslations(data);
-						this.checkLoadStatus();
-					}
-				}, () => {
-					this.checkLoadStatus();
-				});
-				
-			}, (err) => {
-				console.log(err)
-				this.checkLoadStatus();
-			});
-		}
 		if (appCount > 1) {
 			console.error('You can\'t have more then one App components mounted');
 		} else {
@@ -288,13 +262,6 @@ export class App extends UIEXComponent {
 	componentWillUnmount() {
 		window.removeEventListener('popstate', this.handleLocationChange, false);
 		appCount--;
-	}
-
-	checkLoadStatus() {
-		this.partsLoaded++;
-		if (this.partsLoaded === this.partsToLoad) {
-			this.setState({loaded: true});
-		}
 	}
 
 	initRendering() {
@@ -357,15 +324,11 @@ export class App extends UIEXComponent {
 
 	renderInternal() {
 		const content = this.renderChildren();
-		const {loaded} = this.state;
 		const {sideMenu, sideMenuWidth} = this.props;
 		const TagName = this.getTagName();
 		let style;
 		if (sideMenu) {
 			style = {paddingLeft: getNumber(sideMenuWidth, DEFAULT_SIDE_MENU_WIDTH)};
-		}
-		if (!loaded) {
-			return 'Loading...';
 		}
 		return (
 			<TagName {...this.getProps()}>

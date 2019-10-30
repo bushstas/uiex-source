@@ -1,8 +1,9 @@
 import React from 'react';
-import {isNumber, isFunction, isString} from '../utils';
+import {isNumber, isFunction, isString, isArray} from '../utils';
 import {Cell} from '../CellGroup';
 import {Hint} from '../Hint';
 import {FormControlPropTypes} from './proptypes';
+import {arrayLikeControls} from '../Form';
 
 import '../style.scss';
 import './style.scss';
@@ -28,7 +29,7 @@ export class FormControl extends Cell {
 	componentDidMount() {
 		const {arrayIndex, registerControl} = this.props;
 		if (isFunction(registerControl)) {
-			registerControl(this.name, arrayIndex);
+			registerControl(this.name, this.type, arrayIndex);
 		}
 	}
 
@@ -46,9 +47,10 @@ export class FormControl extends Cell {
 		} = this.props;
 		const {value, name, onChange, minLength} = child.props;
 		if (this.name && this.name !== name && isFunction(unregisterControl)) {
-			unregisterControl(this.name, arrayIndex);
+			unregisterControl(this.name, this.type, arrayIndex);
 		}
 		this.name = name;
+		this.type = child.type;
 		this.minLength = minLength;
 		const valueFromData = isFunction(valueGetter) ? valueGetter(name, arrayIndex) : undefined;
 		props.value = valueFromData === undefined ? value : valueFromData;
@@ -160,8 +162,19 @@ export class FormControl extends Cell {
 		this.fire('change', name, value, arrayIndex);
 		if (isFunction(initialValueGetter)) {
 			let initialValue = initialValueGetter(name, arrayIndex);
-			initialValue = initialValue === null || initialValue === undefined ? '' : initialValue;
-			this.fire('dataChange', name, initialValue !== value, arrayIndex);
+			if (
+				isFunction(this.type) && arrayLikeControls.includes(this.type.name) &&
+				isArray(value) && isArray(initialValue)
+			) {
+				const v = [...value];
+				const iv = [...initialValue];
+				v.sort();
+				iv.sort();
+				this.fire('dataChange', name, iv.join() !== v.join(), arrayIndex);
+			} else {
+				initialValue = initialValue === null || initialValue === undefined ? '' : initialValue;
+				this.fire('dataChange', name, initialValue !== value, arrayIndex);
+			}			
 		}
 	}
 
@@ -192,6 +205,10 @@ export class FormControl extends Cell {
 	}
 
 	handleUnmount = () => {
+		const {unregisterControl, arrayIndex} = this.props;
+		if (isFunction(unregisterControl)) {
+			unregisterControl(this.name, this.type, arrayIndex);
+		}
 		if (this.state.valid === false) {
 			this.fire('changeValidity', this.name, true);
 		}

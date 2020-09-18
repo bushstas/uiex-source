@@ -321,14 +321,21 @@ export class App extends UIEXComponent {
 		return false;
 	}
 
+	addChildProps(child, props) {
+		const {params} = this.state;
+		props.params = params;
+	}
+
 
 	renderInternal() {
 		const content = this.renderChildren();
-		const {sideMenu, sideMenuWidth} = this.props;
+		const {sideMenu, sideMenuWidth, sideMenuAtRight} = this.props;
 		const TagName = this.getTagName();
 		let style;
 		if (sideMenu) {
-			style = {paddingLeft: getNumber(sideMenuWidth, DEFAULT_SIDE_MENU_WIDTH)};
+			style = {
+				[sideMenuAtRight ? 'paddingRight' : 'paddingLeft']: getNumber(sideMenuWidth, DEFAULT_SIDE_MENU_WIDTH)
+			};
 		}
 		return (
 			<TagName {...this.getProps()}>
@@ -345,8 +352,8 @@ export class App extends UIEXComponent {
 
 	handleChangePage({page, params}) {
 		if (this.state.page !== page) {
-			this.setState({page: null}, () => {
-				this.setState({page}, () => {
+			this.setState({page: null, params: {}}, () => {
+				this.setState({page, params}, () => {
 					this.fire('changePage', page, params);
 					highlightLink(page, this);
 				});

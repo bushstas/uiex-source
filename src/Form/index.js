@@ -135,8 +135,6 @@ const notifySubscribers = (name, data) => {
 	}
 }
 
-export const arrayLikeControls = ['Checkbox', 'CheckboxGroup'];
-
 export class Form extends UIEXComponent {
 	static propTypes = FormPropTypes;
 	static properChildren = ['FormSection', 'FormControl', 'FormControlGroup', 'FormButtons'];
@@ -160,7 +158,6 @@ export class Form extends UIEXComponent {
 		this.changedFields = [];
 		this.invalidFields = [];
 		this.registeredFields = [];
-		this.checkboxes = new Map();
 	}
 
 	componentDidMount() {
@@ -178,22 +175,9 @@ export class Form extends UIEXComponent {
 		unregisterForm(this.state.name);
 	}
 
-	registerControl = (name, type) => {
-		if (isFunction(type) && arrayLikeControls.includes(type.name)) {
-			this.checkboxes.set(name, true);
-		}
+	registerControl = (name) => {
 		if (this.registeredFields.indexOf(name) === -1) {
 			this.registeredFields.push(name);
-		}
-	}
-
-	unregisterControl = (name, type) => {
-		if (isFunction(type) && arrayLikeControls.includes(type.name)) {
-			this.checkboxes.delete(name);
-		}
-		const index = this.registeredFields.indexOf(name);
-		if (index > -1) {
-			this.registeredFields.splice(index, 1);
 		}
 	}
 
@@ -235,7 +219,6 @@ export class Form extends UIEXComponent {
 		props.errorBgColor = this.props.errorBgColor;
 		props.errorTextColor = this.props.errorTextColor;
 		props.registerControl = this.registerControl;
-		props.unregisterControl = this.unregisterControl;
 		if (typeof child.props.onChange != 'function') {
 			props.onChange = this.handleChange;
 		}
@@ -374,24 +357,15 @@ export class Form extends UIEXComponent {
 		this.registeredFields.forEach(name => {
 			let value = get(data, name);
 			let initialValue = get(initialData, name);
-			if (this.checkboxes.has(name) && isArray(value) && isArray(initialValue)) {
-				const v = [...value];
-				const iv = [...initialValue];
-				v.sort();
-				iv.sort();
-				if (v.join() !== iv.join()) {
-					this.changedFields.push(name);
-				}
-			} else {
-				if (!value && value !== 0 && value !== false) {
-					value = '';
-				}
-				if (!initialValue && initialValue !== 0 && initialValue !== false) {
-					initialValue = '';
-				}
-				if (value !== initialValue) {
-					this.changedFields.push(name);
-				}
+
+			if (!value && value !== 0 && value !== false) {
+				value = '';
+			}
+			if (!initialValue && initialValue !== 0 && initialValue !== false) {
+				initialValue = '';
+			}
+			if (value !== initialValue) {
+				this.changedFields.push(name);
 			}
 		});
 		this.changedFields.sort();

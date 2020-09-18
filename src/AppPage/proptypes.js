@@ -9,6 +9,6 @@ export const AppPagePropTypes = {
 	params: PropTypes.object,
 	indexPage: PropTypes.bool,
 	notFoundPage: PropTypes.bool,
-	content: PROPTYPE.REACT_NODES,
-	component: PropTypes.func
+	component: PropTypes.func.isRequired,
+	exactPath: PropTypes.bool
 }

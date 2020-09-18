@@ -13,23 +13,11 @@ export class FormSection extends UIEXComponent {
 	static properParentClasses = ['Form', 'FormSection'];
 	static displayName = 'FormSection';
 
-	registerControl = (name, type, arrayIndex) => {
+	registerControl = (name, arrayIndex) => {
 		const {registerControl} = this.props;
 		if (isFunction(registerControl)) {
 			registerControl(
-				`${this.props.name}${isNumber(arrayIndex) ? `[${arrayIndex}]` : ''}.${name}`,
-				type,
-				this.props.arrayIndex
-			);
-		}
-	}
-
-	unregisterControl = (name, type, arrayIndex) => {
-		const {unregisterControl} = this.props;
-		if (isFunction(unregisterControl)) {
-			unregisterControl(
-				`${this.props.name}${isNumber(arrayIndex) ? `[${arrayIndex}]` : ''}.${name}`,
-				type,
+				`${this.props.name}${isNumber(arrayIndex) ? `[${arrayIndex}]` : ''}.${name}`, 
 				this.props.arrayIndex
 			);
 		}
@@ -74,7 +62,6 @@ export class FormSection extends UIEXComponent {
 		props.errorBgColor = this.props.errorBgColor;
 		props.errorTextColor = this.props.errorTextColor;
 		props.registerControl = this.registerControl;
-		props.unregisterControl = this.unregisterControl;
 		if (typeof child.props.onChange != 'function') {
 			props.onChange = this.handleChange;
 		}

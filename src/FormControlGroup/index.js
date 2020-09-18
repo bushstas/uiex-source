@@ -22,7 +22,6 @@ export class FormControlGroup extends CellGroup {
 		super.addChildProps(child, props, idx);
 		const {onChange, className} = child.props;
 		props.registerControl = this.props.registerControl;
-		props.unregisterControl = this.props.unregisterControl;
 		props.valueGetter = this.props.valueGetter;
 		props.initialValueGetter = this.props.initialValueGetter;
 		props.className = addToClassName(className, props.className);

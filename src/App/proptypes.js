@@ -11,5 +11,8 @@ export const AppPropTypes = {
 	pageNotFoundView: PROPTYPE.REACT_NODES,
 	criticalErrorView: PROPTYPE.REACT_NODES,
 	indexPageName: PropTypes.string,
+	sideMenu: PROPTYPE.REACT_NODES,
+	sideMenuWidth: PROPTYPE.STRNUM,
+	sideMenuAtRight: PropTypes.bool,
 	onChangePage: PropTypes.func
 }

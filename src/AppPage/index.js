@@ -12,10 +12,11 @@ export class AppPage extends UIEXComponent {
 	static displayName = 'AppPage';
 
 	renderInternal() {
-		let {content, component: Component} = this.props;
+		let {component: Component, params} = this.props;
 		const TagName = this.getTagName();
-		if (!content && isFunction(Component)) {
-			content = <Component />;
+		let content = null;
+		if (isFunction(Component)) {
+			content = <Component params={params} />;
 		}
 		return (
 			<TagName {...this.getProps()}>

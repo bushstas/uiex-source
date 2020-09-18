@@ -4,5 +4,6 @@ import {PROPTYPE} from '../consts';
 
 export const SideMenuPropTypes = {
 	...UIEXComponentPropTypes,
-	atRight: PropTypes.bool
+	atRight: PropTypes.bool,
+	scrollable: PropTypes.bool
 }

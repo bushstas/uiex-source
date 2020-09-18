@@ -1,7 +1,19 @@
 .uiex-side-menu {
     width: 200px;
-    position: fixed;
+    position: absolute;
     left: 0;
-    top: 0;
-    bottom: 0;
+	top: 0;
+
+    .uiex-scroll-container {
+    	height: 100% !important;
+    }
+
+    &.uiex-scrollable {
+	    position: fixed;
+	    bottom: 0;
+    }
+    &.uiex-at-right {
+    	right: 0;
+    	left: auto;
+    }
 }

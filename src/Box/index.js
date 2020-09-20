@@ -8,6 +8,7 @@ import '../style.scss';
 import './style.scss';
 
 const DEFAULT_SPEED = 'normal';
+const BOTTOM_PADDING_STYLE = {width: '1px', height: '15px'};
 
 export class Box extends UIEXComponent {
 	static propTypes = BoxPropTypes;
@@ -249,7 +250,8 @@ export class Box extends UIEXComponent {
 		return (
 			<div {...this.getProps()} ref="outer">
 				<div className="uiex-box-inner" ref="inner">
-					{this.props.children}	
+					{this.props.children}
+					<div style={BOTTOM_PADDING_STYLE} />
 				</div>
 			</div>
 		)

@@ -80,15 +80,17 @@ class LocationController {
 		} else {
 			page = this.findPageByPath(path);
 		}
-		if (isString(page.page)) {
-			return page;
-		}
-		if (isNumber(page.page)) {
-			const pageName = this.app.names[page.page];
-			if (isString(pageName)) {
-				page.page = pageName;
+		if (isObject(page)) {
+			if (isString(page.page)) {
+				return page;
 			}
-			return page;
+			if (isNumber(page.page)) {
+				const pageName = this.app.names[page.page];
+				if (isString(pageName)) {
+					page.page = pageName;
+				}
+				return page;
+			}
 		}
 		return this.getNotFoundPage(path, params);
 	}
@@ -236,6 +238,7 @@ export class App extends UIEXComponent {
 	static propTypes = AppPropTypes;
 	static displayName = 'App';
 	static properChildren = 'AppPage';
+	// static onlyProperChildren = true;
 
 	constructor(props) {
 		super(props);
@@ -258,7 +261,7 @@ export class App extends UIEXComponent {
 			}
 		}
 	}
-
+	
 	componentWillUnmount() {
 		window.removeEventListener('popstate', this.handleLocationChange, false);
 		appCount--;

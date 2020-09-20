@@ -133,6 +133,12 @@ export const PROPTYPE = {
 			PropTypes.string
 		)
 	]),
+	NUMS: PropTypes.oneOfType([
+		PropTypes.number,
+		PropTypes.arrayOf(
+			PropTypes.number
+		)
+	]),
 	BOOLS: PropTypes.oneOfType([
 		PropTypes.bool,
 		PropTypes.arrayOf(

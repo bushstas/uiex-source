@@ -56,14 +56,14 @@ export class BoxSection extends UIEXComponent {
 
 	handleClick = () => {
 		const isOpen = !this.getProp('isOpen');
-		const {disabled, uncontrolled} = this.props;
+		const {disabled, uncontrolled, name} = this.props;
 		if (!disabled) {
 			if (uncontrolled) {
 				this.setState({isOpen});
 			}
-			this.fire('toggle', isOpen);
+			this.fire('toggle', isOpen, name);
 		} else {
-			this.fire('disabledClick');
+			this.fire('disabledClick', name);
 		}
 	}
 }

@@ -25,6 +25,6 @@ export const ScrollContainerPropTypes = {
 	transparentTrack: PropTypes.bool,
 	transitionEffect: PROPTYPE.ANIM_EFFECTS,
 	indicateScrollTop: PropTypes.bool,
-	onWheel: PropTypes.func.isRequired,
+	onWheel: PropTypes.func,
 	onDisabledWheel: PropTypes.func
 }

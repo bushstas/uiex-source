@@ -3,14 +3,9 @@ import ReactDOM from 'react-dom';
 import {registerContext, unregisterContext} from './state-master';
 import {UIEXAnimatedPropTypes} from './UIEXComponentPropTypes';
 import {
-	showImproperChildError,
-	showProperChildMaxCountError,
-	showForbiddenChildError,
-	showImproperParentError,
 	getComponentClassName,
 	addStyleProperty,
 	mergeObjects,
-	mapChildren,
 	propsChanged,
 	cacheProps,
 	popupQueue,
@@ -27,6 +22,12 @@ import {
 	isArray,
 	isFunction
 } from './utils';
+import {
+	showImproperChildError,
+	showProperChildMaxCountError,
+	showForbiddenChildError,
+	showImproperParentError,
+} from './error';
 import {FORM_BUTTON_DISPLAY, POPUP_ROLES} from './consts';
 
 export class UIEXComponent extends React.PureComponent {
@@ -34,9 +35,15 @@ export class UIEXComponent extends React.PureComponent {
 		super(props);
 		this.state = {};
 		registerContext(this);
+
 		if (!this.isInProperParent()) {
-			showImproperParentError(this, this.constructor.properParentClasses);
+			this.improperParentError = showImproperParentError(this, this.constructor.properParentClasses);
 		}
+	}
+
+	componentWillUnmount() {
+		unregisterContext(this);
+		this.isUnmounted = true;
 	}
 	
 	getStyle(name) {
@@ -107,11 +114,6 @@ export class UIEXComponent extends React.PureComponent {
 		return this.cachedMainStyle;
 	}
 
-	componentWillUnmount() {
-		unregisterContext(this);
-		this.isUnmounted = true;
-	}
-
 	renderChildren() {
 		const {properChildren, properChildrenSign} = this.constructor;
 		if (!properChildren && !properChildrenSign) {
@@ -127,7 +129,7 @@ export class UIEXComponent extends React.PureComponent {
 	doRenderChildren(children) {
 		if (children) {
 			if (children instanceof Array) {
-				return mapChildren(children, this.renderChild);
+				return children.map(this.renderChild);
 			}
 			return this.renderChild(children);
 		}
@@ -138,28 +140,29 @@ export class UIEXComponent extends React.PureComponent {
 		if (child) {
 			if (child instanceof Array) {
 				return this.doRenderChildren(child);
-			}
-			const {displayName, skipProperChildren} = this.constructor;
-			const isValidElement = React.isValidElement(child);
-			const isProperChild = this.isProperChild(child.type);
-			if (!isProperChild) {
-				if (this.canHaveOnlyProperChildren()) {
-					showImproperChildError(child, this);
-					return null;
-				}
-				if (this.isForbiddenChild(child)) {
-					showForbiddenChildError(child, this);
-					return null;
-				}
-			}
-			if (isValidElement) {
+			}			
+			if (React.isValidElement(child)) {
+				const isProperChild = this.isProperChild(child.type);
+				if (!isProperChild) {
+					if (this.canHaveOnlyProperChildren()) {
+						return showImproperChildError(child, this);
+					}
+					if (this.isForbiddenChild(child)) {
+						return showForbiddenChildError(child, this);
+					}
+					if (typeof child.type == 'function' && child.type.properChildren) {
+						return child;
+					}
+					if (!child.props.children || isString(child.props.children) || isNumber(child.props.children)) {
+						return child;
+					}
+				}				
 				if (child.props.skipped) {
 					return null;
 				}
 				const props = {
 					key: child.key || idx
 				};
-				let noskip;
 				if (isProperChild) {
 					this.currentProperChildIdx++;
 					if (!this.filterChild(child, idx)) {
@@ -167,10 +170,11 @@ export class UIEXComponent extends React.PureComponent {
 					}
 					const maxCount = this.getProperChildMaxCount();
 					if (maxCount && maxCount == this.properChildrenCount) {
-						showProperChildMaxCountError(child, this);
-						return null;
+						return showProperChildMaxCountError(child, this);
 					}
 					this.properChildrenCount++;
+					
+					const isLast = isArray(arr) && idx == arr.length - 1;
 					const {
 						disabled,
 						vertical,
@@ -182,20 +186,13 @@ export class UIEXComponent extends React.PureComponent {
 					if (vertical) {
 						props.block = true;
 					}
-					let isLast = false;
-					if (arr instanceof Array) {
-						isLast = idx == arr.length - 1;
-					}
-					noskip = !isArray(skipProperChildren) || skipProperChildren.indexOf(child.type.name) === -1;
-					if (noskip) {
-						this.addChildProps(child, props, this.currentProperChildIdx, isLast);
-					}
-					props.parent = displayName;
+					this.addChildProps(child, props, this.currentProperChildIdx, isLast);
+					props.parent = this.constructor.displayName;
+					return React.cloneElement(child, props);
 				}
-				const children = isProperChild && noskip ? child.props.children : this.doRenderChildren(child.props.children);
-				child = React.cloneElement(child, props, children);
+				return React.cloneElement(child, props, this.doRenderChildren(child.props.children));
 			}
-			return child;
+			return isObject(child) ? JSON.stringify(child) : child;
 		}
 		return null;
 	}
@@ -227,8 +224,8 @@ export class UIEXComponent extends React.PureComponent {
 	}
 
 	render() {
-		if (!this.isInProperParent()) {
-			return null;
+		if (this.improperParentError) {
+			return this.improperParentError;
 		}
 		if (this.props.skipped) {
 			return null;
@@ -448,10 +445,10 @@ export class UIEXComponent extends React.PureComponent {
 	
 	fire(eventName, ...args) {
 		const eventPropName = 'on' + ucfirst(eventName);
-		const hasHandler = typeof this.props[eventPropName] == 'function';
+		const hasHandler = isFunction(this.props[eventPropName]);
 		if (hasHandler) {
 			const {sourceObject} = this.props;
-			if (sourceObject instanceof Object) {
+			if (isObject(sourceObject)) {
 				args.push(sourceObject);
 			}
 			this.props[eventPropName].apply(this, args);
@@ -497,11 +494,11 @@ export class UIEXComponent extends React.PureComponent {
 		return false;
 	}
 
-	getElementStyle(name, value, gettter) {
+	getElementStyle(name, value, getter) {
 		this.cachedElementStyles = this.cachedElementStyles || {};
 		const key = `${name}_${value}`;
 		if (!this.cachedElementStyles[key]) {
-			this.cachedElementStyles[key] = gettter(value);
+			this.cachedElementStyles[key] = getter(value);
 		}
 		return this.cachedElementStyles[key];
 	}

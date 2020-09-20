@@ -118,22 +118,6 @@ export const getStyleObjectFromString = (str) => {
 	return style;
 }
 
-export const mapChildren = (children, renderChild) => {
-	const ch = [];
-	for (let i = 0; i < children.length; i++) {
-		const child = renderChild(children[i], i, children);
-		if (isArray(child)) {
-			let child2 = mapChildren(child, renderChild);
-			if (child2) {
-				ch.push(child2);	
-			}
-		} else if (child) {
-			ch.push(child);	
-		}
-	}
-	return ch.length == 0 ? null : ch;
-}
-
 export const getMergedClassName = (...classNames) => {
 	let className;
 	for (let i = 0; i < classNames.length; i++) {
@@ -265,38 +249,6 @@ const getChildTypeAndName = (child) => {
 		}			
 	}
 	return {type, name};
-}
-
-export const showImproperChildError = (child, parent) => {
-	const {type, name} = getChildTypeAndName(child);
- 	let expectedChildren = parent.getExpectedChildren();
-	const expected = typeof expectedChildren == 'string' ? 'The only expected child' : 'Expected children';
-	if (isArray(expectedChildren)) {
-		expectedChildren = expectedChildren.join(', ');
-	}
-	console.error('Improper ' + type + ' child "' + name + '" in ' + parent.constructor.name + '. ' + expected + ': ' + expectedChildren);
-}
-
-export const showForbiddenChildError = (child, parent) => {
-	const {type, name} = getChildTypeAndName(child);
-	console.error('Not allowed ' + type + ' child "' + name + '" in ' + parent.constructor.name + '.');
-}
-
-export const showImproperParentError = (child, expectedParents) => {
-	const name = child.constructor.name;
-	if (isArray(expectedParents)) {
-		expectedParents = expectedParents.join(', ');
-	}
-	console.error('Component ' + name + ' has no a proper parent. Expected parents: ' + expectedParents);
-}
-
-export const showProperChildMaxCountError  = (child, parent) => {
-	let expectedChildren = parent.getExpectedChildren();
-	if (isArray(expectedChildren)) {
-		expectedChildren = expectedChildren.join(', ');
-	}
-	const maxCount = parent.getProperChildMaxCount();
-	console.error('Component ' + parent.constructor.name + ' can have only ' + maxCount + ' child of type ' + expectedChildren);
 }
 
 export const getClassNameBuilder = (cn = '', cn2 = '') => {

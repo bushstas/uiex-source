@@ -1,5 +1,5 @@
 import React from 'react';
-import {isFunction} from '../utils';
+import {isFunction, isString, isArray, isObject} from '../utils';
 import {request} from '../_utils/request';
 import {AsyncLoaderPropTypes} from './proptypes';
 
@@ -55,7 +55,8 @@ export class AsyncLoader extends React.PureComponent {
 		setTimeout(() => {
 			this.setState({
 				loaded: true,
-				success: true
+				success: true,
+				data
 			});
 		}, 10);
 	}
@@ -87,10 +88,13 @@ export class AsyncLoader extends React.PureComponent {
 	}
 
 	render() {
-		const {renderError, renderLoader} = this.props;
-		const {success, error, failure, loaded} = this.state;
+		const {renderError, renderLoader, passDataAs, children} = this.props;
+		const {success, error, failure, loaded, data} = this.state;
 		if (success) {
-			return this.props.children;
+			if (passDataAs && isString(passDataAs) && !isArray(children) && isObject(children) && isFunction(children.type)) {
+				return React.cloneElement(children, {[passDataAs]: data});
+			}
+			return children;
 		}
 		if ((error || failure) && isFunction(renderError)) {
 			return renderError(error || failure);

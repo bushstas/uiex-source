@@ -11,6 +11,7 @@ export const AsyncLoaderPropTypes = {
 	successFlagName: PROPTYPE.STRINGS,
 	textResponse: PROPTYPE.BOOLS,
 	addToStoreAs: PROPTYPE.STRINGS,
+	passDataAs: PROPTYPE.STRINGS,
 	getData: PROPTYPE.FUNCS,
 	getParams: PROPTYPE.FUNCS,
 	renderError: PropTypes.func,

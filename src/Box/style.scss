@@ -1,12 +1,8 @@
 .uiex-box {
 	position: relative;
 	overflow: hidden;
-	margin-bottom: 15px;
 	display: block;
 	
-	&.uiex-not-animated {
-		height: auto !important;
-	}
 	&.uiex-animated {
 		&.uiex-animation-roll {
 			transition-property: height, marginTop, marginBottom, paddingTop, paddingBottom;

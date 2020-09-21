@@ -53,7 +53,11 @@
 		.uiex-box-section-caption {
 			color: #ccc;
 			cursor: not-allowed;
-			background-color: #f1f1f1 !important;
+		}
+		&.uiex-view-header {
+			.uiex-box-section-caption {
+				background-color: #f1f1f1 !important;
+			}
 		}
 	}
 	&.uiex-view-header {

@@ -80,15 +80,17 @@ class LocationController {
 		} else {
 			page = this.findPageByPath(path);
 		}
-		if (isString(page.page)) {
-			return page;
-		}
-		if (isNumber(page.page)) {
-			const pageName = this.app.names[page.page];
-			if (isString(pageName)) {
-				page.page = pageName;
+		if (isObject(page)) {
+			if (isString(page.page)) {
+				return page;
 			}
-			return page;
+			if (isNumber(page.page)) {
+				const pageName = this.app.names[page.page];
+				if (isString(pageName)) {
+					page.page = pageName;
+				}
+				return page;
+			}
 		}
 		return this.getNotFoundPage(path, params);
 	}
@@ -236,6 +238,7 @@ export class App extends UIEXComponent {
 	static propTypes = AppPropTypes;
 	static displayName = 'App';
 	static properChildren = 'AppPage';
+	// static onlyProperChildren = true;
 
 	constructor(props) {
 		super(props);
@@ -258,7 +261,7 @@ export class App extends UIEXComponent {
 			}
 		}
 	}
-
+	
 	componentWillUnmount() {
 		window.removeEventListener('popstate', this.handleLocationChange, false);
 		appCount--;
@@ -321,14 +324,21 @@ export class App extends UIEXComponent {
 		return false;
 	}
 
+	addChildProps(child, props) {
+		const {params} = this.state;
+		props.params = params;
+	}
+
 
 	renderInternal() {
 		const content = this.renderChildren();
-		const {sideMenu, sideMenuWidth} = this.props;
+		const {sideMenu, sideMenuWidth, sideMenuAtRight} = this.props;
 		const TagName = this.getTagName();
 		let style;
 		if (sideMenu) {
-			style = {paddingLeft: getNumber(sideMenuWidth, DEFAULT_SIDE_MENU_WIDTH)};
+			style = {
+				[sideMenuAtRight ? 'paddingRight' : 'paddingLeft']: getNumber(sideMenuWidth, DEFAULT_SIDE_MENU_WIDTH)
+			};
 		}
 		return (
 			<TagName {...this.getProps()}>
@@ -345,8 +355,8 @@ export class App extends UIEXComponent {
 
 	handleChangePage({page, params}) {
 		if (this.state.page !== page) {
-			this.setState({page: null}, () => {
-				this.setState({page}, () => {
+			this.setState({page: null, params: {}}, () => {
+				this.setState({page, params}, () => {
 					this.fire('changePage', page, params);
 					highlightLink(page, this);
 				});

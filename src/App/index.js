@@ -8,10 +8,11 @@ import {DEFAULT_SIDE_MENU_WIDTH} from '../SideMenu';
 import '../style.scss';
 import './style.scss';
 
-const PAGE_404 = '__page_not_found_404__';
+const PAGE_404 = 'notFound404';
 const PAGE_404_PATH = '404';
 let appCount = 0;
 const appLinks = {};
+const NOT_FOUND_PAGE = () => '404. Not found';
 
 class LocationController {	
 	setApp(app) {
@@ -35,7 +36,7 @@ class LocationController {
 			path = this.applyParamsToPath(path, params);
 			return this.app.navigateToPage(pageName, path, params);
 		}
-		this.app.navigateToNotFound();
+		this.app.navigateToNotFound(pageName, null);
 	}
 
 	navigateToPath(path, params) {
@@ -44,6 +45,7 @@ class LocationController {
 		if (isString(page.page) || isNumber(page.page)) {
 			return this.app.navigateToPage(page.page, page.path, params);
 		}
+		this.app.navigateToNotFound(null, path);
 	}
 
 	initCurrentLocation() {
@@ -65,15 +67,15 @@ class LocationController {
 				path = pathParts.join('/');
 			}
 		}
-		return this.initPath(path);
+		return this.initPath(path || '/');
 	}
 
 	initPath(path, params = null) {
+		if ((path === '' || path === '/') && isNumber(this.app.indexPage)) {
+			return this.getIndexPage();
+		}
 		const {hashRouting, hashPaths} = this.app.props;
 		path = path.replace(/^\/|\/$/g, '');
-		if (!path) {
-			return this.getNotFoundPage(path, params);
-		}
 		let page;
 		if (!hashPaths && hashRouting) {
 			page = this.findPageByName(path, params);
@@ -92,24 +94,20 @@ class LocationController {
 				return page;
 			}
 		}
-		return this.getNotFoundPage(path, params);
+		return {
+			name: this.notFoundPageName,
+			path: this.notFoundPagePath
+		};
 	}
 
-	getNotFoundPage(path = PAGE_404_PATH, params = null) {
-		if (!path) {
-			path = PAGE_404_PATH;
-		}
-		const {notFoundPage} = this.app;
-		if (isNumber(notFoundPage)) {
-			return {page: PAGE_404, path, params};
-		}
+	getIndexPage() {
 		const {indexPage} = this.app;
 		if (isNumber(indexPage)) {
 			const pageName = this.app.names[indexPage];
 			return {
 				page: isString(pageName) ? pageName : indexPage,
 				path: '',
-				params
+				params: {}
 			};
 		}
 	}
@@ -121,7 +119,7 @@ class LocationController {
 			path = this.applyParamsToPath(path, params);
 			return {page: pageName, path, params};
 		}
-		return this.getNotFoundPage(PAGE_404_PATH, params);
+		return {};
 	}
 
 	findPageByPath(path) {
@@ -238,7 +236,7 @@ export class App extends UIEXComponent {
 	static propTypes = AppPropTypes;
 	static displayName = 'App';
 	static properChildren = 'AppPage';
-	// static onlyProperChildren = true;
+	static singleChild = true;
 
 	constructor(props) {
 		super(props);
@@ -251,7 +249,7 @@ export class App extends UIEXComponent {
 		} else {
 			locationController.setApp(this);
 			if (!this.props.initialPage) {
-				this.handleLocationChange();
+				this.handleLocationChange(true);
 			} else {
 				locationController.navigateToPage(this.props.initialPage);
 			}
@@ -276,18 +274,11 @@ export class App extends UIEXComponent {
 		this.notFoundPage = null;
 	}
 
-	handleLocationChange = () => {
-		const page = locationController.initCurrentLocation();
-		if (isObject(page) && (isNumber(page.page) || isString(page.page))) {
-			this.handleChangePage(page);
-		}
-	}
-
 	filterChild(child) {
 		const {indexPageName} = this.props;
 		const {name, path, params, indexPage, exactPath, notFoundPage} = child.props;
 		const {page} = this.state;
-		if (!notFoundPage && (!name || !isString(name))) {
+		if (!indexPage && !notFoundPage && (!name || !isString(name))) {
 			console.error('Not all AppPages have valid name property');
 		}
 		if (!notFoundPage && (!path && !isString(path) && !indexPage)) {
@@ -303,8 +294,7 @@ export class App extends UIEXComponent {
 				this.paths.push(path.replace(/^\/|\/$/g, ''));
 			} else {
 				this.paths.push('');
-			}
-			
+			}			
 			this.params.push(params);
 			if (indexPage || indexPageName == name) {
 				this.indexPage = this.currentProperChildIdx;
@@ -317,7 +307,9 @@ export class App extends UIEXComponent {
 			}
 		} else {
 			this.notFoundPage = this.currentProperChildIdx;
-			if (page == PAGE_404) {
+			this.notFoundPageName = name || PAGE_404;
+			this.notFoundPagePath = path || PAGE_404_PATH;
+			if (page == PAGE_404 || page === name) {
 				return true;
 			}
 		}
@@ -329,6 +321,49 @@ export class App extends UIEXComponent {
 		props.params = params;
 	}
 
+	navigateToPage(page, path, params) {
+		if (this.state.page !== page) {
+			if (isString(path)) {
+				this.replaceState(path, page);
+			}
+			this.handleChangePage({page, path, params});
+		}
+	}
+
+	navigateToNotFound(name, path) {
+		if (isNumber(this.notFoundPage)) {
+			this.fire('pageNotFound', name, path);
+			return this.navigateToPage(this.notFoundPageName, this.notFoundPagePath, null);
+		}
+		if (isNumber(this.indexPage)) {
+			const pageName = this.names[this.indexPage];
+			const path = this.paths[this.indexPage];
+			return this.navigateToPage(pageName, path, null);
+		}
+	}
+
+	replaceState(path, page) {
+		const {hashRouting} = this.props;
+		window.history.pushState({}, '', (hashRouting ? '#' : '/') + (path || page));
+	}
+
+	handleLocationChange = (initial) => {
+		const page = locationController.initCurrentLocation();
+		if (isObject(page) && (isNumber(page.page) || isString(page.page))) {
+			this.handleChangePage(page, initial);
+		}
+	}
+
+	handleChangePage({page, path, params}, initial = false) {
+		if (this.state.page !== page) {
+			this.setState({page: null, params: {}}, () => {
+				this.setState({page, params}, () => {
+					this.fire(initial ? 'initPage' : 'changePage', page, path, params);
+					highlightLink(page, this);
+				});
+			});
+		}
+	}
 
 	renderInternal() {
 		const content = this.renderChildren();
@@ -351,39 +386,5 @@ export class App extends UIEXComponent {
 				</div>
 			</TagName>
 		)
-	}
-
-	handleChangePage({page, params}) {
-		if (this.state.page !== page) {
-			this.setState({page: null, params: {}}, () => {
-				this.setState({page, params}, () => {
-					this.fire('changePage', page, params);
-					highlightLink(page, this);
-				});
-			});
-		}
-	}
-
-	navigateToPage(page, path, params) {
-		if (isString(path)) {
-			this.replaceState(path, page);
-		}
-		this.handleChangePage({page, params});
-	}
-
-	navigateToNotFound(path = PAGE_404_PATH) {
-		if (isNumber(this.notFoundPage)) {
-			return this.navigateToPage(PAGE_404, path, null);
-		}
-		if (isNumber(this.indexPage)) {
-			const pageName = this.names[this.indexPage];
-			const path = this.paths[this.indexPage];
-			return this.navigateToPage(pageName, path, null);
-		}
-	}
-
-	replaceState(path, page) {
-		const {hashRouting} = this.props;
-		window.history.pushState({}, '', (hashRouting ? '#' : '/') + (path || page));
 	}
 }

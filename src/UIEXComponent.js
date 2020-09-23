@@ -164,9 +164,13 @@ export class UIEXComponent extends React.PureComponent {
 					key: child.key || idx
 				};
 				if (isProperChild) {
+					const {singleChild, displayName} = this.constructor;
 					this.currentProperChildIdx++;
 					if (!this.filterChild(child, idx)) {
 						return null;
+					}
+					if (singleChild && this.properChildrenCount) {
+						return null;	
 					}
 					const maxCount = this.getProperChildMaxCount();
 					if (maxCount && maxCount == this.properChildrenCount) {
@@ -187,7 +191,7 @@ export class UIEXComponent extends React.PureComponent {
 						props.block = true;
 					}
 					this.addChildProps(child, props, this.currentProperChildIdx, isLast);
-					props.parent = this.constructor.displayName;
+					props.parent = displayName;
 					return React.cloneElement(child, props);
 				}
 				return React.cloneElement(child, props, this.doRenderChildren(child.props.children));

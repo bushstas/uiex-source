@@ -308,7 +308,8 @@ export class Input extends UIEXComponent {
 	}
 
 	blurHandler() {
-		const {focusStyle, disabled, readOnly, value, name} = this.props;
+		const {focusStyle, disabled, readOnly, name} = this.props;
+		const value = this.getProp('value');
 		if (!disabled && !readOnly) {
 			if (focusStyle instanceof Object) {
 				const {input} = this.refs;
@@ -343,7 +344,8 @@ export class Input extends UIEXComponent {
 
 	keyUpHandler(e) {
 		const {key} = e;
-		const {name, value, textarea} = this.props;
+		const {name, textarea} = this.props;
+		const value = this.getProp('value');
 		switch (key) {
 			case 'Enter':
 				if (!textarea) {

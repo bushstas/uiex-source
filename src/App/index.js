@@ -30,6 +30,10 @@ class LocationController {
 	}
 
 	navigateToPage(pageName, params) {
+		if (!isObject(this.app)) {
+			console.error('You need to have rendered App component');
+			return null;
+		}
 		const pageIndex = this.app.names.indexOf(pageName);
 		let path = this.app.paths[pageIndex];
 		if (isNumber(pageIndex) && isString(path)) {
@@ -40,6 +44,10 @@ class LocationController {
 	}
 
 	navigateToPath(path, params) {
+		if (!isObject(this.app)) {
+			console.error('You need to have rendered App component');
+			return null;
+		}
 		path = this.applyParamsToPath(path, params);
 		const page = this.initPath(path, params);
 		if (isString(page.page) || isNumber(page.page)) {
@@ -95,8 +103,8 @@ class LocationController {
 			}
 		}
 		return {
-			name: this.notFoundPageName,
-			path: this.notFoundPagePath
+			page: this.app.notFoundPageName,
+			path: this.app.notFoundPagePath
 		};
 	}
 
@@ -249,7 +257,9 @@ export class App extends UIEXComponent {
 		} else {
 			locationController.setApp(this);
 			if (!this.props.initialPage) {
-				this.handleLocationChange(true);
+				setTimeout(() => {
+					this.handleLocationChange(true);
+				});
 			} else {
 				locationController.navigateToPage(this.props.initialPage);
 			}
@@ -324,33 +334,41 @@ export class App extends UIEXComponent {
 	navigateToPage(page, path, params) {
 		if (this.state.page !== page) {
 			if (isString(path)) {
-				this.replaceState(path, page);
+				this.pushState(path, page);
 			}
 			this.handleChangePage({page, path, params});
+			this.pathWhichNotFound = null;
 		}
 	}
 
 	navigateToNotFound(name, path) {
 		if (isNumber(this.notFoundPage)) {
-			this.fire('pageNotFound', name, path);
-			return this.navigateToPage(this.notFoundPageName, this.notFoundPagePath, null);
+			if (this.pathWhichNotFound !== (path || name)) {
+				this.fire('pageNotFound', name, path);
+				this.replaceState(this.notFoundPagePath, this.notFoundPageName);
+			}
+			this.navigateToPage(this.notFoundPageName, this.notFoundPagePath, null);
+			this.pathWhichNotFound = path || name;
 		}
-		if (isNumber(this.indexPage)) {
-			const pageName = this.names[this.indexPage];
-			const path = this.paths[this.indexPage];
-			return this.navigateToPage(pageName, path, null);
-		}
+	}
+
+	pushState(path, page) {
+		const {hashRouting} = this.props;
+		window.history.pushState({}, '', (hashRouting ? '#' : '/') + (path || page));
 	}
 
 	replaceState(path, page) {
 		const {hashRouting} = this.props;
-		window.history.pushState({}, '', (hashRouting ? '#' : '/') + (path || page));
+		window.history.replaceState({}, '', (hashRouting ? '#' : '/') + (path || page));
 	}
 
 	handleLocationChange = (initial) => {
 		const page = locationController.initCurrentLocation();
 		if (isObject(page) && (isNumber(page.page) || isString(page.page))) {
 			this.handleChangePage(page, initial);
+			if (initial && page.page === this.notFoundPageName) {
+				this.replaceState(page.path, page.page);
+			}
 		}
 	}
 

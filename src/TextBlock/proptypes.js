@@ -18,6 +18,7 @@ export const TextBlockPropTypes = {
 	maxLines: PROPTYPE.STRNUM,
 	bold: PropTypes.bool,
 	italic: PropTypes.bool,
+	underlined: PropTypes.bool,
 	noselect: PropTypes.bool,
 	justify: PropTypes.bool,
 	nowrap: PropTypes.bool,

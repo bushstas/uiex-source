@@ -29,6 +29,18 @@
     	font-style: italic;
     }
 
+    &.uiex-underlined {
+        text-decoration: underline;
+    }
+
+    &.uiex-smaller {
+        font-size: smaller;
+    }
+
+    &.uiex-larger {
+        font-size: larger;
+    }
+
     &.uiex-nowrap {
     	white-space: nowrap;
     }

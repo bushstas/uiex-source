@@ -19,16 +19,29 @@ export class TextBlock extends UIEXComponent {
 	static propTypes = TextBlockPropTypes;
 	static displayName = 'TextBlock';
 	static className = 'text-block';
-	static propsToCheck = ['fontSize', 'lineHeight', 'textColor', 'padding', 'margin', 'textShadow'];
+	static propsToCheck = ['fontSize', 'lineHeight', 'textColor', 'padding', 'margin', 'textShadow', 'boxShadow'];
 
 	addClassNames(add) {
-		const {bold, italic, noselect, justify, nowrap, withEllipsis} = this.props;
+		const {
+			bold,
+			italic,
+			noselect,
+			justify,
+			nowrap,
+			withEllipsis,
+			underlined,
+			smaller,
+			larger
+		} = this.props;
 		add('bold', bold);
 		add('italic', italic);
 		add('noselect', noselect);
 		add('justify', justify);
 		add('nowrap', nowrap);
 		add('ellipsis', withEllipsis);
+		add('underlined', underlined);
+		add('smaller', smaller);
+		add('larger', larger);
 	}
 
 	getCustomStyle() {

@@ -4,12 +4,12 @@ import {isFunction} from '../utils';
 import {AppPagePropTypes} from './proptypes';
 
 import '../style.scss';
-import './style.scss';
 
 export class AppPage extends UIEXComponent {
 	static propTypes = AppPagePropTypes;
 	static className = 'app-page';
 	static displayName = 'AppPage';
+	static properParentClasses = ['App'];
 
 	renderInternal() {
 		let {component: Component, params} = this.props;

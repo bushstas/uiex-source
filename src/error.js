@@ -1,4 +1,7 @@
 import React from 'react';
+import {isArray} from './utils';
+
+const style = {color: 'red'};
 
 export const showImproperChildError = (child, parent) => {
 	const {type, name} = getChildTypeAndName(child);
@@ -8,14 +11,14 @@ export const showImproperChildError = (child, parent) => {
 		expectedChildren = expectedChildren.join(', ');
 	}
 	return (
-		<div>Improper {type} child "{name}" in {parent.constructor.name}. {expected}: {expectedChildren}</div>
+		<div style={style}>Improper {type} child "{name}" in {parent.constructor.name}. {expected}: {expectedChildren}</div>
 	);
 }
 
 export const showForbiddenChildError = (child, parent) => {
 	const {type, name} = getChildTypeAndName(child);
 	return (
-		<div>Not allowed {type} child "{name}" in {parent.constructor.name}</div>
+		<div style={style}>Not allowed {type} child "{name}" in {parent.constructor.name}</div>
 	);
 }
 
@@ -25,7 +28,7 @@ export const showImproperParentError = (child, expectedParents) => {
 		expectedParents = expectedParents.join(', ');
 	}
 	return (
-		<div>Component {name} has no a proper parent. Expected parents: {expectedParents}</div>
+		<div style={style}>Component {name} has no a proper parent. Expected parents: {expectedParents}</div>
 	);
 }
 
@@ -36,6 +39,6 @@ export const showProperChildMaxCountError  = (child, parent) => {
 	}
 	const maxCount = parent.getProperChildMaxCount();
 	return (
-		<div>Component {parent.constructor.name} can have only {maxCount} child of type {expectedChildren}</div>
+		<div style={style}>Component {parent.constructor.name} can have only {maxCount} child of type {expectedChildren}</div>
 	);
 }

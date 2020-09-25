@@ -1,20 +1,47 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {AppPropTypes} from './proptypes';
-import {isString, isNumber, isObject, getNumber} from '../utils';
+import {isString, isNumber, isObject, isFunction, getNumber} from '../utils';
 import {addTranslations} from '../Translate';
 import {DEFAULT_SIDE_MENU_WIDTH} from '../SideMenu';
 
 import '../style.scss';
 import './style.scss';
 
-const PAGE_404 = 'notFound404';
+const NOT_FOUND_PAGE = '404. Not found';
 const PAGE_404_PATH = '404';
+const DELIMITER = '_##_';
 let appCount = 0;
 const appLinks = {};
-const NOT_FOUND_PAGE = () => '404. Not found';
 
 class LocationController {	
+	getPageParams(params) {
+		const {name, rawPath, path} = params;
+		const key = `${name}${DELIMITER}${rawPath}`;
+		const id = `${key}${DELIMITER}${path}`;
+		return {
+			...params,
+			key,
+			id,
+			data: {
+				name: params.name,
+				path: params.rawPath || null,
+				location: params.path,
+				params: params.params || {}
+			}
+		};
+	}
+
+	get404Page({path, name}) {
+		const properPath = path || PAGE_404_PATH;
+		return this.getPageParams({
+			rawPath: path,
+			path: properPath,
+			name: name || null,
+			notFound: true
+		});
+	}
+
 	setApp(app) {
 		this.app = app;
 	}
@@ -30,30 +57,30 @@ class LocationController {
 	}
 
 	navigateToPage(pageName, params) {
-		if (!isObject(this.app)) {
-			console.error('You need to have rendered App component');
-			return null;
+		if (isObject(this.app)) {
+			const pageIndex = this.app.names.indexOf(pageName);
+			const path = this.app.paths[pageIndex];
+			let page;
+			if (isNumber(pageIndex) && isString(path)) {
+				page = this.getPageParams({
+					homePage: path === '' || path === '/' || path === '#',
+					name: pageName,
+					rawPath: path,
+					path: this.applyParamsToPath(path, params),
+					params
+				});
+			} else {
+				page = this.get404Page({name: pageName});
+			}
+			this.app.navigateToPage(page);
 		}
-		const pageIndex = this.app.names.indexOf(pageName);
-		let path = this.app.paths[pageIndex];
-		if (isNumber(pageIndex) && isString(path)) {
-			path = this.applyParamsToPath(path, params);
-			return this.app.navigateToPage(pageName, path, params);
-		}
-		this.app.navigateToNotFound(pageName, null);
 	}
 
 	navigateToPath(path, params) {
-		if (!isObject(this.app)) {
-			console.error('You need to have rendered App component');
-			return null;
+		if (isObject(this.app)) {
+			const page = this.initPath(path, params);
+			return this.app.navigateToPage(page);
 		}
-		path = this.applyParamsToPath(path, params);
-		const page = this.initPath(path, params);
-		if (isString(page.page) || isNumber(page.page)) {
-			return this.app.navigateToPage(page.page, page.path, params);
-		}
-		this.app.navigateToNotFound(null, path);
 	}
 
 	initCurrentLocation() {
@@ -75,63 +102,30 @@ class LocationController {
 				path = pathParts.join('/');
 			}
 		}
-		return this.initPath(path || '/');
+		return this.initPath(path);
 	}
 
 	initPath(path, params = null) {
-		if ((path === '' || path === '/') && isNumber(this.app.indexPage)) {
-			return this.getIndexPage();
-		}
-		const {hashRouting, hashPaths} = this.app.props;
-		path = path.replace(/^\/|\/$/g, '');
-		let page;
-		if (!hashPaths && hashRouting) {
-			page = this.findPageByName(path, params);
-		} else {
-			page = this.findPageByPath(path);
-		}
+		path = path.replace(/^[\/\#]|\/$/g, '');
+		const page = this.findPageByPath(path);
 		if (isObject(page)) {
-			if (isString(page.page)) {
+			const {name} = page;
+			if (isString(name)) {
 				return page;
 			}
-			if (isNumber(page.page)) {
-				const pageName = this.app.names[page.page];
+			if (isNumber(name)) {
+				const pageName = this.app.names[name];
 				if (isString(pageName)) {
-					page.page = pageName;
+					page.name = pageName;
 				}
 				return page;
 			}
 		}
-		return {
-			page: this.app.notFoundPageName,
-			path: this.app.notFoundPagePath
-		};
-	}
-
-	getIndexPage() {
-		const {indexPage} = this.app;
-		if (isNumber(indexPage)) {
-			const pageName = this.app.names[indexPage];
-			return {
-				page: isString(pageName) ? pageName : indexPage,
-				path: '',
-				params: {}
-			};
-		}
-	}
-
-	findPageByName(pageName, params = null) {
-		const pageIndex = this.app.names.indexOf(pageName);
-		let path = this.app.paths[pageIndex]
-		if (isNumber(pageIndex) && isString(path)) {
-			path = this.applyParamsToPath(path, params);
-			return {page: pageName, path, params};
-		}
-		return {};
+		return this.get404Page({path});
 	}
 
 	findPageByPath(path) {
-		const {paths, exactPaths} = this.app;
+		const {names, paths, exactPaths} = this.app;
 		let params;
 		let pageIndex;
 		const parts = path.split('/');
@@ -165,7 +159,15 @@ class LocationController {
 			if (!isMatched) {
 				continue;
 			}
-			matchedPages.push({page: pageIndex, params, path, parts: pathParts.length});
+			const pageParams = this.getPageParams({
+				homePage: path === '' || path === '/' || path === '#',
+				parts: pathParts.length,
+				rawPath: paths[i],
+				name: names[i],
+				params,
+				path
+			});
+			matchedPages.push(pageParams);
 		}
 		if (matchedPages.length > 0) {
 			let matchedPage = null;
@@ -178,16 +180,22 @@ class LocationController {
 			}
 			return matchedPage;
 		}
-		return {};
+		return null;
 	}
 }
 const locationController = new LocationController;
+
+export const addActiveLink = (link) => {
+	if (!currentLinks.includes(link)) {
+		currentLinks.push(link);
+	}
+};
 
 let currentLinks = [];
 const highlightLink = (page, app) => {
 	const links = Object.values(appLinks);
 	currentLinks.forEach((link) => {
-		link.setState({active: false});
+		link.setActive(false);
 	});
 	currentLinks = [];
 	let path;
@@ -204,16 +212,20 @@ const highlightLink = (page, app) => {
 			}
 		}
 		for (let i = 0; i < links.length; i++) {
-			const linkPage = links[i].getAppLinkPage();
-			const linkPath = links[i].getAppLinkPath();
-			if (linkPage && page == linkPage) {
-				links[i].setState({active: true});
-				currentLinks.push(links[i]);
-				continue;
-			}				
-			if (path && linkPath && path == linkPath) {
-				links[i].setState({active: true});
-				currentLinks.push(links[i]);			
+			const link = links[i];
+			const linkPage = link.getAppLinkPage();
+			const linkPath = link.getAppLinkPath();
+			const dynamicLink = link.getDynamicLink();
+			if (!dynamicLink) {
+				if (linkPage && page == linkPage) {
+					links[i].setActive(true);
+					currentLinks.push(links[i]);
+					continue;
+				}				
+				if (path && linkPath && path == linkPath) {
+					links[i].setActive(true);
+					currentLinks.push(links[i]);
+				}
 			}
 		}
 	}
@@ -245,34 +257,55 @@ export class App extends UIEXComponent {
 	static displayName = 'App';
 	static properChildren = 'AppPage';
 	static singleChild = true;
+	static onlyProperChildren = true;
 
 	constructor(props) {
 		super(props);
+		this.appIndex = appCount;
 		appCount++;
+		this.state = {
+			page: null,
+			id: ''
+		};
 	}
 
 	componentDidMount() {
-		if (appCount > 1) {
-			console.error('You can\'t have more then one App components mounted');
-		} else {
+		if (!this.appIndex) {
 			locationController.setApp(this);
-			if (!this.props.initialPage) {
-				setTimeout(() => {
-					this.handleLocationChange(true);
-				});
-			} else {
-				locationController.navigateToPage(this.props.initialPage);
-			}
+			this.handleLocationChange(true);
 			window.addEventListener('popstate', this.handleLocationChange, false);
-			if (!isNumber(this.indexPage)) {
-				console.error('Index page is not defined');
-			}
+		}
+	}
+
+	componentDidUpdate(prevProps) {
+		if (this.props.hashRouting !== prevProps.hashRouting) {
+			this.reinitPath();
 		}
 	}
 	
 	componentWillUnmount() {
-		window.removeEventListener('popstate', this.handleLocationChange, false);
+		if (!this.appIndex) {
+			window.removeEventListener('popstate', this.handleLocationChange, false);
+		}
 		appCount--;
+	}
+
+	getNewLocation(path) {
+		const {hashRouting} = this.props;
+		if (path === '' || path === '/') {
+			return '/';
+		}
+		return `${hashRouting ? '/#' : '/'}${path}`;
+	}
+
+	reinitPath() {
+		const {pathname, hash} = window.location;
+		const {hashRouting} = this.props;
+		if (hashRouting) {
+			this.replaceState(pathname.replace(/^\//, ''));
+		} else {
+			this.replaceState(hash.replace(/^\#/, ''));
+		}
 	}
 
 	initRendering() {
@@ -280,110 +313,96 @@ export class App extends UIEXComponent {
 		this.paths = [];
 		this.params = [];
 		this.exactPaths = [];
-		this.indexPage = null;
-		this.notFoundPage = null;
+	}
+
+	initChild(child) {
+		const {name, path, params, exactPath} = child.props;
+		this.names.push(name);
+		this.exactPaths.push(Boolean(exactPath));
+		this.paths.push(String(path || name).replace(/^[\/\#]|\/$/g, ''));		
+		this.params.push(params);
+
+		return this.state.page !== null;
 	}
 
 	filterChild(child) {
-		const {indexPageName} = this.props;
-		const {name, path, params, indexPage, exactPath, notFoundPage} = child.props;
+		const {name, path} = child.props;
 		const {page} = this.state;
-		if (!indexPage && !notFoundPage && (!name || !isString(name))) {
-			console.error('Not all AppPages have valid name property');
-		}
-		if (!notFoundPage && (!path && !isString(path) && !indexPage)) {
-			console.error('Not all AppPages have valid path property');
-		}
-		if (!notFoundPage && (name && this.names.indexOf(name) > -1)) {
-			console.error('Duplicate AppPage with name: ' + name);
-		}
-		if (!notFoundPage) {
-			this.names.push(name);
-			this.exactPaths.push(Boolean(exactPath));
-			if (isString(path)) {
-				this.paths.push(path.replace(/^\/|\/$/g, ''));
-			} else {
-				this.paths.push('');
-			}			
-			this.params.push(params);
-			if (indexPage || indexPageName == name) {
-				this.indexPage = this.currentProperChildIdx;
-			}
-			if (isString(page)) {
-				return child.props.name == page;
-			}
-			if (isNumber(page)) {
-				return this.currentProperChildIdx == page;
-			}
-		} else {
-			this.notFoundPage = this.currentProperChildIdx;
-			this.notFoundPageName = name || PAGE_404;
-			this.notFoundPagePath = path || PAGE_404_PATH;
-			if (page == PAGE_404 || page === name) {
-				return true;
-			}
-		}
-		return false;
+
+		const properPath = path === '/' || path === '#' ? '' : path;
+		return page === `${name}${DELIMITER}${properPath}`;
 	}
 
 	addChildProps(child, props) {
-		const {params} = this.state;
-		props.params = params;
+		props.params = this.state.params;
 	}
 
-	navigateToPage(page, path, params) {
-		if (this.state.page !== page) {
+	navigateToPage(page) {
+		const {id, path} = page;
+		if (this.state.id !== id) {
 			if (isString(path)) {
-				this.pushState(path, page);
+				this.pushState(path);
 			}
-			this.handleChangePage({page, path, params});
-			this.pathWhichNotFound = null;
+			this.handleChangePage(page);
 		}
 	}
 
-	navigateToNotFound(name, path) {
-		if (isNumber(this.notFoundPage)) {
-			if (this.pathWhichNotFound !== (path || name)) {
-				this.fire('pageNotFound', name, path);
-				this.replaceState(this.notFoundPagePath, this.notFoundPageName);
-			}
-			this.navigateToPage(this.notFoundPageName, this.notFoundPagePath, null);
-			this.pathWhichNotFound = path || name;
-		}
+	pushState(path) {
+		const newPath = this.getNewLocation(path);
+		window.history.pushState({}, '', newPath);
+		this.fire('pushState', newPath);
 	}
 
-	pushState(path, page) {
-		const {hashRouting} = this.props;
-		window.history.pushState({}, '', (hashRouting ? '#' : '/') + (path || page));
-	}
-
-	replaceState(path, page) {
-		const {hashRouting} = this.props;
-		window.history.replaceState({}, '', (hashRouting ? '#' : '/') + (path || page));
+	replaceState(path) {
+		const newPath = this.getNewLocation(path);
+		window.history.replaceState({}, '', newPath);
+		this.fire('replaceState', newPath);
 	}
 
 	handleLocationChange = (initial) => {
 		const page = locationController.initCurrentLocation();
-		if (isObject(page) && (isNumber(page.page) || isString(page.page))) {
-			this.handleChangePage(page, initial);
-			if (initial && page.page === this.notFoundPageName) {
-				this.replaceState(page.path, page.page);
-			}
-		}
+		this.handleChangePage(page, initial);
 	}
 
-	handleChangePage({page, path, params}, initial = false) {
-		if (this.state.page !== page) {
+	handleChangePage(page, initial = false) {
+		const {
+			key,
+			id,
+			name,
+			params,
+			notFound,
+			homePage,
+			data
+		} = page;
+		if (this.state.id !== id) {
 			this.setState({page: null, params: {}}, () => {
-				this.setState({page, params}, () => {
-					this.fire(initial ? 'initPage' : 'changePage', page, path, params);
-					highlightLink(page, this);
+				this.setState({page: key, id, params}, () => {					
+					if (notFound) {
+						this.fire('pageNotFound', data);
+					} else {
+						this.fire(initial ? 'initPage' : 'changePage', data);
+						if (homePage && !initial) {
+							this.fire('returnHome');
+						}
+					}
+					highlightLink(name, this);
 				});
 			});
 		}
 	}
 
+	renderNotFoundPage() {
+		const {notFoundPage: NotFoundPage} = this.props;
+		if (isFunction(NotFoundPage)) {
+			return <NotFoundPage />;
+		}
+		return NOT_FOUND_PAGE;
+	}
+
 	renderInternal() {
+		if (this.appIndex) {
+			return 'You can\'t have more then one App components mounted';
+		}
 		const content = this.renderChildren();
 		const {sideMenu, sideMenuWidth, sideMenuAtRight} = this.props;
 		const TagName = this.getTagName();
@@ -400,7 +419,7 @@ export class App extends UIEXComponent {
 					className="uiex-app-content"
 					style={style}
 				>
-					{content}
+					{this.properChildrenCount ? content : this.renderNotFoundPage()}
 				</div>
 			</TagName>
 		)

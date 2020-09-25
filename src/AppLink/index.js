@@ -1,8 +1,8 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {Button} from '../Button';
-import {navigateToPage, navigateToPath, registerAppLink, unregisterAppLink} from '../App';
-import {isString} from '../utils';
+import {navigateToPage, navigateToPath, addActiveLink, registerAppLink, unregisterAppLink} from '../App';
+import {isString, isObject} from '../utils';
 import {AppLinkPropTypes} from './proptypes';
 
 import '../style.scss';
@@ -18,8 +18,9 @@ export class AppLink extends UIEXComponent {
         super(props);
         linkId++;
         this.linkId = linkId;
-        const {path} = this.props;
+        const {path, params} = this.props;
         this.linkPath = isString(path) ? path.replace(/^\/|\/$/g, '') : null;
+        this.dynamicLink = (isString(path) && /\$/.test(path)) || isObject(params);
         registerAppLink(linkId, this);
     }
 
@@ -41,6 +42,14 @@ export class AppLink extends UIEXComponent {
         return this.linkPath;
     }
 
+    getDynamicLink = () => {
+        return this.dynamicLink;
+    }
+
+    setActive = (active) => {
+        this.setState({active});
+    }
+
     handleClick = () => {
         const {page, params} = this.props;
         if (isString(page)) {
@@ -48,6 +57,8 @@ export class AppLink extends UIEXComponent {
         } else {
             navigateToPath(this.linkPath, params);
         }
+        this.setActive(true);
+        setTimeout(() => addActiveLink(this));
     }
 
     renderInternal() {

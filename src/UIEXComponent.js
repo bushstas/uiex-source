@@ -166,11 +166,12 @@ export class UIEXComponent extends React.PureComponent {
 				if (isProperChild) {
 					const {singleChild, displayName} = this.constructor;
 					this.currentProperChildIdx++;
-					if (!this.filterChild(child, idx)) {
+					if (
+						this.initChild(child, idx) === false ||
+						(singleChild && this.properChildrenCount) ||
+						!this.filterChild(child, idx)
+					) {
 						return null;
-					}
-					if (singleChild && this.properChildrenCount) {
-						return null;	
 					}
 					const maxCount = this.getProperChildMaxCount();
 					if (maxCount && maxCount == this.properChildrenCount) {
@@ -508,6 +509,7 @@ export class UIEXComponent extends React.PureComponent {
 	}
 
 	initRendering() {}
+	initChild() {}
 	addChildProps() {}
 	addClassNames() {}
 	initCustomStyles() {}

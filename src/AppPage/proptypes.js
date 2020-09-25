@@ -6,7 +6,7 @@ export const AppPagePropTypes = {
 	...UIEXComponentPropTypes,
 	name: PropTypes.string,
 	path: PropTypes.string,
-	params: PropTypes.object,
+	props: PropTypes.object,
 	indexPage: PropTypes.bool,
 	notFoundPage: PropTypes.bool,
 	component: PropTypes.func.isRequired,

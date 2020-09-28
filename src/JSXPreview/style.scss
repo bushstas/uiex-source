@@ -1,0 +1,96 @@
+.uiex-jsx-preview {
+    pre {
+        margin: 0;
+        font-size: 15px;
+        tab-size: 3;
+        -moz-tab-size: 3;
+        color: #555;
+    }
+
+    .uiex-jsx-keyword {
+        color: #ff4868;
+    }
+    .uiex-jsx-tag {
+        color: #ff4868;
+    }
+    .uiex-jsx-keyword2 {
+        color: #13b4e6;
+        font-style: italic;
+    }
+    .uiex-jsx-spec {
+        color: #13b4e6;
+    }
+    .uiex-jsx-string {
+        color: #cab620;
+    }
+    .uiex-jsx-name {
+        color: #98ec3d;
+    }
+    .uiex-jsx-args {
+        color: #ffa24f;
+    }
+    .uiex-jsx-symbol {
+        color: #ccc;
+    }
+    .uiex-jsx-comment {
+        color: #777;
+    }
+    .uiex-jsx-key {
+        color: #b2c0d0;
+    }
+    .uiex-jsx-function {
+        color: #6ea7ff;
+    }
+    .uiex-jsx-number {
+        color: #a080ff;
+    }
+    .uiex-jsx-fragment {
+        color: #aaa;
+    }
+    
+    .uiex-dark {
+        pre {
+            color: #f5f5f5;
+        } 
+        .uiex-jsx-keyword {
+            color: #ff4868;
+        }
+        .uiex-jsx-tag {
+            color: #ff4868;
+        }
+        .uiex-jsx-keyword2 {
+            color: #64daff;
+            font-style: italic;
+        }
+        .uiex-jsx-spec {
+            color: #64daff;
+        }
+        .uiex-jsx-string {
+            color: #e0d36d;
+        }
+        .uiex-jsx-name {
+            color: #98ec3d;
+        }
+        .uiex-jsx-args {
+            color: #ffa24f;
+        }
+        .uiex-jsx-symbol {
+            color: #8c8c8c;
+        }
+        .uiex-jsx-comment {
+            color: #777;
+        }
+        .uiex-jsx-key {
+            color: #8593a2;
+        }
+        .uiex-jsx-function {
+            color: #6ea7ff;
+        }
+        .uiex-jsx-number {
+            color: #a080ff;
+        }
+        .uiex-jsx-fragment {
+            color: #aaa;
+        }        
+    }
+}

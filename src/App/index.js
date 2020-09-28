@@ -107,7 +107,9 @@ class LocationController {
 
 	initPath(path, params = null) {
 		path = path.replace(/^[\/\#]|\/$/g, '');
-		const page = this.findPageByPath(path);
+		const page = this.findPageByPath(
+			this.applyParamsToPath(path, params)
+		);
 		if (isObject(page)) {
 			const {name} = page;
 			if (isString(name)) {

@@ -1,8 +1,10 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
+import {previewRenderer, tabulation} from '../JSXPreview/utils';
 import {JsonPreviewPropTypes} from './proptypes';
 
 import '../style.scss';
+import '../JSXPreview/style.scss';
 import './style.scss';
 
 const TAB = {
@@ -59,20 +61,32 @@ export class JsonPreview extends UIEXComponent {
 		const isFunction = data instanceof Function;
 		const isPromise = data instanceof Promise;
 
-		if (isObject && !isElement && !isRegExp && !isFunction && !isPromise) {
+		if (isObject && !isElement && !isRegExp && !isPromise) {
+			if (isFunction) {
+				return this.renderFunction(data);
+			}
 			if (isArray) {
 				return this.renderArray(data);
-			} else {
-				if (data.jsonPreviewInfo) {
-					this.info = data.jsonPreviewInfo;
-					data = data.value;
-					return this.renderData(data);
-				}
-				return this.renderObject(data);
 			}
+			if (data.jsonPreviewInfo) {
+				this.info = data.jsonPreviewInfo;
+				data = data.value;
+				return this.renderData(data);
+			}
+			return this.renderObject(data);			
 		}
 		const item = this.getItem(data);
 		this.renderLine(item);
+	}
+
+	renderFunction(data) {
+		const content = data();
+		if (React.isValidElement(content)) {
+			tabulation.set(1);
+			this.content += `() => (<div class="uiex-jsx-preview"><pre>${previewRenderer.render(content)}</pre></div>)`;
+		} else {
+			this.content += data.toString();
+		}
 	}
 
 	renderArray(arr, isComma = false, isValue = false) {

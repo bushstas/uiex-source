@@ -19,6 +19,7 @@ export class ButtonGroup extends UIEXButtons {
 		if (typeof child.props.onDisabledClick != 'function') {
 			props.onDisabledClick = this.props.onDisabledClick;
 		}
+		props.view = undefined;
 	}
 
 	renderInternal() {

@@ -525,6 +525,7 @@ export class UIEXButtons extends UIEXComponent {
 
 	addCommonButtonsProps(child, props) {
 		const {
+			buttonColorPreset,
 			buttonColor,
 			buttonWidth,
 			buttonHeight,
@@ -542,6 +543,9 @@ export class UIEXButtons extends UIEXComponent {
 		}
 		if (gradient && typeof child.props.gradient == 'undefined') {
 			props.gradient = true;
+		}
+		if (buttonColorPreset && !child.props.colorPreset) {
+			props.colorPreset = buttonColorPreset;
 		}
 		if (buttonColor && !child.props.color) {
 			props.color = buttonColor;

@@ -28,7 +28,7 @@ export class Tabs extends UIEXButtons {
 
 	addChildProps(child, props, idx) {
 		const {
-			activeColor,
+			activeColorPreset,
 			activeStyle,
 			dynamic,
 			noRemoving
@@ -49,8 +49,8 @@ export class Tabs extends UIEXButtons {
 		
 		if (this.isActive) {
 			props.active = true;
-			if (activeColor) {
-				props.color = activeColor;
+			if (activeColorPreset) {
+				props.colorPreset = activeColorPreset;
 			}
 			if (activeStyle instanceof Object) {
 				if (props.style instanceof Object) {
@@ -139,6 +139,7 @@ export class Tabs extends UIEXButtons {
 
 	renderAddTabButton() {
 		const {
+			buttonColorPreset,
 			buttonColor,
 			buttonHeight,
 			buttonStyle,
@@ -154,6 +155,7 @@ export class Tabs extends UIEXButtons {
 				icon="add"
 				iconSize="24"
 				onClick={this.handleAddTab}
+				colorPreset={buttonColorPreset}
 				color={buttonColor}
 				height={buttonHeight}
 				style={buttonStyle}

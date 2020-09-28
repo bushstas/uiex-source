@@ -2,31 +2,31 @@ import React from 'react';
 
 export const isObject = (v) => {
 	return v instanceof Object && !isArray(v) && !isFunction(v);
-}
+};
 
 export const isArray = (v) => {
 	return v instanceof Array;
-}
+};
 
 export const isString = (v) => {
 	return typeof v == 'string';
-}
+};
 
 export const isNumber = (v) => {
 	return typeof v == 'number';
-}
+};
 
 export const isBoolean = (v) => {
 	return typeof v == 'boolean';
-}
+};
 
 export const isFunction = (v) => {
 	return typeof v == 'function';
-}
+};
 
 export const isElement = (v) => {
 	return v instanceof Element;
-}
+};
 
 export const mergeStyleProps = (...objects) => {
 	const styles = {};
@@ -46,7 +46,7 @@ export const mergeStyleProps = (...objects) => {
 		}
 	}
 	return Object.keys(styles).length === 0 ? null : styles;
-}
+};
 
 export const getDate = (stamp = null) => {
 	if (stamp && !isString(stamp) && !isNumber(stamp)) {
@@ -76,7 +76,7 @@ export const getDate = (stamp = null) => {
 		n: date.getMinutes(),
 		wd: date.getDay()
 	};
-}
+};
 
 export const getDaysInMonth = (year, month) => {
     const now = new Date;
@@ -88,7 +88,7 @@ export const getDaysInMonth = (year, month) => {
 
     now.setFullYear(year, month, 0);
     return now.getDate();
-}
+};
 
 const cachedStyles = {};
 export const getStyleObjectFromString = (str) => {
@@ -116,7 +116,7 @@ export const getStyleObjectFromString = (str) => {
 	}
 	cachedStyles[str] = style;
 	return style;
-}
+};
 
 export const getMergedClassName = (...classNames) => {
 	let className;
@@ -134,7 +134,7 @@ export const addToClassName = (classNameToAdd, className = undefined) => {
 		className += ' ' + classNameToAdd;
 	}
 	return className;
-}
+};
 
 export const removeClass = (element, cn) => {
 	if (isElement(element)) {
@@ -156,7 +156,7 @@ export const removeClass = (element, cn) => {
 		}
 		return element;
 	}
-}
+};
 
 export const addClass = (element, cn) => {
 	if (isElement(element)) {
@@ -170,7 +170,7 @@ export const addClass = (element, cn) => {
 			}
 		}
 	}
-}
+};
 
 export const toggleClass = (element, cn, isAdd) => {
 	if (isAdd) {
@@ -178,7 +178,7 @@ export const toggleClass = (element, cn, isAdd) => {
 	} else {
 		removeClass(element, cn);
 	}
-}
+};
 
 export const isValidNumericStyle = (v) => {
 	if (typeof v == 'number') {
@@ -188,11 +188,11 @@ export const isValidNumericStyle = (v) => {
 		return true;
 	}
 	return false;
-}
+};
 
 export const isValidAndNotEmptyNumericStyle = (v) => {
 	return !!v && v !== '0' && v !== '0px' && v !== '0%' && isValidNumericStyle(v);
-}
+};
 
 export const getNumber = (n, d = 0) => {
 	if (typeof n == 'string' && n !== '' && n == Number(n)) {
@@ -205,7 +205,7 @@ export const getNumber = (n, d = 0) => {
 		return d;
 	}
 	return 0;
-}
+};
 
 export const getNumberOrNull = (n, d = null) => {
 	if (n !== '' && typeof n == 'string' && n == Number(n)) {
@@ -215,7 +215,7 @@ export const getNumberOrNull = (n, d = null) => {
 		return n;
 	}
 	return d;
-}
+};
 
 export const getNumberInPxOrPercent = (n) => {
 	if (typeof n == 'string' || typeof n == 'number') {
@@ -226,15 +226,15 @@ export const getNumberInPxOrPercent = (n) => {
 		return `${i}px`;
 	}
 	return '';
-}
+};
 
 export const regexEscape = (str) => {
 	return replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&', str);
-}
+};
 
 export const showError = (error) => {
 	console.error(error);
-}
+};
 
 const getChildTypeAndName = (child) => {
 	let type = 'text';
@@ -249,7 +249,7 @@ const getChildTypeAndName = (child) => {
 		}			
 	}
 	return {type, name};
-}
+};
 
 export const getClassNameBuilder = (cn = '', cn2 = '') => {
 	if (cn2 && typeof cn2 == 'string') {
@@ -264,7 +264,7 @@ export const getClassNameBuilder = (cn = '', cn2 = '') => {
 		return cn;
 	};
 	return {add, get};
-}
+};
 
 export const getComponentClassName = (component) => {	
 	const {
@@ -292,7 +292,7 @@ export const getComponentClassName = (component) => {
 	}
 	add('float-' + float, float);
 	return get();
-}
+};
 
 export const getProperStyleProperty = (value) => {
 	if (value && typeof value != 'undefined') {
@@ -306,7 +306,7 @@ export const getProperStyleProperty = (value) => {
 			return value;
 		}
 	}
-}
+};
 
 export const addStyleProperty = (value, name, style = null) => {
 	value = getProperStyleProperty(value);
@@ -315,7 +315,7 @@ export const addStyleProperty = (value, name, style = null) => {
 		style[name] = value;
 	}
 	return style
-}
+};
 
 export const mergeObjects = (obj1, obj2) => {
 	if (obj1 && obj1 instanceof Object) {
@@ -327,7 +327,7 @@ export const mergeObjects = (obj1, obj2) => {
 		}
 	}
 	return obj2;
-}
+};
 
 export const getTransitionDuration = (speed, size, animation) => {
 	if (animation == 'fade') {
@@ -351,11 +351,11 @@ export const getTransitionDuration = (speed, size, animation) => {
 		default:
 			return [3, 3, 4, 4, 5, 5, 6, 6, 7, 7][size];
 	}
-}
+};
 
 export const inPercent = (value) => {
 	return typeof value == 'string' && (/%$/).test(value);
-}
+};
 
 export const getSizeInPercentageOfWindow = (value, attr) => {
 	if (typeof value == 'string') {
@@ -365,7 +365,7 @@ export const getSizeInPercentageOfWindow = (value, attr) => {
 		return Math.round((attr == 'width' ? window.innerWidth : window.innerHeight) * value / 100);
 	}
 	return 0;
-}
+};
 
 export const propsChanged = (p1, p2, list) => {
 	const io1 = p1 instanceof Object;
@@ -382,7 +382,7 @@ export const propsChanged = (p1, p2, list) => {
 		}
 	}
 	return false;
-}
+};
 
 export const getNumericProp = (value, defaultValue = null, minValue = null, maxValue = null) => {
 	value = getNumberOrNull(value);
@@ -390,7 +390,7 @@ export const getNumericProp = (value, defaultValue = null, minValue = null, maxV
 		return defaultValue;
 	}
 	return Math.min(Math.max(value, minValue), maxValue);
-}
+};
 
 export const cacheProps = (props, list) => {
 	if (list instanceof Array && props instanceof Object) {
@@ -400,7 +400,7 @@ export const cacheProps = (props, list) => {
 		}
 		return cachedProps;
 	}
-}
+};
 
 export const replace = (regexp, to, str) => {
 	if (typeof str != 'string') {
@@ -411,7 +411,7 @@ export const replace = (regexp, to, str) => {
 		}
 	}
 	return str.replace(regexp, to);
-}
+};
 
 export const modObject = (key, value, obj) => {
 	if (!obj || !(obj instanceof Object)) {
@@ -419,7 +419,7 @@ export const modObject = (key, value, obj) => {
 	}
 	obj[key] = value;
 	return obj;
-}
+};
 
 export const secondsToTimeString = (value, options) => {
 	let withHours = true;
@@ -443,14 +443,14 @@ export const secondsToTimeString = (value, options) => {
 		time += getTimeNumber(hours) + ':';
 	}
 	return time + getTimeNumber(minutes) + ':' + getTimeNumber(seconds);
-}
+};
 
 const getTimeNumber = (number) => {
 	if (number > 9) {
 		return number;
 	}
 	return '0' + number;
-}
+};
 
 export const timeToNumberSeconds = (time) => {
 	if (typeof time != 'string') {
@@ -473,7 +473,7 @@ export const timeToNumberSeconds = (time) => {
 	seconds += getNumber(parts[1]) * 60;
 	seconds += getNumber(parts[0]);
 	return seconds;
-}
+};
 
 class PopupQueue {
 	constructor() {
@@ -509,7 +509,7 @@ export const popupQueue = new PopupQueue();
 export const ucfirst = (str) => {
 	const f = str.charAt(0).toUpperCase();
 	return f + str.substr(1, str.length - 1);
-}
+};
 
 export const getString = (str, defaultValue = '') => {
 	if (typeof defaultValue != 'string') {
@@ -519,7 +519,7 @@ export const getString = (str, defaultValue = '') => {
 		return defaultValue;
 	}
 	return str;
-}
+};
 
 export const addToArray = (arr, items) => {
 	if (!(arr instanceof Array)) {
@@ -534,7 +534,7 @@ export const addToArray = (arr, items) => {
 		}
 	}
 	return arr;
-}
+};
 
 export const removeFromArray = (arr, items) => {
 	if (!(arr instanceof Array)) {
@@ -550,7 +550,7 @@ export const removeFromArray = (arr, items) => {
 		}
 	}
 	return arr;
-}
+};
 
 const getPerspectiveOrigin = (element) => {
 	const {top, left, width, height} = element.getBoundingClientRect();
@@ -560,7 +560,7 @@ const getPerspectiveOrigin = (element) => {
 	const px = Math.round(x * 100 / innerWidth);
 	const py = Math.round(y * 100 / innerHeight);
 	return `${px}% ${py}%`;
-}
+};
 
 export const preAnimate = (element, parent, animation, options = {}) => {
 	element.style.opacity = '';
@@ -574,7 +574,7 @@ export const preAnimate = (element, parent, animation, options = {}) => {
 			parent.style.perspective = '';
 		}
 	}
-}
+};
 
 const applyAnimation = (element, animation, options) => {
 	const margin = options.margin || 50;
@@ -593,7 +593,7 @@ const applyAnimation = (element, animation, options) => {
 	} else if (animation == 'perspective-bottom') {
 		element.style.transform = 'rotateX(60deg)';
 	}
-}
+};
 
 export const animate = (element, parent, animation, options = {}) => {
 	setTimeout(() => {
@@ -614,9 +614,9 @@ export const animate = (element, parent, animation, options = {}) => {
 		}		
 		element.style.opacity = '1';
 	}, 100);
-}
+};
 
 export const animateBack = (element, animation, options = {}) => {
 	element.style.opacity = '0';
 	applyAnimation(element, animation, options);
-}
+};

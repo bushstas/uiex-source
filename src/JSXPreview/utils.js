@@ -231,13 +231,17 @@ class PreviewRenderer {
 	}
 
 	renderFragment(content) {
-		this.renderItem(content, 'Fragment', true);
+		this.renderItem(content, 'Fragment', 'fragment');
 	}
 
 	renderItem(content, name, isComponent = false) {
 		this.stringRendered = false;
 		const {props} = content;
-		this.code += tabulation.render(wrap('&lt;') + wrap(name, isComponent ? 'keyword2' : 'tag'));
+		let className = isComponent ? 'keyword2' : 'tag';
+		if (isComponent === 'fragment') {
+			className = 'fragment';
+		}
+		this.code += tabulation.render(wrap('&lt;') + wrap(name, className));
 		let strProps = [];
 		const {previewData, children} = props;
 		for (let k in props) {
@@ -311,7 +315,7 @@ class PreviewRenderer {
 				this.renderRectElement(children);
 			}
 			tabulation.reduce();
-			this.code += tabulation.render(wrap('&lt;/') + wrap(name, isComponent ? 'keyword2' : 'tag') + wrap('&gt;'), true);
+			this.code += tabulation.render(wrap('&lt;/') + wrap(name, className) + wrap('&gt;'), true);
 		}
 		this.stringRendered = false;
 	}

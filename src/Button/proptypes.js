@@ -7,7 +7,8 @@ export const ButtonPropTypes = {
 	href: PropTypes.string,
 	target: PropTypes.string,
 	value: PropTypes.any,
-	color: PROPTYPE.COLORS,
+	colorPreset: PROPTYPE.COLORS,
+	color: PropTypes.string,
 	gradient: PropTypes.bool,
 	onClick: PropTypes.func,
 	onDisabledClick: PropTypes.func

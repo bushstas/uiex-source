@@ -56,6 +56,18 @@ class LocationController {
 		return path;
 	}
 
+	goBack() {
+		if (isObject(this.app)) {
+			this.app.goBack();
+		}
+	}
+
+	goForward() {
+		if (isObject(this.app)) {
+			this.app.goForward();
+		}	
+	}
+
 	navigateToPage(pageName, params) {
 		if (isObject(this.app)) {
 			const pageIndex = this.app.names.indexOf(pageName);
@@ -233,11 +245,19 @@ const highlightLink = (page, app) => {
 	}
 };
 
-export const navigateToPage = (pageName, params) => {
+export const goBack = () => {
+	return locationController.goBack();
+};
+
+export const goForward = () => {
+	return locationController.goForward();
+};
+
+export const goToPage = (pageName, params) => {
 	return locationController.navigateToPage(pageName, params);
 };
 
-export const navigateToPath = (path, params) => {
+export const goToPath = (path, params) => {
 	return locationController.navigateToPath(path, params);
 };
 
@@ -269,6 +289,8 @@ export class App extends UIEXComponent {
 			page: null,
 			id: ''
 		};
+		this.pointer = -1;
+		this.history = [];
 	}
 
 	componentDidMount() {
@@ -343,15 +365,36 @@ export class App extends UIEXComponent {
 		const {id, path} = page;
 		if (this.state.id !== id) {
 			if (isString(path)) {
-				this.pushState(path);
+				this.pushState(page);
 			}
 			this.handleChangePage(page);
 		}
 	}
 
-	pushState(path) {
+	goBack() {
+		if (this.pointer > -1) {
+			const page = this.history[--this.pointer];
+			if (isObject(page)) {
+				this.handleChangePage(page);
+			}
+		}
+	}
+
+	goForward() {
+		if (this.pointer < this.history - 1) {
+			const page = this.history[++this.pointer];
+			if (isObject(page)) {
+				this.handleChangePage(page);
+			}
+		}	
+	}
+
+	pushState(page) {
+		const {path} = page;
 		const newPath = this.getNewLocation(path);
 		window.history.pushState({}, '', newPath);
+		this.history.push({...page, path: newPath});
+		this.pointer++;
 		this.fire('pushState', newPath);
 	}
 
@@ -363,6 +406,8 @@ export class App extends UIEXComponent {
 
 	handleLocationChange = (initial) => {
 		const page = locationController.initCurrentLocation();
+		this.history.push({...page});
+		this.pointer++;
 		this.handleChangePage(page, initial);
 	}
 

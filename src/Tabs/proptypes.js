@@ -5,8 +5,10 @@ import {PROPTYPE} from '../consts';
 export const TabsPropTypes = {
 	...ButtonsPropTypes,
 	activeTab: PROPTYPE.STRNUM,
-	activeColor: PROPTYPE.COLORS,
-	buttonColor: PROPTYPE.COLORS,
+	activeColorPreset: PROPTYPE.COLORS,
+	buttonColorPreset: PROPTYPE.COLORS,
+	activeColor: PropTypes.string,
+	buttonColor: PropTypes.string,
 	activeStyle: PropTypes.object,
 	simple: PropTypes.bool,
 	multiple: PropTypes.bool,

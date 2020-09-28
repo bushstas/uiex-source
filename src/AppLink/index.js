@@ -1,7 +1,7 @@
 import React from 'react';
 import {UIEXComponent} from '../UIEXComponent';
 import {Button} from '../Button';
-import {navigateToPage, navigateToPath, addActiveLink, registerAppLink, unregisterAppLink} from '../App';
+import {goToPage, goToPath, addActiveLink, registerAppLink, unregisterAppLink} from '../App';
 import {isString, isObject} from '../utils';
 import {AppLinkPropTypes} from './proptypes';
 
@@ -13,6 +13,7 @@ let linkId = 0;
 export class AppLink extends UIEXComponent {
     static propTypes = AppLinkPropTypes;
     static displayName = 'AppLink';
+    static className = 'app-link';
 
     constructor(props) {
         super(props);
@@ -53,9 +54,9 @@ export class AppLink extends UIEXComponent {
     handleClick = () => {
         const {page, params} = this.props;
         if (isString(page)) {
-            navigateToPage(page, params);
+            goToPage(page, params);
         } else {
-            navigateToPath(this.linkPath, params);
+            goToPath(this.linkPath, params);
         }
         this.setActive(true);
         setTimeout(() => addActiveLink(this));

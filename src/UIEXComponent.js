@@ -269,10 +269,10 @@ export class UIEXComponent extends React.PureComponent {
 		)
 	}
 
-	getTagName() {
+	getTagName(defaultTagName = null) {
 		let {tagName} = this.props; 
 		if (!tagName || typeof tagName != 'string' || !(/^[a-z]/i).test(tagName.charAt(0))) {
-			tagName = 'div';
+			tagName = defaultTagName && isString(defaultTagName) ? defaultTagName :  'div';
 		}
 		return tagName;
 	}

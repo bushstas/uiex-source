@@ -70,4 +70,35 @@
 	&.uiex-align-right {
 		justify-content: flex-end;
 	}
+	&:focus:not(.uiex-disabled) {
+		outline: 0;
+		box-shadow: inset 3px 3px 3px #ddd;
+		&.uiex-color-black {
+			box-shadow: inset 3px 3px 3px #ccc;
+		}
+		&.uiex-color-gray {
+			box-shadow: inset 3px 3px 3px #aaa;
+		}
+		&.uiex-color-white {
+			box-shadow: inset 3px 3px 3px #f1f1f1;
+		}
+		&.uiex-color-red {
+			box-shadow: inset 3px 3px 3px #bb000c;
+		}
+		&.uiex-color-blue {
+			box-shadow: inset 3px 3px 3px #2064b7;
+		}
+		&.uiex-color-green {
+			box-shadow: inset 3px 3px 3px #329224;
+		}
+		&.uiex-color-yellow {
+			box-shadow: inset 3px 3px 3px #d8c715;
+		}
+		&.uiex-color-orange {
+			box-shadow: inset 3px 3px 3px #d6891b;
+		}
+	}
+	&.uiex-dark {
+		color: #f1f1f1;
+	}
 }
